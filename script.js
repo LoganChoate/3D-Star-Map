@@ -9,7 +9,7 @@ let constellationLinesGroup = null;
 let initialCameraPosition = new THREE.Vector3(0, 20, 100);
 let animationFrameId;
 
-const CHUNK_SIZE = 50;
+const CHUNK_SIZE = 10000; // Load more stars per chunk for the full dataset
 let currentStarCount = 0;
 
 const loadingIndicator = document.getElementById('loading-indicator');
@@ -25,7 +25,7 @@ function init() {
     scene.background = new THREE.Color(0x000011);
 
     const canvasContainer = document.getElementById('canvasContainer');
-    camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 5000);
+    camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 110000);
     camera.position.copy(initialCameraPosition);
     camera.lookAt(scene.position);
 
@@ -38,7 +38,7 @@ function init() {
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
     controls.minDistance = 1;
-    controls.maxDistance = 2000;
+    controls.maxDistance = 100000; // Allow zooming out to see the whole dataset
     controls.target.set(0, 0, 0);
 
     raycaster = new THREE.Raycaster();
