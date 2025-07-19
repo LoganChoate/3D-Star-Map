@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D Star Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="title-bar">
+        <h1>3D Star Map Explorer</h1>
+    </div>
+
+    <div id="canvasContainer" style="flex-grow: 1; position: relative;">
+        <canvas id="renderCanvas"></canvas>
+        <div id="loading-indicator">Processing Star Data...</div>
+        <div id="search-not-found">Star not found</div>
+    </div>
+
+    <div class="overlay-panel">
+        <h2 class="text-lg font-semibold mb-2 text-cyan-300">Search & View</h2>
+        <div class="relative">
+            <div class="flex gap-2 mb-1">
+                <input type="text" id="search-input" class="search-input w-full" placeholder="Star Name..." autocomplete="off">
+                <button id="search-button" class="custom-button text-xs px-3 py-1">Go</button>
+                <button id="clear-search-button" class="custom-button text-xs px-3 py-1">X</button>
+            </div>
+            <div id="autocomplete-suggestions" class="hidden"></div>
+        </div>
+        <div class="flex gap-2 mb-3">
+            <select id="constellation-select" class="constellation-select w-full">
+                <option value="">Select Constellation...</option>
+            </select>
+            <button id="clear-constellation-button" class="custom-button text-xs px-3 py-1">X</button>
+        </div>
+        <h2 class="text-lg font-semibold mb-2 text-cyan-300">Filters</h2>
+        <div class="filter-grid">
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="O"><span>O</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="B"><span>B</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="A"><span>A</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="F"><span>F</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="G"><span>G</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="K"><span>K</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="M"><span>M</span></label>
+        </div>
+        <hr class="my-3 border-cyan-700">
+        <h2 class="text-lg font-semibold mb-2 text-cyan-300">Selection Info</h2>
+        <div id="selection-info" class="space-y-1 text-sm">
+            <p><span class="info-label">Name:</span><span id="star-name" class="info-value">N/A</span></p>
+            <p><span class="info-label">Distance:</span><span id="star-dist" class="info-value">N/A</span></p>
+            <p><span class="info-label">Magnitude:</span><span id="star-mag" class="info-value">N/A</span></p>
+            <p><span class="info-label">Class:</span><span id="star-spect" class="info-value">N/A</span></p>
+            <p><span class="info-label">Coords:</span><span id="star-coords" class="info-value">N/A</span></p>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button id="resetViewButton" class="custom-button">Reset View</button>
+        <button id="loadMoreButton" class="custom-button">Load More Stars</button>
+        <div id="star-count-display" class="text-cyan-300 text-sm font-semibold"></div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
