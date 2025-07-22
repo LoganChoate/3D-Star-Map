@@ -9,12 +9,8 @@ let constellationLinesGroup = null;
 let initialCameraPosition = new THREE.Vector3(0, 20, 100);
 let animationFrameId;
 
-const CHUNK_SIZE = 10000; // Load more stars per chunk for the full dataset
-let currentStarCount = 0;
-
 const loadingIndicator = document.getElementById('loading-indicator');
 const canvas = document.getElementById('renderCanvas');
-const loadMoreButton = document.getElementById('loadMoreButton');
 const starCountDisplay = document.getElementById('star-count-display');
 const constellationSelect = document.getElementById('constellation-select');
 const searchInput = document.getElementById('search-input');
@@ -52,7 +48,6 @@ function init() {
 
     window.addEventListener('resize', onWindowResize, false);
     canvas.addEventListener('click', onStarClick, false);
-    loadMoreButton.addEventListener('click', loadNextChunk);
     document.getElementById('resetViewButton').addEventListener('click', resetScene);
     document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
@@ -80,7 +75,6 @@ async function loadAndPrepareStarData() {
 
         const mappedData = embeddedStarData.map(star => ({
             ...star,
-            name: star.proper || 'Unnamed',
             dist: parseFloat(star.dist),
             mag: parseFloat(star.mag),
             spect: star.spect || 'N/A',
@@ -124,7 +118,7 @@ function applyFilters() {
     
     shuffleArray(activeStarData);
     createStarGeometry(activeStarData);
-    resetChunkLoading();
+    updateUI();
 }
 
 function createStarGeometry(data) {
@@ -158,7 +152,8 @@ function createStarGeometry(data) {
     starGeometry.setAttribute('customColor', new THREE.Float32BufferAttribute(colors, 3));
     starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
     
-    starGeometry.setDrawRange(0, 0);
+    // This is the key fix: Draw all the stars in the provided data array.
+    starGeometry.setDrawRange(0, data.length);
 
     const starMaterial = new THREE.ShaderMaterial({
         uniforms: {
@@ -225,22 +220,6 @@ function drawConstellationLines(constellationName) {
     });
 }
 
-function resetChunkLoading() {
-    currentStarCount = 0;
-    loadMoreButton.disabled = activeStarData.length === 0;
-    loadMoreButton.textContent = "Load More Stars";
-    loadNextChunk();
-}
-
-function loadNextChunk() {
-    const newStarCount = Math.min(currentStarCount + CHUNK_SIZE, activeStarData.length);
-    if (newStarCount > currentStarCount) {
-        stars.geometry.setDrawRange(0, newStarCount);
-        currentStarCount = newStarCount;
-    }
-    updateUI();
-}
-
 function resetScene() {
     camera.position.copy(initialCameraPosition);
     controls.target.set(0, 0, 0);
@@ -253,9 +232,7 @@ function resetScene() {
 }
 
 function updateUI() {
-    starCountDisplay.textContent = `${currentStarCount} / ${activeStarData.length} stars`;
-    loadMoreButton.disabled = currentStarCount >= activeStarData.length;
-    loadMoreButton.textContent = currentStarCount >= activeStarData.length ? "All Stars Loaded" : "Load More Stars";
+    starCountDisplay.textContent = `${activeStarData.length} / ${fullStarData.length} stars`;
 }
 
 function searchByName(name) {
@@ -263,7 +240,7 @@ function searchByName(name) {
     const searchTerm = name.trim().toLowerCase();
     if (!searchTerm) return;
     
-    const foundStar = activeStarData.find(star => star.name && star.name.toLowerCase() === searchTerm);
+    const foundStar = fullStarData.find(star => star.name && star.name.toLowerCase() === searchTerm);
 
     if (foundStar) {
         const highlightMaterial = new THREE.PointsMaterial({ color: 0x00FFFF, size: 20, sizeAttenuation: true });
@@ -334,10 +311,8 @@ function onStarClick(event) {
 
     if (intersects.length > 0) {
         const index = intersects[0].index;
-        if (index < currentStarCount) {
-            const data = activeStarData[index];
-            updateInfoPanel(data);
-        }
+        const data = activeStarData[index];
+        updateInfoPanel(data);
     }
 }
 
