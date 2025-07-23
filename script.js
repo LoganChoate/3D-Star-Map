@@ -44,17 +44,12 @@ function init() {
     constellationLinesGroup = new THREE.Group();
     scene.add(constellationLinesGroup);
 
-    // Add a diagnostic cube
-    const geometry = new THREE.BoxGeometry(10, 10, 10);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-
     loadAndPrepareStarData();
 
     window.addEventListener('resize', onWindowResize, false);
     canvas.addEventListener('click', onStarClick, false);
     document.getElementById('resetViewButton').addEventListener('click', resetScene);
+    document.getElementById('snapToSolButton').addEventListener('click', snapToSol);
     document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
@@ -126,8 +121,6 @@ function applyFilters() {
     updateUI();
 }
 
-const MAX_STARS_TO_DISPLAY = 250; // Performance guard
-
 function createStarGeometry(data) {
     if (stars) {
         scene.remove(stars);
@@ -136,26 +129,33 @@ function createStarGeometry(data) {
     }
     
     const starGeometry = new THREE.BufferGeometry();
-    const dataToRender = data.slice(0, MAX_STARS_TO_DISPLAY);
-
-    if (dataToRender.length === 0) {
+    if (data.length === 0) {
         stars = new THREE.Points(starGeometry, new THREE.PointsMaterial());
         scene.add(stars);
         return;
     }
 
     const positions = [];
-    dataToRender.forEach(star => {
+    const colors = [];
+    const sizes = [];
+
+    data.forEach(star => {
         positions.push(star.x, star.y, star.z);
+        const color = getRGBfromCI(star.ci);
+        colors.push(color.r, color.g, color.b);
+        const size = 2.5 - (star.mag / 2.5);
+        sizes.push(Math.max(size, 0.5));
     });
 
     starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
 
-    // Use a basic material for diagnostics
     const starMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.5, // Small but visible size for all stars
-        sizeAttenuation: true
+        vertexColors: true,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.9
     });
 
     stars = new THREE.Points(starGeometry, starMaterial);
@@ -204,6 +204,14 @@ function resetScene() {
     clearConstellationView();
     applyFilters();
     clearSearch();
+}
+
+function snapToSol() {
+    const sol = fullStarData.find(star => star.name === 'Sol');
+    if (sol) {
+        animateCameraTo(new THREE.Vector3(sol.x, sol.y, sol.z));
+        updateInfoPanel(sol);
+    }
 }
 
 function updateUI() {
@@ -418,19 +426,4 @@ function getRGBfromCI(ci) {
     if (ci < 0.9) return { r: 1.0, g: 0.9, b: 0.5 }; 
     if (ci < 1.4) return { r: 1.0, g: 0.7, b: 0.4 }; 
     return { r: 1.0, g: 0.5, b: 0.5 }; 
-}
-
-function getConstellationData() {
-    return {
-        "Ursa Major": [["Dubhe", "Merak"], ["Merak", "Phad"], ["Phad", "Megrez"], ["Megrez", "Alioth"], ["Alioth", "Mizar"], ["Mizar", "Alkaid"]],
-        "Orion": [["Rigel", "Saiph"], ["Saiph", "Betelgeuse"], ["Betelgeuse", "Bellatrix"], ["Bellatrix", "Rigel"], ["Alnitak", "Alnilam"], ["Alnilam", "Mintaka"]],
-        "Cassiopeia": [["Caph", "Schedar"], ["Schedar", "Ruchbah"], ["Ruchbah", "Segin"]],
-        "Cygnus": [["Deneb", "Sadr"], ["Sadr", "Gienah"], ["Sadr", "Albireo"]],
-        "Lyra": [["Vega", "Sheliak"], ["Sheliak", "Sulafat"], ["Sulafat", "Zeta Lyrae"], ["Zeta Lyrae", "Vega"]],
-        "Aquila": [["Altair", "Tarazed"], ["Altair", "Alshain"]],
-        "Scorpius": [["Antares", "Dschubba"], ["Dschubba", "Acrab"]],
-        "Leo": [["Regulus", "Algieba"], ["Algieba", "Adhafera"]],
-        "Taurus": [["Aldebaran", "Elnath"], ["Aldebaran", "Ain"]],
-        "Canis Major": [["Sirius", "Mirzam"], ["Sirius", "Muliphen"], ["Sirius", "Wezen"], ["Wezen", "Adhara"]]
-    };
 }
