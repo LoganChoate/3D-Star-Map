@@ -427,3 +427,5 @@ function getRGBfromCI(ci) {
     if (ci < 1.4) return { r: 1.0, g: 0.7, b: 0.4 }; 
     return { r: 1.0, g: 0.5, b: 0.5 }; 
 }
+
+init();
