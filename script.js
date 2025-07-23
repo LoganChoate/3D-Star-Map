@@ -44,6 +44,12 @@ function init() {
     constellationLinesGroup = new THREE.Group();
     scene.add(constellationLinesGroup);
 
+    // Add a diagnostic cube
+    const geometry = new THREE.BoxGeometry(10, 10, 10);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
     loadAndPrepareStarData();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -116,10 +122,11 @@ function applyFilters() {
         });
     }
     
-    shuffleArray(activeStarData);
     createStarGeometry(activeStarData);
     updateUI();
 }
+
+const MAX_STARS_TO_DISPLAY = 250; // Performance guard
 
 function createStarGeometry(data) {
     if (stars) {
@@ -129,58 +136,26 @@ function createStarGeometry(data) {
     }
     
     const starGeometry = new THREE.BufferGeometry();
-    if (data.length === 0) {
+    const dataToRender = data.slice(0, MAX_STARS_TO_DISPLAY);
+
+    if (dataToRender.length === 0) {
         stars = new THREE.Points(starGeometry, new THREE.PointsMaterial());
         scene.add(stars);
         return;
     }
 
     const positions = [];
-    const colors = [];
-    const sizes = [];
-    const tempColor = new THREE.Color();
-
-    data.forEach(star => {
+    dataToRender.forEach(star => {
         positions.push(star.x, star.y, star.z);
-        tempColor.set(getRGBfromCI(star.ci));
-        colors.push(tempColor.r, tempColor.g, tempColor.b);
-        const size = Math.max(0.5, (6 - star.mag) * 0.5);
-        sizes.push(size);
     });
 
     starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    starGeometry.setAttribute('customColor', new THREE.Float32BufferAttribute(colors, 3));
-    starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
-    
-    // This is the key fix: Draw all the stars in the provided data array.
-    starGeometry.setDrawRange(0, data.length);
 
-    const starMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            pointTexture: { value: new THREE.TextureLoader().load('https://threejs.org/examples/textures/sprites/spark1.png') }
-        },
-        vertexShader: `
-            attribute float size;
-            attribute vec3 customColor;
-            varying vec3 vColor;
-            void main() {
-                vColor = customColor;
-                vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-                gl_PointSize = size * ( 300.0 / -mvPosition.z );
-                gl_Position = projectionMatrix * mvPosition;
-            }
-        `,
-        fragmentShader: `
-            uniform sampler2D pointTexture;
-            varying vec3 vColor;
-            void main() {
-                gl_FragColor = vec4( vColor, 1.0 );
-                gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-            }
-        `,
-        blending: THREE.AdditiveBlending,
-        depthTest: false,
-        transparent: true,
+    // Use a basic material for diagnostics
+    const starMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.5, // Small but visible size for all stars
+        sizeAttenuation: true
     });
 
     stars = new THREE.Points(starGeometry, starMaterial);
