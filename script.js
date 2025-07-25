@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FlyControls } from 'three/addons/controls/FlyControls.js';
 
-let scene, camera, renderer, stars, controls, raycaster, mouse;
+let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
 let fullStarData = [];
 let activeStarData = [];
 let selectionHighlight = null;
 let constellationLinesGroup = null;
 let initialCameraPosition = new THREE.Vector3(0, 20, 100);
 let isDragging = false;
+const clock = new THREE.Clock();
 const pointerDownPosition = new THREE.Vector2();
 let animationFrameId;
 let maxDistWithGarbage, maxDistWithoutGarbage;
@@ -51,6 +53,13 @@ function init() {
     controls.maxDistance = 2000; // Default, will be updated dynamically after data load
     controls.target.set(0, 0, 0);
 
+    flyControls = new FlyControls(camera, renderer.domElement);
+    flyControls.movementSpeed = 150; // parsecs per second
+    flyControls.rollSpeed = Math.PI / 3; // Increased for faster mouse turning
+    flyControls.autoForward = false;
+    flyControls.dragToLook = true; // Use mouse drag to look, similar to OrbitControls
+    flyControls.enabled = false;
+
     raycaster = new THREE.Raycaster();
     mouse = new THREE.Vector2();
     raycaster.params.Points.threshold = 0.5;
@@ -79,6 +88,7 @@ function init() {
     canvas.addEventListener('pointerup', onPointerUp, false);
     document.getElementById('resetViewButton').addEventListener('click', resetScene);
     document.getElementById('snapToSolButton').addEventListener('click', snapToSol);
+    document.getElementById('toggle-fly-mode-button').addEventListener('click', toggleControlMode);
     document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
@@ -93,6 +103,8 @@ function init() {
         }
     });
     
+    activeControls = controls; // Start with OrbitControls
+
     animate();
 }
 
@@ -332,6 +344,29 @@ function snapToSol() {
     }
 }
 
+function toggleControlMode() {
+    const button = document.getElementById('toggle-fly-mode-button');
+    if (activeControls === controls) {
+        // Switching to Fly Mode
+        controls.enabled = false;
+        flyControls.enabled = true;
+        activeControls = flyControls;
+        button.textContent = 'Orbit Mode';
+        button.classList.add('active-mode');
+    } else {
+        // Switching to Orbit Mode
+        flyControls.enabled = false;
+        controls.enabled = true;
+        // Set a sensible target for orbit controls based on the current view
+        const newTarget = new THREE.Vector3();
+        camera.getWorldDirection(newTarget).multiplyScalar(100).add(camera.position);
+        controls.target.copy(newTarget);
+        activeControls = controls;
+        button.textContent = 'Fly Mode';
+        button.classList.remove('active-mode');
+    }
+}
+
 function updateUI() {
     starCountDisplay.textContent = `${activeStarData.length} / ${fullStarData.length} stars`;
 }
@@ -555,24 +590,31 @@ function animateCameraTo(target, position) {
     animation.startTarget = controls.target.clone();
     animation.endTarget = target;
     animation.alpha = 0;
-    controls.enabled = false;
+    activeControls.enabled = false;
 }
 
 function animate() {
     animationFrameId = requestAnimationFrame(animate);
+    const delta = clock.getDelta();
 
     if (animation.active) {
         animation.alpha += 0.02;
         if (animation.alpha >= 1) {
             animation.alpha = 1;
             animation.active = false;
-            controls.enabled = true;
+            activeControls.enabled = true;
         }
         camera.position.lerpVectors(animation.startPosition, animation.endPosition, animation.alpha);
         controls.target.lerpVectors(animation.startTarget, animation.endTarget, animation.alpha);
     }
 
-    controls.update();
+    // Update the currently active controls
+    if (activeControls === flyControls) {
+        flyControls.update(delta);
+    } else {
+        controls.update(); // OrbitControls
+    }
+
     renderer.render(scene, camera);
 }
 
