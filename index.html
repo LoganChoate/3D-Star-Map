@@ -49,9 +49,13 @@
                 <span>Toggle Garbage Sphere</span>
             </label>
         </div>
-        <div class="mb-2">
-            <label for="distance-slider" class="block mb-1 text-sm">Distance from Sol (pc): <span id="distance-value"></span></label>
+        <div class="mb-3 p-2 border border-cyan-800 rounded-md">
+            <label for="distance-slider" class="block mb-1 text-sm font-semibold">Distance Filter (pc): <span id="distance-value" class="font-normal"></span></label>
             <input type="range" id="distance-slider" class="w-full">
+        </div>
+        <div class="mb-3 p-2 border border-cyan-800 rounded-md">
+            <label for="size-slider" class="block mb-1 text-sm font-semibold">Star Size Filter (Relative): <span id="size-value" class="font-normal"></span></label>
+            <input type="range" id="size-slider" class="w-full">
         </div>
         <div class="filter-grid">
             <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="O"><span>O</span></label>

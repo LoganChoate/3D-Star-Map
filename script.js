@@ -17,16 +17,21 @@ const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
 const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
 const GLOBAL_VISUAL_SCALE = 0.5; // Aggressively reduced scale for clarity in dense core
 
-const loadingIndicator = document.getElementById('loading-indicator');
-const canvas = document.getElementById('renderCanvas');
-const starCountDisplay = document.getElementById('star-count-display');
-const constellationSelect = document.getElementById('constellation-select');
-const searchInput = document.getElementById('search-input');
-const autocompleteContainer = document.getElementById('autocomplete-suggestions');
-const distanceSlider = document.getElementById('distance-slider');
-const distanceValue = document.getElementById('distance-value');
+let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue;
 
 function init() {
+    // Assign DOM elements once the document is ready
+    loadingIndicator = document.getElementById('loading-indicator');
+    canvas = document.getElementById('renderCanvas');
+    starCountDisplay = document.getElementById('star-count-display');
+    constellationSelect = document.getElementById('constellation-select');
+    searchInput = document.getElementById('search-input');
+    autocompleteContainer = document.getElementById('autocomplete-suggestions');
+    distanceSlider = document.getElementById('distance-slider');
+    distanceValue = document.getElementById('distance-value');
+    sizeSlider = document.getElementById('size-slider');
+    sizeValue = document.getElementById('size-value');
+
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000011);
     const canvasContainer = document.getElementById('canvasContainer');
@@ -42,8 +47,8 @@ function init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
-    controls.minDistance = 1;
-    controls.maxDistance = 400000; // Allow zooming out to see the whole dataset
+    controls.minDistance = 0.1;
+    controls.maxDistance = 2000; // Default, will be updated dynamically after data load
     controls.target.set(0, 0, 0);
 
     raycaster = new THREE.Raycaster();
@@ -55,7 +60,7 @@ function init() {
 
     // Create a single, reusable highlight object as a 2D ring that always faces the camera.
     const highlightGeometry = new THREE.RingGeometry(0.95, 1.0, 32); // A thin ring
-    const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+    const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
     selectionHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
     
     // This callback ensures the ring always faces the camera (billboarding)
@@ -80,6 +85,7 @@ function init() {
     constellationSelect.addEventListener('change', viewSelectedConstellation);
     document.getElementById('clear-constellation-button').addEventListener('click', clearConstellationView);
     searchInput.addEventListener('input', handleAutocomplete);
+    sizeSlider.addEventListener('input', applyFilters);
     distanceSlider.addEventListener('input', applyFilters);
     document.addEventListener('click', (e) => {
         if (!autocompleteContainer.contains(e.target) && e.target !== searchInput) {
@@ -99,57 +105,85 @@ async function loadAndPrepareStarData() {
         }
         const rawData = await response.json();
 
-        const processedData = rawData.map(star => {
-            const dist = parseFloat(star.dist);
-            const mag = parseFloat(star.mag);
+        // Step 1: Initial parsing of raw data into a workable format.
+        let initialData = rawData.map(star => ({
+            name: star.name,
+            proper: star.proper,
+            dist: parseFloat(star.dist),
+            mag: parseFloat(star.mag),
+            ci: parseFloat(star.ci) || 0,
+            x: parseFloat(star.x),
+            y: parseFloat(star.y),
+            z: parseFloat(star.z),
+            spect: star.spect,
+        })).filter(s => !isNaN(s.dist));
 
+        // Step 2: Reposition "Garbage Sphere" Stars
+        const originalMaxDist = initialData.reduce((max, star) => Math.max(max, star.dist), 0);
+        const starsWithoutGarbage = initialData.filter(star => star.dist < originalMaxDist);
+        const maxRealDist = starsWithoutGarbage.reduce((max, star) => Math.max(max, star.dist), 0);
+        const newShellDistance = Math.ceil(maxRealDist / 100) * 100;
+
+        initialData.forEach(star => {
+            if (star.dist === originalMaxDist) {
+                const positionVector = new THREE.Vector3(star.x, star.y, star.z);
+                if (positionVector.lengthSq() > 0) {
+                    positionVector.normalize().multiplyScalar(newShellDistance);
+                    star.x = positionVector.x;
+                    star.y = positionVector.y;
+                    star.z = positionVector.z;
+                    star.dist = newShellDistance;
+                }
+            }
+        });
+
+        // Step 3: Now that all distances are finalized, calculate magnitudes and visual scales.
+        const processedData = initialData.map(star => {
             let absoluteMagnitude;
-            if (dist > 0) {
-                absoluteMagnitude = mag - 5 * (Math.log10(dist) - 1);
+            if (star.dist > 0) {
+                absoluteMagnitude = star.mag - 5 * (Math.log10(star.dist) - 1);
             } else {
-                absoluteMagnitude = mag; // Fallback for stars with 0 distance (like Sol)
+                absoluteMagnitude = star.mag;
             }
 
-            // A more robust method for visual scaling based on established astronomical practice.
-            // We use the difference in absolute magnitude (a logarithmic scale) from Sol.
-            // This avoids the extreme values of raw luminosity and prevents the "nesting" issue.
             const magnitudeDifference = SOL_ABSOLUTE_MAGNITUDE - absoluteMagnitude;
-
-            // We scale the radius based on this difference. The 0.25 is a tunable factor
-            // that controls how much larger brighter stars appear.
             const relativeRadiusScale = Math.max(0.2, 1 + magnitudeDifference * 0.25);
 
-            // By explicitly defining the new object, we ensure all properties are correctly typed and present,
-            // avoiding subtle bugs that can arise from using the spread operator (...) on the raw data.
             return {
-                name: star.name,
-                proper: star.proper,
-                dist: dist,
-                mag: mag,
-                ci: parseFloat(star.ci) || 0,
-                x: parseFloat(star.x),
-                y: parseFloat(star.y),
-                z: parseFloat(star.z),
-                spect: star.spect,
+                ...star,
                 absoluteMagnitude: absoluteMagnitude,
                 relativeRadiusScale: relativeRadiusScale
             };
-        }).filter(s => !isNaN(s.dist)); // Ensure we only have stars with valid distances
+        });
 
-        // Now that scaling is fixed, we can use the full dataset
-        fullStarData = processedData;
+        fullStarData = processedData; // Commit the processed data
 
         // Initialize UI elements that depend on the full dataset
         maxDistWithGarbage = Math.ceil(fullStarData.reduce((max, star) => Math.max(max, star.dist), 0));
-        const starsWithoutGarbage = fullStarData.filter(star => star.dist < maxDistWithGarbage);
-        maxDistWithoutGarbage = Math.ceil(starsWithoutGarbage.reduce((max, star) => Math.max(max, star.dist), 0) / 1000) * 1000;
+        // The new "without garbage" distance is our previously calculated maxRealDist
+        maxDistWithoutGarbage = Math.ceil(maxRealDist);
 
         distanceSlider.max = maxDistWithGarbage;
         distanceSlider.value = maxDistWithGarbage;
 
+        // Set up the size slider based on the calculated relativeRadiusScale
+        const minSize = fullStarData.reduce((min, star) => Math.min(min, star.relativeRadiusScale), Infinity);
+        const maxSize = fullStarData.reduce((max, star) => Math.max(max, star.relativeRadiusScale), 0);
+        sizeSlider.min = minSize;
+        sizeSlider.max = Math.ceil(maxSize);
+        sizeSlider.step = 0.1;
+        sizeSlider.value = sizeSlider.max;
+
         populateConstellationDropdown();
         applyFilters(); // This will perform the initial geometry creation
         updateUI();
+
+        // Update camera and controls to fit the new, smaller scene
+        const newMaxDistance = 2000;
+        // Ensure the camera's far plane can see beyond the max zoom distance
+        camera.far = newMaxDistance * 1.1;
+        controls.maxDistance = newMaxDistance;
+        camera.updateProjectionMatrix(); // This is crucial after changing camera.far
     } catch (error) {
         console.error("Failed to load or process star data:", error);
         loadingIndicator.textContent = "Error loading data.";
@@ -173,6 +207,9 @@ function applyFilters() {
     const maxDistance = distanceSlider.value;
     distanceValue.textContent = `${maxDistance} pc`;
 
+    const maxSize = sizeSlider.value;
+    sizeValue.textContent = `< ${parseFloat(maxSize).toFixed(1)}`;
+
     let tempStarData = [...fullStarData];
 
     if (properNameFilter) {
@@ -190,6 +227,7 @@ function applyFilters() {
     }
 
     tempStarData = tempStarData.filter(star => star.dist <= maxDistance);
+    tempStarData = tempStarData.filter(star => star.relativeRadiusScale <= maxSize);
 
     activeStarData = tempStarData;
 
@@ -290,9 +328,7 @@ function resetScene() {
 function snapToSol() {
     const sol = fullStarData.find(star => star.name === 'Sol');
     if (sol) {
-        animateCameraTo(new THREE.Vector3(sol.x, sol.y, sol.z));
-        updateInfoPanel(sol);
-        updateSelectionHighlight(sol);
+        frameObjectInView(sol);
     }
 }
 
@@ -307,9 +343,7 @@ function searchByName(name) {
     const foundStar = fullStarData.find(star => star.name && star.name.toLowerCase() === searchTerm);
 
     if (foundStar) {
-        updateSelectionHighlight(foundStar);
-        animateCameraTo(new THREE.Vector3(foundStar.x, foundStar.y, foundStar.z));
-        updateInfoPanel(foundStar);
+        frameObjectInView(foundStar);
     } else {
         const notFoundMsg = document.getElementById('search-not-found');
         notFoundMsg.style.display = 'block';
@@ -383,11 +417,41 @@ function onPointerUp(event) {
     if (intersects.length > 0) {
         const instanceId = intersects[0].instanceId;
         const data = activeStarData[instanceId];
-        updateSelectionHighlight(data);
-        updateInfoPanel(data);
-        animateCameraTo(new THREE.Vector3(data.x, data.y, data.z));
+        frameObjectInView(data);
     }
 }
+
+function frameObjectInView(star) {
+    if (!star) return;
+
+    const target = new THREE.Vector3(star.x, star.y, star.z);
+
+    // Calculate the visual radius of the highlight ring to frame it in the view
+    const highlightRadius = (star.relativeRadiusScale * GLOBAL_VISUAL_SCALE) * 1.5 + 0.5;
+
+    // Calculate the distance needed for the highlight to nearly fill the view (based on vertical FOV)
+    const fov = camera.fov * (Math.PI / 180);
+    const cameraDistance = highlightRadius / Math.tan(fov / 2);
+
+    // Add a small buffer so it doesn't touch the very edge and feels comfortable
+    const finalDistance = cameraDistance * 1.2;
+
+    // Determine the new camera position while maintaining the current viewing angle relative to the new target
+    const direction = new THREE.Vector3();
+    direction.subVectors(camera.position, target).normalize();
+
+    // If the camera is already on top of the star, provide a default direction
+    if (direction.lengthSq() < 0.0001) {
+        direction.set(0, 0.5, 1).normalize();
+    }
+
+    const newPosition = target.clone().add(direction.multiplyScalar(finalDistance));
+
+    animateCameraTo(target, newPosition);
+    updateInfoPanel(star);
+    updateSelectionHighlight(star);
+}
+
 function updateSelectionHighlight(star) {
     if (star) {
         selectionHighlight.position.set(star.x, star.y, star.z);
