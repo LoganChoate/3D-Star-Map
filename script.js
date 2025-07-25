@@ -4,9 +4,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 let scene, camera, renderer, stars, controls, raycaster, mouse;
 let fullStarData = [];
 let activeStarData = [];
-let searchHighlight = null;
+let selectionHighlight = null;
 let constellationLinesGroup = null;
 let initialCameraPosition = new THREE.Vector3(0, 20, 100);
+let isDragging = false;
+const pointerDownPosition = new THREE.Vector2();
 let animationFrameId;
 let maxDistWithGarbage, maxDistWithoutGarbage;
 
@@ -51,10 +53,25 @@ function init() {
     constellationLinesGroup = new THREE.Group();
     scene.add(constellationLinesGroup);
 
+    // Create a single, reusable highlight object as a 2D ring that always faces the camera.
+    const highlightGeometry = new THREE.RingGeometry(0.95, 1.0, 32); // A thin ring
+    const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+    selectionHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+    
+    // This callback ensures the ring always faces the camera (billboarding)
+    selectionHighlight.onBeforeRender = function(renderer, scene, camera) {
+        this.quaternion.copy(camera.quaternion);
+    };
+
+    selectionHighlight.visible = false;
+    scene.add(selectionHighlight);
+
     loadAndPrepareStarData();
 
     window.addEventListener('resize', onWindowResize, false);
-    canvas.addEventListener('click', onStarClick, false);
+    canvas.addEventListener('pointerdown', onPointerDown, false);
+    canvas.addEventListener('pointermove', onPointerMove, false);
+    canvas.addEventListener('pointerup', onPointerUp, false);
     document.getElementById('resetViewButton').addEventListener('click', resetScene);
     document.getElementById('snapToSolButton').addEventListener('click', snapToSol);
     document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
@@ -262,6 +279,7 @@ function resetScene() {
     controls.target.set(0, 0, 0);
     controls.update();
     
+    updateSelectionHighlight(null);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
     distanceSlider.value = distanceSlider.max;
     clearConstellationView();
@@ -274,6 +292,7 @@ function snapToSol() {
     if (sol) {
         animateCameraTo(new THREE.Vector3(sol.x, sol.y, sol.z));
         updateInfoPanel(sol);
+        updateSelectionHighlight(sol);
     }
 }
 
@@ -282,21 +301,14 @@ function updateUI() {
 }
 
 function searchByName(name) {
-    clearSearch();
     const searchTerm = name.trim().toLowerCase();
     if (!searchTerm) return;
     
     const foundStar = fullStarData.find(star => star.name && star.name.toLowerCase() === searchTerm);
 
     if (foundStar) {
-        const highlightGeometry = new THREE.SphereGeometry(2, 16, 16); // A visible sphere for highlighting
-        const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, transparent: true, opacity: 0.5 });
-        searchHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
-        searchHighlight.position.set(foundStar.x, foundStar.y, foundStar.z);
-        scene.add(searchHighlight);
-
-        const targetPosition = new THREE.Vector3(foundStar.x, foundStar.y, foundStar.z);
-        animateCameraTo(targetPosition);
+        updateSelectionHighlight(foundStar);
+        animateCameraTo(new THREE.Vector3(foundStar.x, foundStar.y, foundStar.z));
         updateInfoPanel(foundStar);
     } else {
         const notFoundMsg = document.getElementById('search-not-found');
@@ -337,30 +349,53 @@ function handleAutocomplete() {
 }
 
 function clearSearch() {
-    if (searchHighlight) {
-        scene.remove(searchHighlight);
-        if (searchHighlight.geometry) searchHighlight.geometry.dispose();
-        if (searchHighlight.material) searchHighlight.material.dispose();
-        searchHighlight = null;
-    }
     searchInput.value = '';
     autocompleteContainer.classList.add('hidden');
 }
 
-function onStarClick(event) {
+function onPointerDown(event) {
+    isDragging = false;
+    pointerDownPosition.set(event.clientX, event.clientY);
+}
+
+function onPointerMove(event) {
+    // If the primary mouse button is not pressed, do nothing.
+    if (event.buttons !== 1) return;
+
+    // If the mouse has moved more than a small threshold, we classify it as a drag.
+    if (pointerDownPosition.distanceTo(new THREE.Vector2(event.clientX, event.clientY)) > 5) {
+        isDragging = true;
+    }
+}
+
+function onPointerUp(event) {
+    // If the action was a drag, do not proceed with selection.
+    if (isDragging) return;
+
+    // Otherwise, it was a click. Perform the raycasting to select a star.
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    // Intersect with the InstancedMesh
     const intersects = raycaster.intersectObject(stars);
 
     if (intersects.length > 0) {
         const instanceId = intersects[0].instanceId;
         const data = activeStarData[instanceId];
+        updateSelectionHighlight(data);
         updateInfoPanel(data);
         animateCameraTo(new THREE.Vector3(data.x, data.y, data.z));
+    }
+}
+function updateSelectionHighlight(star) {
+    if (star) {
+        selectionHighlight.position.set(star.x, star.y, star.z);
+        const highlightScale = (star.relativeRadiusScale * GLOBAL_VISUAL_SCALE) * 1.5 + 0.5;
+        selectionHighlight.scale.set(highlightScale, highlightScale, highlightScale);
+        selectionHighlight.visible = true;
+    } else {
+        selectionHighlight.visible = false;
     }
 }
 
