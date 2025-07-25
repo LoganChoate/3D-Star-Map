@@ -10,6 +10,11 @@ let initialCameraPosition = new THREE.Vector3(0, 20, 100);
 let animationFrameId;
 let maxDistWithGarbage, maxDistWithoutGarbage;
 
+// Constants for star sizing
+const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
+const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
+const GLOBAL_VISUAL_SCALE = 10.0; // A more reasonable visual scale
+
 const loadingIndicator = document.getElementById('loading-indicator');
 const canvas = document.getElementById('renderCanvas');
 const starCountDisplay = document.getElementById('star-count-display');
@@ -22,10 +27,9 @@ const distanceValue = document.getElementById('distance-value');
 function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000011);
-
     const canvasContainer = document.getElementById('canvasContainer');
-    camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 110000);
-    camera.position.copy(initialCameraPosition);
+    camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 400000); 
+    camera.position.copy(initialCameraPosition); // Use the closer, predefined initial position for the demo
     camera.lookAt(scene.position);
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -37,7 +41,7 @@ function init() {
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
     controls.minDistance = 1;
-    controls.maxDistance = 200000; // Allow zooming out to see the whole dataset
+    controls.maxDistance = 400000; // Allow zooming out to see the whole dataset
     controls.target.set(0, 0, 0);
 
     raycaster = new THREE.Raycaster();
@@ -72,43 +76,59 @@ function init() {
 async function loadAndPrepareStarData() {
     loadingIndicator.style.display = 'block';
     try {
-        const response = await fetch('./stars.json');
+        const response = await fetch('stars.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const embeddedStarData = await response.json();
+        const rawData = await response.json();
 
-        const mappedData = embeddedStarData.map(star => ({
-            ...star,
-            dist: parseFloat(star.dist),
-            mag: parseFloat(star.mag),
-            spect: star.spect || 'N/A',
-            ci: parseFloat(star.ci) || 0,
-            x: parseFloat(star.x),
-            y: parseFloat(star.y),
-            z: parseFloat(star.z)
-        }));
-        
-        fullStarData = mappedData.filter(star => 
-            !isNaN(star.dist) &&
-            !isNaN(star.mag) &&
-            !isNaN(star.ci) &&
-            !isNaN(star.x) &&
-            !isNaN(star.y) &&
-            !isNaN(star.z)
-        );
-        
+        const processedData = rawData.map(star => {
+            const dist = parseFloat(star.dist);
+            const mag = parseFloat(star.mag);
+
+            let absoluteMagnitude;
+            if (dist > 0) {
+                absoluteMagnitude = mag - 5 * (Math.log10(dist) - 1);
+            } else {
+                absoluteMagnitude = mag; // Fallback for stars with 0 distance (like Sol)
+            }
+
+            // A more robust method for visual scaling based on established astronomical practice.
+            // We use the difference in absolute magnitude (a logarithmic scale) from Sol.
+            // This avoids the extreme values of raw luminosity and prevents the "nesting" issue.
+            const magnitudeDifference = SOL_ABSOLUTE_MAGNITUDE - absoluteMagnitude;
+
+            // We scale the radius based on this difference. The 0.25 is a tunable factor
+            // that controls how much larger brighter stars appear.
+            const relativeRadiusScale = Math.max(0.2, 1 + magnitudeDifference * 0.25);
+
+            return {
+                ...star,
+                dist: dist,
+                mag: mag,
+                ci: parseFloat(star.ci) || 0,
+                x: parseFloat(star.x),
+                y: parseFloat(star.y),
+                z: parseFloat(star.z),
+                absoluteMagnitude: absoluteMagnitude,
+                relativeRadiusScale: relativeRadiusScale
+            };
+        }).filter(s => !isNaN(s.dist)); // Ensure we only have stars with valid distances
+
+        // Now that scaling is fixed, we can use the full dataset
+        fullStarData = processedData;
+
+        // Initialize UI elements that depend on the full dataset
         maxDistWithGarbage = Math.ceil(fullStarData.reduce((max, star) => Math.max(max, star.dist), 0));
         const starsWithoutGarbage = fullStarData.filter(star => star.dist < maxDistWithGarbage);
         maxDistWithoutGarbage = Math.ceil(starsWithoutGarbage.reduce((max, star) => Math.max(max, star.dist), 0) / 1000) * 1000;
 
         distanceSlider.max = maxDistWithGarbage;
         distanceSlider.value = maxDistWithGarbage;
-        distanceValue.textContent = `${maxDistWithGarbage} pc`;
 
         populateConstellationDropdown();
-        applyFilters();
-
+        applyFilters(); // This will perform the initial geometry creation
+        updateUI();
     } catch (error) {
         console.error("Failed to load or process star data:", error);
         loadingIndicator.textContent = "Error loading data.";
@@ -157,43 +177,46 @@ function applyFilters() {
 }
 
 function createStarGeometry(data) {
-    if (stars) {
+    // If a previous group of stars exists, remove it and dispose of its contents
+    if (stars) { // stars is an InstancedMesh
         scene.remove(stars);
-        stars.geometry.dispose();
-        stars.material.dispose();
+        if (stars.geometry) stars.geometry.dispose();
+        if (stars.material) stars.material.dispose();
     }
     
-    const starGeometry = new THREE.BufferGeometry();
     if (data.length === 0) {
-        stars = new THREE.Points(starGeometry, new THREE.PointsMaterial());
+        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), new THREE.MeshBasicMaterial(), 0); // Empty mesh
         scene.add(stars);
         return;
     }
 
-    const positions = [];
-    const colors = [];
-    const sizes = [];
+    // Revert to InstancedMesh for high performance with thousands of objects.
+    const sphereGeometry = new THREE.SphereGeometry(BASE_STAR_RADIUS, 8, 8);
+    const material = new THREE.MeshBasicMaterial(); // The renderer will automatically use instanceColor if available
+    stars = new THREE.InstancedMesh(sphereGeometry, material, data.length);
+    stars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-    data.forEach(star => {
-        positions.push(star.x, star.y, star.z);
-        const color = getRGBfromCI(star.ci);
-        colors.push(color.r, color.g, color.b);
-        const size = 2.5 - (star.mag / 2.5);
-        sizes.push(Math.max(size, 0.5));
+    const matrix = new THREE.Matrix4();
+    const color = new THREE.Color();
+
+    data.forEach((star, i) => {
+        // Set position and scale
+        const scale = star.relativeRadiusScale * GLOBAL_VISUAL_SCALE;
+        matrix.compose(
+            new THREE.Vector3(star.x, star.y, star.z),
+            new THREE.Quaternion(),
+            new THREE.Vector3(scale, scale, scale)
+        );
+        stars.setMatrixAt(i, matrix);
+
+        // Set color
+        const starColor = getRGBfromCI(star.ci);
+        stars.setColorAt(i, color.setRGB(starColor.r, starColor.g, starColor.b));
     });
 
-    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    starGeometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+    stars.instanceMatrix.needsUpdate = true;
+    if (stars.instanceColor) stars.instanceColor.needsUpdate = true;
 
-    const starMaterial = new THREE.PointsMaterial({
-        vertexColors: true,
-        sizeAttenuation: true,
-        transparent: true,
-        opacity: 0.9
-    });
-
-    stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 }
 
@@ -262,10 +285,10 @@ function searchByName(name) {
     const foundStar = fullStarData.find(star => star.name && star.name.toLowerCase() === searchTerm);
 
     if (foundStar) {
-        const highlightMaterial = new THREE.PointsMaterial({ color: 0x00FFFF, size: 20, sizeAttenuation: true });
-        const highlightGeometry = new THREE.BufferGeometry();
-        highlightGeometry.setAttribute('position', new THREE.Float32BufferAttribute([foundStar.x, foundStar.y, foundStar.z], 3));
-        searchHighlight = new THREE.Points(highlightGeometry, highlightMaterial);
+        const highlightGeometry = new THREE.SphereGeometry(2, 16, 16); // A visible sphere for highlighting
+        const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, transparent: true, opacity: 0.5 });
+        searchHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+        searchHighlight.position.set(foundStar.x, foundStar.y, foundStar.z);
         scene.add(searchHighlight);
 
         const targetPosition = new THREE.Vector3(foundStar.x, foundStar.y, foundStar.z);
@@ -312,8 +335,8 @@ function handleAutocomplete() {
 function clearSearch() {
     if (searchHighlight) {
         scene.remove(searchHighlight);
-        searchHighlight.geometry.dispose();
-        searchHighlight.material.dispose();
+        if (searchHighlight.geometry) searchHighlight.geometry.dispose();
+        if (searchHighlight.material) searchHighlight.material.dispose();
         searchHighlight = null;
     }
     searchInput.value = '';
@@ -326,12 +349,14 @@ function onStarClick(event) {
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
+    // Intersect with the InstancedMesh
     const intersects = raycaster.intersectObject(stars);
 
     if (intersects.length > 0) {
-        const index = intersects[0].index;
-        const data = activeStarData[index];
+        const instanceId = intersects[0].instanceId;
+        const data = activeStarData[instanceId];
         updateInfoPanel(data);
+        animateCameraTo(new THREE.Vector3(data.x, data.y, data.z));
     }
 }
 
