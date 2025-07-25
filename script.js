@@ -8,6 +8,7 @@ let searchHighlight = null;
 let constellationLinesGroup = null;
 let initialCameraPosition = new THREE.Vector3(0, 20, 100);
 let animationFrameId;
+let maxDistWithGarbage, maxDistWithoutGarbage;
 
 const loadingIndicator = document.getElementById('loading-indicator');
 const canvas = document.getElementById('renderCanvas');
@@ -15,6 +16,8 @@ const starCountDisplay = document.getElementById('star-count-display');
 const constellationSelect = document.getElementById('constellation-select');
 const searchInput = document.getElementById('search-input');
 const autocompleteContainer = document.getElementById('autocomplete-suggestions');
+const distanceSlider = document.getElementById('distance-slider');
+const distanceValue = document.getElementById('distance-value');
 
 function init() {
     scene = new THREE.Scene();
@@ -34,7 +37,7 @@ function init() {
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
     controls.minDistance = 1;
-    controls.maxDistance = 100000; // Allow zooming out to see the whole dataset
+    controls.maxDistance = 200000; // Allow zooming out to see the whole dataset
     controls.target.set(0, 0, 0);
 
     raycaster = new THREE.Raycaster();
@@ -56,6 +59,7 @@ function init() {
     constellationSelect.addEventListener('change', viewSelectedConstellation);
     document.getElementById('clear-constellation-button').addEventListener('click', clearConstellationView);
     searchInput.addEventListener('input', handleAutocomplete);
+    distanceSlider.addEventListener('input', applyFilters);
     document.addEventListener('click', (e) => {
         if (!autocompleteContainer.contains(e.target) && e.target !== searchInput) {
             autocompleteContainer.classList.add('hidden');
@@ -94,6 +98,14 @@ async function loadAndPrepareStarData() {
             !isNaN(star.z)
         );
         
+        maxDistWithGarbage = Math.ceil(fullStarData.reduce((max, star) => Math.max(max, star.dist), 0));
+        const starsWithoutGarbage = fullStarData.filter(star => star.dist < maxDistWithGarbage);
+        maxDistWithoutGarbage = Math.ceil(starsWithoutGarbage.reduce((max, star) => Math.max(max, star.dist), 0) / 1000) * 1000;
+
+        distanceSlider.max = maxDistWithGarbage;
+        distanceSlider.value = maxDistWithGarbage;
+        distanceValue.textContent = `${maxDistWithGarbage} pc`;
+
         populateConstellationDropdown();
         applyFilters();
 
@@ -106,17 +118,40 @@ async function loadAndPrepareStarData() {
 }
 
 function applyFilters() {
-    const filterCheckboxes = document.querySelectorAll('.filter-checkbox:checked');
-    let selectedClasses = Array.from(filterCheckboxes).map(cb => cb.value);
-
-    if (selectedClasses.length === 0) {
-        activeStarData = [...fullStarData];
+    const properNameFilter = document.getElementById('proper-name-filter').checked;
+    const garbageSphereFilter = document.getElementById('garbage-sphere-filter').checked;
+    const spectralClassCheckboxes = document.querySelectorAll('.filter-checkbox[value]:checked');
+    const selectedClasses = Array.from(spectralClassCheckboxes).map(cb => cb.value);
+    
+    if (garbageSphereFilter) {
+        distanceSlider.max = maxDistWithoutGarbage;
     } else {
-        activeStarData = fullStarData.filter(star => {
+        distanceSlider.max = maxDistWithGarbage;
+    }
+
+    const maxDistance = distanceSlider.value;
+    distanceValue.textContent = `${maxDistance} pc`;
+
+    let tempStarData = [...fullStarData];
+
+    if (properNameFilter) {
+        tempStarData = tempStarData.filter(star => star.proper && star.proper.trim() !== '');
+    }
+
+    if (garbageSphereFilter) {
+        tempStarData = tempStarData.filter(star => star.dist < maxDistWithGarbage);
+    }
+
+    if (selectedClasses.length > 0) {
+        tempStarData = tempStarData.filter(star => {
             return selectedClasses.some(sc => star.spect && star.spect.toUpperCase().startsWith(sc));
         });
     }
-    
+
+    tempStarData = tempStarData.filter(star => star.dist <= maxDistance);
+
+    activeStarData = tempStarData;
+
     createStarGeometry(activeStarData);
     updateUI();
 }
@@ -201,6 +236,7 @@ function resetScene() {
     controls.update();
     
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
+    distanceSlider.value = distanceSlider.max;
     clearConstellationView();
     applyFilters();
     clearSearch();

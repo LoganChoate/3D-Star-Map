@@ -37,6 +37,22 @@
             <button id="clear-constellation-button" class="custom-button text-xs px-3 py-1">X</button>
         </div>
         <h2 class="text-lg font-semibold mb-2 text-cyan-300">Filters</h2>
+        <div class="mb-2">
+            <label class="flex items-center space-x-2">
+                <input type="checkbox" id="proper-name-filter" class="filter-checkbox">
+                <span>Show Only Named Stars</span>
+            </label>
+        </div>
+        <div class="mb-2">
+            <label class="flex items-center space-x-2">
+                <input type="checkbox" id="garbage-sphere-filter" class="filter-checkbox">
+                <span>Toggle Garbage Sphere</span>
+            </label>
+        </div>
+        <div class="mb-2">
+            <label for="distance-slider" class="block mb-1 text-sm">Distance from Sol (pc): <span id="distance-value"></span></label>
+            <input type="range" id="distance-slider" class="w-full">
+        </div>
         <div class="filter-grid">
             <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="O"><span>O</span></label>
             <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="B"><span>B</span></label>
@@ -51,7 +67,7 @@
         <div id="selection-info" class="space-y-1 text-sm">
             <p><span class="info-label">Name:</span><span id="star-name" class="info-value">N/A</span></p>
             <p><span class="info-label">Distance:</span><span id="star-dist" class="info-value">N/A</span></p>
-            <p><span class="info-label">Magnitude:</span><span id="star-mag" class="info-value">N/A</span></p>
+            <p><span class="info-label">Magnitude:</span><span id="star-mag" class'="info-value">N/A</span></p>
             <p><span class="info-label">Class:</span><span id="star-spect" class="info-value">N/A</span></p>
             <p><span class="info-label">Coords:</span><span id="star-coords" class="info-value">N/A</span></p>
         </div>
