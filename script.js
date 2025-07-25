@@ -13,7 +13,7 @@ let maxDistWithGarbage, maxDistWithoutGarbage;
 // Constants for star sizing
 const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
 const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
-const GLOBAL_VISUAL_SCALE = 10.0; // A more reasonable visual scale
+const GLOBAL_VISUAL_SCALE = 0.5; // Aggressively reduced scale for clarity in dense core
 
 const loadingIndicator = document.getElementById('loading-indicator');
 const canvas = document.getElementById('renderCanvas');
@@ -102,14 +102,18 @@ async function loadAndPrepareStarData() {
             // that controls how much larger brighter stars appear.
             const relativeRadiusScale = Math.max(0.2, 1 + magnitudeDifference * 0.25);
 
+            // By explicitly defining the new object, we ensure all properties are correctly typed and present,
+            // avoiding subtle bugs that can arise from using the spread operator (...) on the raw data.
             return {
-                ...star,
+                name: star.name,
+                proper: star.proper,
                 dist: dist,
                 mag: mag,
                 ci: parseFloat(star.ci) || 0,
                 x: parseFloat(star.x),
                 y: parseFloat(star.y),
                 z: parseFloat(star.z),
+                spect: star.spect,
                 absoluteMagnitude: absoluteMagnitude,
                 relativeRadiusScale: relativeRadiusScale
             };
