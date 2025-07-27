@@ -19,7 +19,7 @@ const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
 const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
 const GLOBAL_VISUAL_SCALE = 0.5; // Aggressively reduced scale for clarity in dense core
 
-let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue;
+let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue, narrateButton, starDescriptionContainer, starDescription;
 
 function init() {
     // Assign DOM elements once the document is ready
@@ -33,6 +33,9 @@ function init() {
     distanceValue = document.getElementById('distance-value');
     sizeSlider = document.getElementById('size-slider');
     sizeValue = document.getElementById('size-value');
+    narrateButton = document.getElementById('narrate-button');
+    starDescriptionContainer = document.getElementById('star-description-container');
+    starDescription = document.getElementById('star-description');
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000011);
@@ -96,6 +99,7 @@ function init() {
     document.getElementById('clear-constellation-button').addEventListener('click', clearConstellationView);
     searchInput.addEventListener('input', handleAutocomplete);
     sizeSlider.addEventListener('input', applyFilters);
+    narrateButton.addEventListener('click', handleNarration);
     distanceSlider.addEventListener('input', applyFilters);
     document.addEventListener('click', (e) => {
         if (!autocompleteContainer.contains(e.target) && e.target !== searchInput) {
@@ -325,13 +329,34 @@ function drawConstellationLines(constellationName) {
 }
 
 function resetScene() {
-    camera.position.copy(initialCameraPosition);
-    controls.target.set(0, 0, 0);
-    controls.update();
+    // Calculate the bounding sphere of the entire dataset to frame it perfectly.
+    const box = new THREE.Box3();
+    const points = fullStarData.map(s => new THREE.Vector3(s.x, s.y, s.z));
+    
+    if (points.length > 0) {
+        box.setFromPoints(points);
+        const center = new THREE.Vector3();
+        const sphere = box.getBoundingSphere(new THREE.Sphere());
+        
+        const fov = camera.fov * (Math.PI / 180);
+        // Calculate the distance needed to fit the sphere's radius in the view.
+        let cameraDist = sphere.radius / Math.tan(fov / 2);
+        cameraDist *= 1.1; // Add a 10% buffer so it's not edge-to-edge.
+        
+        // Position the camera along the Z-axis for a consistent overview.
+        const targetPosition = new THREE.Vector3(sphere.center.x, sphere.center.y, sphere.center.z + cameraDist);
+        animateCameraTo(sphere.center, targetPosition);
+    } else {
+        // Fallback if no data is loaded
+        camera.position.copy(initialCameraPosition);
+        controls.target.set(0, 0, 0);
+        controls.update();
+    }
     
     updateSelectionHighlight(null);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
     distanceSlider.value = distanceSlider.max;
+    sizeSlider.value = sizeSlider.max;
     clearConstellationView();
     applyFilters();
     clearSearch();
@@ -504,6 +529,36 @@ function updateInfoPanel(data) {
     document.getElementById('star-mag').textContent = data.mag.toFixed(2);
     document.getElementById('star-spect').textContent = data.spect;
     document.getElementById('star-coords').textContent = `X:${data.x.toFixed(1)}, Y:${data.y.toFixed(1)}, Z:${data.z.toFixed(1)}`;
+
+    // Handle detailed description
+    const starDetails = getStarDetails();
+    const starKey = data.proper?.toLowerCase() || data.name?.toLowerCase();
+    if (starKey && starDetails[starKey]) {
+        starDescription.textContent = starDetails[starKey].description;
+        starDescriptionContainer.classList.remove('hidden');
+    } else {
+        starDescription.textContent = '';
+        starDescriptionContainer.classList.add('hidden');
+    }
+
+    // Reset narrator state when a new star is selected
+    speechSynthesis.cancel();
+    narrateButton.textContent = '▶ Narrate';
+}
+
+function handleNarration() {
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel(); // Stop the current speech
+        narrateButton.textContent = '▶ Narrate';
+    } else {
+        const text = starDescription.textContent;
+        if (text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.onend = () => { narrateButton.textContent = '▶ Narrate'; };
+            speechSynthesis.speak(utterance);
+            narrateButton.textContent = '■ Stop';
+        }
+    }
 }
 
 function populateConstellationDropdown() {

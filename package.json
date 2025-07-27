@@ -1,0 +1,17 @@
+{
+  "name": "3d-star-map",
+  "version": "1.0.0",
+  "description": "Interactive 3D Star Map Explorer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "author": "Logan",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^31.0.1",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {}
+}
