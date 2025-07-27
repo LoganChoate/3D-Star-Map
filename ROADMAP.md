@@ -23,13 +23,17 @@ These features have been successfully implemented and are part of the current ap
   - Dual camera control modes:
     - **Orbit Mode:** For object-focused inspection.
     - **Fly Mode:** For immersive, free-flight exploration.
-  - Intelligent "Snap to Star" and "Reset View" functionality that frames objects correctly.
+  - Intelligent camera framing for selections, resets, and tours.
+  - Application starts with a full overview of the starfield.
   - Robust click-vs-drag detection to prevent accidental selections.
 
 - **Data & Content:**
   - Intelligent handling of "Garbage Sphere" data, repositioning stars into a visually coherent outer shell.
   - Expanded star details panel for named stars.
-  - Text-to-speech narration for star details using the Web Speech API.
+  - Text-to-speech narration with karaoke-style word highlighting and auto-scrolling.
+
+- **Automated Exploration:**
+  - **Randomized "Stellar Tour" Mode:** A cinematic idle mode that flies to random stars, orbits them, and displays their information with narration. Features intelligent pause durations and "look-before-you-fly" animations.
 
 ---
 
@@ -37,11 +41,8 @@ These features have been successfully implemented and are part of the current ap
 
 This is the planned order for implementing new features.
 
-1.  **Randomized "Stellar Tour" Mode:**
-    - An idle/screensaver mode where the camera automatically flies to random stars, orbits them, and displays their information. This will leverage the existing animation and narration systems.
-
-2.  **Travel/Route Planning Mode:**
+1.  **Travel/Route Planning Mode:**
     - An interactive mode allowing users to select a start and end star. The application will calculate and display the most efficient "jump" route between them, likely using the A* pathfinding algorithm with a maximum jump range constraint.
 
-3.  **Standalone Executable Package:**
+2.  **Standalone Executable Package:**
     - Package the entire web application into a standalone desktop application for Windows, macOS, and Linux using **Electron**. This will allow for easy distribution and offline use.
