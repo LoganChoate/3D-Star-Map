@@ -25,6 +25,7 @@ let routePlanner = {
     routeLine: null
 };
 let animationFrameId;
+let starOctree;
 let maxDistWithGarbage, maxDistWithoutGarbage;
 
 let originalNarrationText = ''; // Holds the clean text for the current selection
@@ -33,7 +34,7 @@ let originalNarrationText = ''; // Holds the clean text for the current selectio
 const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
 const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
 const GLOBAL_VISUAL_SCALE = 0.5; // Aggressively reduced scale for clarity in dense core
-let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue, narrateButton, starDescriptionContainer, starDescription, stellarTourButton, toggleRoutePlannerButton, routePlannerContainer, setStartButton, setEndButton, routeStartStar, routeEndStar, maxJumpRangeInput, calculateRouteButton, routeButtonsContainer;
+let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue, narrateButton, starDescriptionContainer, starDescription, stellarTourButton, toggleRoutePlannerButton, routePlannerContainer, setStartButton, setEndButton, routeStartStar, routeEndStar, maxJumpRangeInput, calculateRouteButton, routeButtonsContainer, findMinJumpButton, routeCalculatingMessage;
 
 function init() {
     // Assign DOM elements once the document is ready
@@ -59,6 +60,8 @@ function init() {
     routeEndStar = document.getElementById('route-end-star');
     maxJumpRangeInput = document.getElementById('max-jump-range');
     calculateRouteButton = document.getElementById('calculate-route-button');
+    findMinJumpButton = document.getElementById('find-min-jump-button');
+    routeCalculatingMessage = document.getElementById('route-calculating-message');
     routeButtonsContainer = document.getElementById('route-buttons-container');
 
     scene = new THREE.Scene();
@@ -130,6 +133,7 @@ function init() {
     setStartButton.addEventListener('click', setRouteStart);
     setEndButton.addEventListener('click', setRouteEnd);
     calculateRouteButton.addEventListener('click', calculateRoute);
+    findMinJumpButton.addEventListener('click', findMinimumJumpRange);
     stellarTourButton.addEventListener('click', toggleStellarTour);
     document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
@@ -220,6 +224,13 @@ async function loadAndPrepareStarData() {
 
         distanceSlider.max = maxDistWithGarbage;
         distanceSlider.value = maxDistWithGarbage;
+
+        // --- Build the Octree for fast spatial queries ---
+        console.log("Building Octree for spatial indexing...");
+        const sceneBounds = new THREE.Box3().setFromPoints(fullStarData.map(s => new THREE.Vector3(s.x, s.y, s.z)));
+        starOctree = new Octree(sceneBounds);
+        fullStarData.forEach(star => starOctree.insert(star));
+        console.log("Octree built successfully.");
 
         // Set up the size slider based on the calculated relativeRadiusScale
         const minSize = fullStarData.reduce((min, star) => Math.min(min, star.relativeRadiusScale), Infinity);
@@ -919,7 +930,7 @@ function calculateRoute() {
 
     console.log(`Calculating route from ${routePlanner.startStar.name} to ${routePlanner.endStar.name} with max jump of ${maxJump} pc.`);
     // A* algorithm will be called here in the future.
-    const result = findPathAStar(routePlanner.startStar, routePlanner.endStar, activeStarData, maxJump);
+    const result = findPathAStar(routePlanner.startStar, routePlanner.endStar, maxJump);
 
     if (result && result.path && result.path.length > 1) {
         console.log("Route found:", result.path.map(p => p.name).join(" -> "));
@@ -930,6 +941,76 @@ function calculateRoute() {
     } else {
         alert("No route could be found with the specified maximum jump range.");
         drawRouteLine(null); // Clear any existing line
+    }
+}
+
+function findMinimumJumpRange() {
+    if (!routePlanner.startStar || !routePlanner.endStar) {
+        alert("Please select a start and end star first.");
+        return;
+    }
+    const initialMaxJump = parseFloat(maxJumpRangeInput.value);
+    if (isNaN(initialMaxJump) || initialMaxJump <= 0) {
+        alert("Please enter a valid starting maximum jump range.");
+        return;
+    }
+
+    // --- UI Feedback ---
+    calculateRouteButton.disabled = true;
+    findMinJumpButton.disabled = true;
+    routeCalculatingMessage.textContent = 'Calculating Min. Jump...';
+    routeCalculatingMessage.classList.remove('hidden');
+    drawRouteLine(null);
+
+    // --- Start Asynchronous Calculation ---
+    setTimeout(() => {
+        console.log(`Searching for minimum jump range between ${routePlanner.startStar.name} and ${routePlanner.endStar.name}, starting from ${initialMaxJump} pc.`);
+
+        // First, check if a path is possible at all with the initial range
+        const initialResult = findPathAStar(routePlanner.startStar, routePlanner.endStar, initialMaxJump);
+        if (!initialResult || initialResult.stranded) {
+            alert(`No route possible even with a jump range of ${initialMaxJump} pc.`);
+            calculateRouteButton.disabled = false;
+            findMinJumpButton.disabled = false;
+            routeCalculatingMessage.classList.add('hidden');
+            return;
+        }
+
+        // --- Start the non-blocking binary search ---
+        binarySearchMinJump(0, initialMaxJump, initialMaxJump, initialResult.path);
+
+    }, 10);
+}
+
+function binarySearchMinJump(low, high, minViableRange, bestPath) {
+    // Base case: if the search range has collapsed, we're done.
+    if (low > high) {
+        maxJumpRangeInput.value = minViableRange;
+        drawRouteLine(bestPath);
+        alert(`Minimum viable jump range is approximately ${minViableRange} pc.`);
+
+        // --- Clean up UI ---
+        calculateRouteButton.disabled = false;
+        findMinJumpButton.disabled = false;
+        routeCalculatingMessage.classList.add('hidden');
+        return;
+    }
+
+    const mid = Math.floor((low + high) / 2);
+    if (mid === 0) {
+        // Schedule the next step and exit to avoid infinite loop at zero
+        setTimeout(() => binarySearchMinJump(1, high, minViableRange, bestPath), 0);
+        return;
+    }
+    
+    const result = findPathAStar(routePlanner.startStar, routePlanner.endStar, mid);
+    
+    if (result && !result.stranded) {
+        // Path was found, so this is a new potential minimum. Try an even smaller range.
+        setTimeout(() => binarySearchMinJump(low, mid - 1, mid, result.path), 0);
+    } else {
+        // Range was too small, we must try a larger range.
+        setTimeout(() => binarySearchMinJump(mid + 1, high, minViableRange, bestPath), 0);
     }
 }
 
@@ -951,15 +1032,15 @@ class PriorityQueue {
     }
 }
 
-function findPathAStar(startNode, endNode, allNodes, maxJump) {
+function findPathAStar(startNode, endNode, maxJump) {
     const openSet = new PriorityQueue();
     const cameFrom = new Map();
     const gScore = new Map();
     const fScore = new Map();
 
-    const nodeMap = new Map(allNodes.map(node => [node.name, node]));
+    const nodeMap = new Map(fullStarData.map(node => [node.name, node]));
     
-    allNodes.forEach(node => {
+    fullStarData.forEach(node => {
         gScore.set(node.name, Infinity);
         fScore.set(node.name, Infinity);
     });
@@ -982,13 +1063,8 @@ function findPathAStar(startNode, endNode, allNodes, maxJump) {
             return { path: totalPath, stranded: false };
         }
 
-        // Find neighbors within maxJump range
-        // NOTE: This is a performance bottleneck on large datasets. A spatial index (e.g., Octree) would be a future optimization.
-        const neighbors = allNodes.filter(node => {
-            if (node.name === current.name) return false;
-            const dist = distance(current, node);
-            return dist <= maxJump;
-        });
+        // Use the Octree to find neighbors efficiently
+        const neighbors = starOctree.query(current, maxJump).filter(n => n.name !== current.name);
 
         for (const neighbor of neighbors) {
             const tentativeGScore = gScore.get(current.name) + distance(current, neighbor);
@@ -1051,9 +1127,91 @@ function drawRouteLine(path) {
 
     const points = path.map(star => new THREE.Vector3(star.x, star.y, star.z));
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ color: 0xFFD700, linewidth: 2 }); // A bright gold color
+    const material = new THREE.LineBasicMaterial({ color: 0xFF00FF, linewidth: 2 }); // A vibrant magenta for high visibility
     routePlanner.routeLine = new THREE.Line(geometry, material);
     scene.add(routePlanner.routeLine);
+}
+
+// --- Octree Implementation for fast spatial queries ---
+
+class Octree {
+    constructor(boundary, capacity = 8) {
+        this.boundary = boundary; // A THREE.Box3
+        this.capacity = capacity; // Max number of points before subdividing
+        this.points = [];
+        this.divided = false;
+    }
+
+    subdivide() {
+        const { min, max } = this.boundary;
+        const halfSize = new THREE.Vector3().subVectors(max, min).multiplyScalar(0.5);
+
+        const childrenBounds = [
+            // Bottom half
+            new THREE.Box3(min, new THREE.Vector3(min.x + halfSize.x, min.y + halfSize.y, min.z + halfSize.z)),
+            new THREE.Box3(new THREE.Vector3(min.x + halfSize.x, min.y, min.z), new THREE.Vector3(max.x, min.y + halfSize.y, min.z + halfSize.z)),
+            new THREE.Box3(new THREE.Vector3(min.x, min.y, min.z + halfSize.z), new THREE.Vector3(min.x + halfSize.x, min.y + halfSize.y, max.z)),
+            new THREE.Box3(new THREE.Vector3(min.x + halfSize.x, min.y, min.z + halfSize.z), new THREE.Vector3(max.x, min.y + halfSize.y, max.z)),
+            // Top half
+            new THREE.Box3(new THREE.Vector3(min.x, min.y + halfSize.y, min.z), new THREE.Vector3(min.x + halfSize.x, max.y, min.z + halfSize.z)),
+            new THREE.Box3(new THREE.Vector3(min.x + halfSize.x, min.y + halfSize.y, min.z), new THREE.Vector3(max.x, max.y, min.z + halfSize.z)),
+            new THREE.Box3(new THREE.Vector3(min.x, min.y + halfSize.y, min.z + halfSize.z), new THREE.Vector3(min.x + halfSize.x, max.y, max.z)),
+            new THREE.Box3(new THREE.Vector3(min.x + halfSize.x, min.y + halfSize.y, min.z + halfSize.z), max)
+        ];
+
+        this.children = childrenBounds.map(b => new Octree(b, this.capacity));
+        this.divided = true;
+
+        // Move points from this node to its children
+        for (const p of this.points) {
+            for (const child of this.children) {
+                if (child.insert(p)) break;
+            }
+        }
+        this.points = [];
+    }
+
+    insert(point) {
+        const pointVec = new THREE.Vector3(point.x, point.y, point.z);
+        if (!this.boundary.containsPoint(pointVec)) {
+            return false;
+        }
+
+        if (this.points.length < this.capacity && !this.divided) {
+            this.points.push(point);
+            return true;
+        }
+
+        if (!this.divided) {
+            this.subdivide();
+        }
+
+        for (const child of this.children) {
+            if (child.insert(point)) return true;
+        }
+    }
+
+    query(center, radius) {
+        let found = [];
+        const querySphere = new THREE.Sphere(new THREE.Vector3(center.x, center.y, center.z), radius);
+
+        if (!this.boundary.intersectsSphere(querySphere)) {
+            return found;
+        }
+
+        for (const p of this.points) {
+            if (distance(center, p) <= radius) {
+                found.push(p);
+            }
+        }
+
+        if (this.divided) {
+            for (const child of this.children) {
+                found = found.concat(child.query(center, radius));
+            }
+        }
+        return found;
+    }
 }
 
 function interruptTour() {

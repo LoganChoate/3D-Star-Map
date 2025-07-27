@@ -13,5 +13,11 @@
     "electron": "^31.0.1",
     "electron-builder": "^24.13.3"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "build": {
+    "appId": "com.logan.starmap",
+    "win": {
+      "icon": "build/icon.ico"
+    }
+  }
 }

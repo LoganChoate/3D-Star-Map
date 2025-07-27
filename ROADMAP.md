@@ -35,14 +35,30 @@ These features have been successfully implemented and are part of the current ap
 - **Automated Exploration:**
   - **Randomized "Stellar Tour" Mode:** A cinematic idle mode that flies to random stars, orbits them, and displays their information with narration. Features intelligent pause durations and "look-before-you-fly" animations.
 
+- **Travel/Route Planning Mode:**
+  - An interactive mode to calculate the shortest path between two stars.
+  - Optimized with an **Octree** for high-speed spatial queries, preventing UI freezes.
+  - Powered by the **A* pathfinding algorithm** with a "stranded" detection for impossible routes.
+  - Includes a "Find Minimum Jump" feature to calculate the most efficient jump drive capability needed for a route.
+
 ---
 
 ## 🚀 Future Features
 
 This is the planned order for implementing new features.
 
-1.  **Travel/Route Planning Mode:**
-    - An interactive mode allowing users to select a start and end star. The application will calculate and display the most efficient "jump" route between them, likely using the A* pathfinding algorithm with a maximum jump range constraint.
+1.  **Standalone Executable Package:**
+    - The project is configured with **Electron** and **electron-builder** to package the web application into a standalone desktop application for Windows, macOS, and Linux, allowing for easy distribution and offline use.
 
-2.  **Standalone Executable Package:**
-    - Package the entire web application into a standalone desktop application for Windows, macOS, and Linux using **Electron**. This will allow for easy distribution and offline use.
+2.  **Advanced Route Planning & Navigation:**
+    - **Multi-Route Management:**
+        - Ability to plan and display up to 3 routes simultaneously.
+        - Each route will have a distinct, high-contrast color.
+        - The "Reset View" button will clear all planned routes.
+    - **Route Interaction & Navigation:**
+        - Buttons to instantly jump the camera to the start or end star of a selected route.
+        - A "Next Jump" button to sequentially travel along a calculated route.
+        - A custom tour mode that automatically follows a planned route.
+    - **Visual Feedback & Animation:**
+        - An animated "search bubble" effect during pathfinding calculations.
+        - An animated, sequential drawing of the route lines between stars.

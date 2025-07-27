@@ -94,7 +94,11 @@
                 <p><span class="info-label">End:</span><span id="route-end-star" class="info-value">None</span></p>
                 <label for="max-jump-range" class="block mb-1 text-sm font-semibold">Max Jump (pc):</label>
                 <input type="number" id="max-jump-range" class="search-input w-full" value="50">
-                <button id="calculate-route-button" class="custom-button w-full mt-2">Calculate Route</button>
+                <div class="flex gap-2 mt-2">
+                    <button id="calculate-route-button" class="custom-button flex-grow">Calculate Route</button>
+                    <button id="find-min-jump-button" class="custom-button flex-grow">Find Min. Jump</button>
+                </div>
+                <p id="route-calculating-message" class="text-center text-cyan-400 mt-2 hidden">Calculating...</p>
             </div>
         </div>
     </div>

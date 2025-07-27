@@ -1,6 +1,7 @@
 import json
 import re
 import os
+import sys
 
 # Define file paths
 STAR_JSON_PATH = 'stars.json'
@@ -73,5 +74,13 @@ def update_details_file():
         f.write(js_content)
     print(f"Successfully updated {DETAILS_JS_PATH} with {update_count} new placeholder entries.")
 
-if __name__ == '__main__':
+def main():
+    """Main execution function with force flag handling."""
+    if '--force' in sys.argv or '-f' in sys.argv:
+        if os.path.exists(DETAILS_JS_PATH):
+            print(f"Force flag detected. Deleting existing '{DETAILS_JS_PATH}' to perform a clean rebuild.")
+            os.remove(DETAILS_JS_PATH)
     update_details_file()
+
+if __name__ == '__main__':
+    main()
