@@ -20,7 +20,7 @@ let stellarTour = {
 let routePlanner = {
     active: false,
     routes: [], // Will hold up to 3 route objects
-    maxRoutes: 3,
+    maxRoutes: 3, // As per the roadmap
     activeRouteIndex: 0, // The route we are currently editing (0, 1, or 2)
     currentSelection: null, // The star currently selected in the info panel
     // Pre-defined colors for the routes for high contrast
@@ -34,7 +34,7 @@ let originalNarrationText = ''; // Holds the clean text for the current selectio
 // Constants for star sizing
 const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
 const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
-const GLOBAL_VISUAL_SCALE = 0.5; // Aggressively reduced scale for clarity in dense core
+const GLOBAL_VISUAL_SCALE = 0.5; 
 let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue, narrateButton, starDescriptionContainer, starDescription, stellarTourButton, toggleRoutePlannerButton, routePlannerContainer, setStartButton, setEndButton, routeStartStar, routeEndStar, maxJumpRangeInput, calculateRouteButton, routeButtonsContainer, findMinJumpButton, routeCalculatingMessage;
 
 function init() {
@@ -151,6 +151,8 @@ function init() {
         }
     });
     
+    createRouteSelectorButtons();
+
     activeControls = controls; // Start with OrbitControls
 
     animate();
@@ -401,6 +403,20 @@ function drawConstellationLines(constellationName) {
 function resetScene() {
     interruptTour();
     interruptRoutePlanner();
+
+    // --- Clear all route data as per the roadmap ---
+    routePlanner.routes.forEach(route => {
+        if (route && route.routeLine) {
+            scene.remove(route.routeLine);
+            route.routeLine.geometry.dispose();
+            route.routeLine.material.dispose();
+        }
+    });
+    routePlanner.routes = [];
+    routePlanner.activeRouteIndex = 0;
+    updateRoutePlannerUI();
+    // --- End of route clearing ---
+
     // Calculate the bounding sphere of the entire dataset to frame it perfectly.
     const box = new THREE.Box3();
     const points = fullStarData.map(s => new THREE.Vector3(s.x, s.y, s.z));
@@ -891,13 +907,19 @@ function toggleRoutePlanner() {
         toggleRoutePlannerButton.textContent = 'Plan Route';
         toggleRoutePlannerButton.classList.remove('active-mode');
         routePlannerContainer.classList.add('hidden');
-        routeButtonsContainer.classList.add('hidden');
-        routePlanner.startStar = null;
-        routePlanner.endStar = null;
+        routeButtonsContainer.classList.add('hidden'); 
         routePlanner.currentSelection = null;
-        updateRoutePlannerUI();
-        // Potentially clear route line here later
+        // Hide all route lines when exiting planner mode
+        routePlanner.routes.forEach(route => {
+            if (route && route.routeLine) {
+                route.routeLine.visible = false;
+            }
+        });
     }
+}
+
+function getActiveRoute() {
+    return routePlanner.routes[routePlanner.activeRouteIndex];
 }
 
 function setRouteStart() {
@@ -905,7 +927,7 @@ function setRouteStart() {
 
     // Find or create the route object for the active index
     let activeRoute = routePlanner.routes[routePlanner.activeRouteIndex];
-    if (!activeRoute) {
+    if (!activeRoute) { // If the route object doesn't exist, create it
         activeRoute = { startStar: null, endStar: null, path: null, routeLine: null };
         routePlanner.routes[routePlanner.activeRouteIndex] = activeRoute;
     }
@@ -918,7 +940,7 @@ function setRouteEnd() {
     if (!routePlanner.currentSelection) return;
 
     let activeRoute = routePlanner.routes[routePlanner.activeRouteIndex];
-    if (!activeRoute) {
+    if (!activeRoute) { // If the route object doesn't exist, create it
         activeRoute = { startStar: null, endStar: null, path: null, routeLine: null };
         routePlanner.routes[routePlanner.activeRouteIndex] = activeRoute;
     }
@@ -928,7 +950,7 @@ function setRouteEnd() {
 }
 
 function updateRoutePlannerUI() {
-    const activeRoute = routePlanner.routes[routePlanner.activeRouteIndex];
+    const activeRoute = getActiveRoute();
     if (activeRoute) {
         routeStartStar.textContent = activeRoute.startStar ? activeRoute.startStar.name : 'None';
         routeEndStar.textContent = activeRoute.endStar ? activeRoute.endStar.name : 'None';
@@ -936,15 +958,16 @@ function updateRoutePlannerUI() {
         routeStartStar.textContent = 'None';
         routeEndStar.textContent = 'None';
     }
+    document.getElementById('active-route-display').textContent = routePlanner.activeRouteIndex + 1;
 }
 
 function calculateRoute() {
-    if (routePlanner.routes.length === 0 || !routePlanner.routes[routePlanner.activeRouteIndex]) {
+    const activeRoute = getActiveRoute();
+    if (!activeRoute) {
         alert("No active route to calculate. Please set a start and end star.");
         return;
     }
 
-    const activeRoute = routePlanner.routes[routePlanner.activeRouteIndex];
 
     if (!activeRoute.startStar || !activeRoute.endStar) {
         alert("Please select a start and end star for the route.");
@@ -962,22 +985,23 @@ function calculateRoute() {
 
     if (result && result.path && result.path.length > 1) {
         console.log("Route found:", result.path.map(p => p.name).join(" -> "));
-        drawRouteLine(result.path);
+        activeRoute.path = result.path;
+        drawRouteLine(activeRoute);
         if (result.stranded) {
             alert("Dead End! Could not reach the destination. Showing the closest possible route.");
         }
     } else {
         alert("No route could be found with the specified maximum jump range.");
-        drawRouteLine(null); // Clear any existing line
+        drawRouteLine(null); // Clear the line for the active route
     }
 }
 
 function findMinimumJumpRange() {
-    if (routePlanner.routes.length === 0 || !routePlanner.routes[routePlanner.activeRouteIndex]) {
+    const activeRoute = getActiveRoute();
+    if (!activeRoute) {
         alert("No active route to calculate. Please set a start and end star.");
         return;
     }
-    const activeRoute = routePlanner.routes[routePlanner.activeRouteIndex];
 
     if (!activeRoute.startStar || !activeRoute.endStar) {
         alert("Please select a start and end star first.");
@@ -994,59 +1018,52 @@ function findMinimumJumpRange() {
     calculateRouteButton.disabled = true;
     findMinJumpButton.disabled = true;
     routeCalculatingMessage.textContent = 'Calculating Min. Jump...';
-    routeCalculatingMessage.classList.remove('hidden');
-    drawRouteLine(null);
+    routeCalculatingMessage.classList.remove('hidden'); 
+    drawRouteLine(null); // Clear the line for the active route
 
-    // --- Start Asynchronous Calculation ---
-    setTimeout(() => {
+    // Use an async IIFE (Immediately Invoked Function Expression) to run the logic
+    (async () => {
         console.log(`Searching for minimum jump range between ${activeRoute.startStar.name} and ${activeRoute.endStar.name}, starting from ${initialMaxJump} pc.`);
 
-        // First, check if a path is possible at all with the initial range
-        const initialResult = findPathAStar(activeRoute.startStar, activeRoute.endStar, initialMaxJump);
+        let low = 0;
+        let high = initialMaxJump;
+        let minViableRange = initialMaxJump;
+        let bestPath = null;
+
+        const initialResult = findPathAStar(activeRoute.startStar, activeRoute.endStar, high);
         if (!initialResult || initialResult.stranded) {
-            alert(`No route possible even with a jump range of ${initialMaxJump} pc.`);
-            calculateRouteButton.disabled = false;
-            findMinJumpButton.disabled = false;
-            routeCalculatingMessage.classList.add('hidden');
-            return;
+            alert(`No route possible even with a jump range of ${high} pc.`);
+        } else {
+            bestPath = initialResult.path;
+            while (low <= high) {
+                const mid = low + Math.floor((high - low) / 2);
+                if (mid === 0) { low = 1; continue; } // Avoid getting stuck at 0
+
+                const result = findPathAStar(activeRoute.startStar, activeRoute.endStar, mid);
+                if (result && !result.stranded) {
+                    minViableRange = mid;
+                    bestPath = result.path;
+                    high = mid - 1; // Try an even smaller range
+                } else {
+                    low = mid + 1; // Range was too small, must try a larger range
+                }
+                // Yield to the event loop to keep the UI responsive
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
         }
 
-        // --- Start the non-blocking binary search for the active route ---
-        binarySearchMinJump(activeRoute, 0, initialMaxJump, initialMaxJump, initialResult.path);
-
-    }, 10);
-}
-
-function binarySearchMinJump(low, high, minViableRange, bestPath) {
-    // Base case: if the search range has collapsed, we're done.
-    if (low > high) {
         maxJumpRangeInput.value = minViableRange;
-        drawRouteLine(bestPath);
-        alert(`Minimum viable jump range is approximately ${minViableRange} pc.`);
+        activeRoute.path = bestPath;
+        drawRouteLine(activeRoute);
+        if (bestPath) {
+            alert(`Minimum viable jump range is approximately ${minViableRange.toFixed(2)} pc.`);
+        }
 
-        // --- Clean up UI ---
+        // --- Final UI Cleanup ---
         calculateRouteButton.disabled = false;
         findMinJumpButton.disabled = false;
         routeCalculatingMessage.classList.add('hidden');
-        return;
-    }
-
-    const mid = Math.floor((low + high) / 2);
-    if (mid === 0) {
-        // Schedule the next step and exit to avoid infinite loop at zero
-        setTimeout(() => binarySearchMinJump(1, high, minViableRange, bestPath), 0);
-        return;
-    }
-    
-    const result = findPathAStar(activeRoute.startStar, activeRoute.endStar, mid);
-    
-    if (result && !result.stranded) {
-        // Path was found, so this is a new potential minimum. Try an even smaller range.
-        setTimeout(() => binarySearchMinJump(low, mid - 1, mid, result.path), 0);
-    } else {
-        // Range was too small, we must try a larger range.
-        setTimeout(() => binarySearchMinJump(mid + 1, high, minViableRange, bestPath), 0);
-    }
+    })();
 }
 
 // --- A* Pathfinding Implementation ---
@@ -1149,26 +1166,62 @@ function heuristic(nodeA, nodeB) {
     return distance(nodeA, nodeB);
 }
 
-function drawRouteLine(path) {
-    const activeRoute = routePlanner.routes[routePlanner.activeRouteIndex];
-    if (!activeRoute) return;
-
-    // Clear previous route line
-    if (activeRoute.routeLine) {
-        scene.remove(activeRoute.routeLine);
-        activeRoute.routeLine.geometry.dispose();
-        activeRoute.routeLine.material.dispose();
-        activeRoute.routeLine = null;
+function drawRouteLine(route) {
+    // This function now takes the entire route object.
+    // If route is null, it clears the line for the *active* route.
+    const routeToClear = route || getActiveRoute();
+    if (routeToClear && routeToClear.routeLine) {
+        scene.remove(routeToClear.routeLine);
+        routeToClear.routeLine.geometry.dispose();
+        routeToClear.routeLine.material.dispose();
+        routeToClear.routeLine = null;
     }
 
-    if (!path || path.length < 2) return;
+    // If no valid route object with a path is provided, we're done.
+    if (!route || !route.path || route.path.length < 2) return;
 
-    const points = path.map(star => new THREE.Vector3(star.x, star.y, star.z));
+    const points = route.path.map(star => new THREE.Vector3(star.x, star.y, star.z));
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const color = routePlanner.routeColors[routePlanner.activeRouteIndex] || 0xFF00FF;
+    const color = routePlanner.routeColors[routePlanner.routes.indexOf(route)] || 0xFF00FF;
     const material = new THREE.LineBasicMaterial({ color: color, linewidth: 2 });
-    activeRoute.routeLine = new THREE.Line(geometry, material);
-    scene.add(activeRoute.routeLine);
+    route.routeLine = new THREE.Line(geometry, material);
+    scene.add(route.routeLine);
+}
+
+function createRouteSelectorButtons() {
+    const container = document.getElementById('route-selector-buttons');
+    container.innerHTML = ''; // Clear any existing buttons
+    for (let i = 0; i < routePlanner.maxRoutes; i++) {
+        const button = document.createElement('button');
+        button.textContent = i + 1;
+        button.className = 'custom-button route-selector-btn text-xs px-2 py-1';
+        if (i === routePlanner.activeRouteIndex) {
+            button.classList.add('active-mode');
+        }
+        button.onclick = () => setActiveRoute(i);
+        container.appendChild(button);
+    }
+}
+
+function setActiveRoute(index) {
+    if (index < 0 || index >= routePlanner.maxRoutes) return;
+
+    // Hide the old active route's line
+    const oldActiveRoute = getActiveRoute();
+    if (oldActiveRoute && oldActiveRoute.routeLine) {
+        oldActiveRoute.routeLine.visible = false;
+    }
+
+    routePlanner.activeRouteIndex = index;
+
+    // Show the new active route's line
+    const activeRoute = getActiveRoute();
+    if (activeRoute && activeRoute.routeLine) {
+        activeRoute.routeLine.visible = true;
+    }
+
+    updateRoutePlannerUI();
+    createRouteSelectorButtons(); // Redraw buttons to update the 'active' class
 }
 
 // --- Octree Implementation for fast spatial queries ---

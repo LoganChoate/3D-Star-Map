@@ -41,20 +41,21 @@ These features have been successfully implemented and are part of the current ap
   - Powered by the **A* pathfinding algorithm** with a "stranded" detection for impossible routes.
   - Includes a "Find Minimum Jump" feature to calculate the most efficient jump drive capability needed for a route.
 
+- **✅ Multi-Route Management:**
+  - Ability to plan and display up to 3 routes simultaneously.
+  - Each route has a distinct, high-contrast color.
+  - The "Reset View" button now clears all planned routes.
+
+- **✅ Standalone Executable Package:**
+  - The project is configured with **Electron** and **electron-builder** to package the web application into a standalone desktop application for Windows, macOS, and Linux, allowing for easy distribution and offline use.
+
 ---
 
 ## 🚀 Future Features
 
 This is the planned order for implementing new features.
 
-1.  **Standalone Executable Package:**
-    - The project is configured with **Electron** and **electron-builder** to package the web application into a standalone desktop application for Windows, macOS, and Linux, allowing for easy distribution and offline use.
-
-2.  **Advanced Route Planning & Navigation:**
-    - **Multi-Route Management:**
-        - Ability to plan and display up to 3 routes simultaneously.
-        - Each route will have a distinct, high-contrast color.
-        - The "Reset View" button will clear all planned routes.
+1.  **Advanced Route Planning & Navigation:**
     - **Route Interaction & Navigation:**
         - Buttons to instantly jump the camera to the start or end star of a selected route.
         - A "Next Jump" button to sequentially travel along a calculated route.
@@ -63,19 +64,19 @@ This is the planned order for implementing new features.
         - An animated "search bubble" effect during pathfinding calculations.
         - An animated, sequential drawing of the route lines between stars.
 
-3.  **Integrate Exoplanet & Deep-Sky Object Data:**
+2.  **Integrate Exoplanet & Deep-Sky Object Data:**
     - **Concept**: Introduce new data layers for known exoplanets, nebulae, and galaxies to enrich the map's educational value.
     - **Implementation**:
         - **Exoplanets**: Augment star data to include exoplanets. When a star is selected, display planet details and potentially render schematic orbital lines.
         - **Deep-Sky Objects (DSOs)**: Render objects like galaxies and nebulae as textured sprites using astronomical photos, with a new filter to toggle their visibility.
 
-4.  **Visualize Proper Motion with a Time Slider:**
+3.  **Visualize Proper Motion with a Time Slider:**
     - **Concept**: Add a time slider to visualize how the starfield and constellations change over millennia due to the stars' proper motion.
     - **Implementation**:
         - Update the star dataset with proper motion vectors (`vx`, `vy`, `vz`).
         - A UI slider will control a "time" variable, recalculating star positions in real-time to show constellations warping over cosmic timescales.
 
-5.  **Add WebXR (VR/AR) Support:**
+4.  **Add WebXR (VR/AR) Support:**
     - **Concept**: Implement WebXR to allow users to experience the star map in an immersive VR headset.
     - **Implementation**:
         - Utilize Three.js's built-in WebXR support to add an "Enter VR" mode.
