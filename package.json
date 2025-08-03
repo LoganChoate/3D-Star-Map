@@ -13,14 +13,35 @@
     "electron": "^31.0.1",
     "electron-builder": "^24.13.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "electron-updater": "^6.2.1"
+  },
   "build": {
     "appId": "com.loganstarmap.explorer",
     "productName": "3D Star Map Explorer",
     "copyright": "Copyright © 2024 Logan",
+    "files": [
+      "**/*",
+      "!**/node_modules/*",
+      "!*.md",
+      "!*.py"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "your-github-username",
+      "repo": "your-repo-name"
+    },
     "win": {
       "icon": "build/galaxy_map_icon.ico",
       "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/galaxy_map_icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/galaxy_map_icon.png"
     },
     "nsis": {
       "oneClick": false,
