@@ -48,6 +48,7 @@ These features have been successfully implemented and are part of the current ap
 
 - **✅ Standalone Executable Package:**
   - The project is configured with **Electron** and **electron-builder** to package the web application into a standalone desktop application for Windows, macOS, and Linux, allowing for easy distribution and offline use.
+  - Includes an **automatic update** feature using `electron-updater`, configured to publish and check for new versions from GitHub Releases.
 
 ---
 
