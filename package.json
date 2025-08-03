@@ -17,8 +17,9 @@
   "build": {
     "appId": "com.loganstarmap.explorer",
     "productName": "3D Star Map Explorer",
+    "copyright": "Copyright © 2024 Logan",
     "win": {
-      "icon": "build/icon.ico",
+      "icon": "build/galaxy_map_icon.ico",
       "target": "nsis"
     },
     "nsis": {

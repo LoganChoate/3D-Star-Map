@@ -6,6 +6,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1600,
     height: 900,
+    icon: path.join(__dirname, 'build/galaxy_map_icon.ico'), // Add this line to set the window icon
     webPreferences: {
       // It's good practice to preload scripts, but for this simple case,
       // we can keep it straightforward.
