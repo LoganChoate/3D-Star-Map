@@ -62,3 +62,21 @@ This is the planned order for implementing new features.
     - **Visual Feedback & Animation:**
         - An animated "search bubble" effect during pathfinding calculations.
         - An animated, sequential drawing of the route lines between stars.
+
+3.  **Integrate Exoplanet & Deep-Sky Object Data:**
+    - **Concept**: Introduce new data layers for known exoplanets, nebulae, and galaxies to enrich the map's educational value.
+    - **Implementation**:
+        - **Exoplanets**: Augment star data to include exoplanets. When a star is selected, display planet details and potentially render schematic orbital lines.
+        - **Deep-Sky Objects (DSOs)**: Render objects like galaxies and nebulae as textured sprites using astronomical photos, with a new filter to toggle their visibility.
+
+4.  **Visualize Proper Motion with a Time Slider:**
+    - **Concept**: Add a time slider to visualize how the starfield and constellations change over millennia due to the stars' proper motion.
+    - **Implementation**:
+        - Update the star dataset with proper motion vectors (`vx`, `vy`, `vz`).
+        - A UI slider will control a "time" variable, recalculating star positions in real-time to show constellations warping over cosmic timescales.
+
+5.  **Add WebXR (VR/AR) Support:**
+    - **Concept**: Implement WebXR to allow users to experience the star map in an immersive VR headset.
+    - **Implementation**:
+        - Utilize Three.js's built-in WebXR support to add an "Enter VR" mode.
+        - Adapt the UI to use VR controller laser pointers for selection and render UI panels as floating 3D planes in space.
