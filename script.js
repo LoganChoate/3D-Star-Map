@@ -24,7 +24,6 @@ let routePlanner = {
     currentSelection: null,
     routeLine: null
 };
-let animationFrameId;
 let starOctree;
 let maxDistWithGarbage, maxDistWithoutGarbage;
 
@@ -782,21 +781,22 @@ function stopStellarTour() {
     stellarTour.timer = null;
     stellarTour.targetStar = null;
     speechSynthesis.cancel(); // Stop any active narration
-    
+
     stellarTourButton.textContent = 'Stellar Tour';
     stellarTourButton.classList.remove('active-mode');
-    
-    animation.onComplete = null; // Cancel any pending tour steps
-    if (!animation.active) {
-        activeControls.enabled = true; // Re-enable controls if no animation is running
-    }
+
+    // Kill any active GSAP animations on the camera and controls
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(controls.target);
+
+    // Since animations are stopped, re-enable controls immediately.
+    activeControls.enabled = true;
 }
 
 function selectNextTourStar() {
     if (!stellarTour.active) return;
 
     stellarTour.state = 'traveling';
-
     let nextStar;
     do {
         const randomIndex = Math.floor(Math.random() * activeStarData.length);
@@ -1220,40 +1220,54 @@ function interruptTour() {
     }
 }
 
-let animation = { active: false, onComplete: null };
 function animateCameraTo(target, position, onCompleteCallback = null) {
-    animation.active = true;
-    animation.startPosition = camera.position.clone();
-    animation.endPosition = position || target.clone().add(new THREE.Vector3(0, 20, 50));
-    animation.startTarget = controls.target.clone();
-    animation.endTarget = target;
-    animation.alpha = 0;
-    animation.onComplete = onCompleteCallback; // Use the passed callback, or null if none is provided
+    // Kill any ongoing animations on the camera to prevent conflicts
+    gsap.killTweensOf(camera.position);
+    gsap.killTweensOf(controls.target);
+
+    const travelDistance = camera.position.distanceTo(position);
+    // Calculate a dynamic duration. Min 1s, max 4s.
+    // Adjust the divisor (e.g., 500) to change how distance affects speed.
+    const duration = Math.max(1, Math.min(4, travelDistance / 500));
+
     activeControls.enabled = false;
-}
 
-function animate() {
-    animationFrameId = requestAnimationFrame(animate);
-    const delta = clock.getDelta();
+    // Animate the camera's position
+    gsap.to(camera.position, {
+        x: position.x,
+        y: position.y,
+        z: position.z,
+        duration: duration,
+        ease: "power2.inOut"
+    });
 
-    if (animation.active) {
-        animation.alpha += 0.02;
-        if (animation.alpha >= 1) {
-            animation.alpha = 1;
-            animation.active = false;
+    // Animate the controls' target (the point the camera looks at)
+    gsap.to(controls.target, {
+        x: target.x,
+        y: target.y,
+        z: target.z,
+        duration: duration,
+        ease: "power2.inOut",
+        onComplete: () => {
             // Only re-enable user controls if the tour isn't active.
-            // The tour manages its own control state.
             if (!stellarTour.active) {
                 activeControls.enabled = true;
             }
-            if (animation.onComplete) {
-                animation.onComplete();
-                animation.onComplete = null; // Ensure it only runs once
+            // Execute the callback if it exists
+            if (onCompleteCallback) {
+                onCompleteCallback();
             }
         }
-        camera.position.lerpVectors(animation.startPosition, animation.endPosition, animation.alpha);
-        controls.target.lerpVectors(animation.startTarget, animation.endTarget, animation.alpha);
-    } else if (stellarTour.active && stellarTour.state === 'orbiting' && stellarTour.targetStar) {
+    });
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+
+    // GSAP updates itself automatically.
+
+    if (stellarTour.active && stellarTour.state === 'orbiting' && stellarTour.targetStar) {
         // Perform the orbit logic when the tour is paused at a star
         const targetPosition = new THREE.Vector3(stellarTour.targetStar.x, stellarTour.targetStar.y, stellarTour.targetStar.z);
         const orbitSpeed = 0.1; // radians per second
@@ -1264,7 +1278,9 @@ function animate() {
         camera.position.copy(targetPosition).add(offset);
         camera.lookAt(targetPosition);
     } else {
-        // Only update user controls if not animating or orbiting
+        // Update user controls (Orbit or Fly)
+        // This will only have an effect if the controls are enabled.
+        // During GSAP animations, they are disabled.
         if (activeControls === flyControls) {
             flyControls.update(delta);
         } else {
