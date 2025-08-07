@@ -954,7 +954,9 @@ function toggleRoutePlanner() {
         routePlanner.routes.forEach(route => {
             if (route && route.routeLine) {
                 route.routeLine.visible = true;
-            
+            }
+        });
+
         if (selectionHighlight.visible) {
             routeButtonsContainer.classList.remove('hidden');
         }
@@ -1126,9 +1128,10 @@ function findMinimumJumpRange() {
         calculateRouteButton.disabled = false;
         findMinJumpButton.disabled = false;
         routeCalculatingMessage.classList.add('hidden');
-    })();
+      })();
+  }
 
-// --- A* Pathfinding Implementation ---
+  // --- A* Pathfinding Implementation ---
 
 class PriorityQueue {
     constructor() {
