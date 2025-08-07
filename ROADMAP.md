@@ -50,13 +50,7 @@ These features have been successfully implemented and are part of the current ap
   - The project is configured with **Electron** and **electron-builder** to package the web application into a standalone desktop application for Windows, macOS, and Linux, allowing for easy distribution and offline use.
   - Includes an **automatic update** feature using `electron-updater`, configured to publish and check for new versions from GitHub Releases.
 
----
-
-## 🚀 Future Features
-
-This is the planned order for implementing new features.
-
-1.  **Advanced Route Planning & Navigation:**
+- **✅ Advanced Route Planning & Navigation:**
     - **Route Interaction & Navigation:**
         - Buttons to instantly jump the camera to the start or end star of a selected route.
         - A "Next Jump" button to sequentially travel along a calculated route.
@@ -65,19 +59,25 @@ This is the planned order for implementing new features.
         - An animated "search bubble" effect during pathfinding calculations.
         - An animated, sequential drawing of the route lines between stars.
 
-2.  **Integrate Exoplanet & Deep-Sky Object Data:**
+---
+
+## 🚀 Future Features
+
+This is the planned order for implementing new features.
+
+1.  **Integrate Exoplanet & Deep-Sky Object Data:**
     - **Concept**: Introduce new data layers for known exoplanets, nebulae, and galaxies to enrich the map's educational value.
     - **Implementation**:
         - **Exoplanets**: Augment star data to include exoplanets. When a star is selected, display planet details and potentially render schematic orbital lines.
         - **Deep-Sky Objects (DSOs)**: Render objects like galaxies and nebulae as textured sprites using astronomical photos, with a new filter to toggle their visibility.
 
-3.  **Visualize Proper Motion with a Time Slider:**
+2.  **Visualize Proper Motion with a Time Slider:**
     - **Concept**: Add a time slider to visualize how the starfield and constellations change over millennia due to the stars' proper motion.
     - **Implementation**:
         - Update the star dataset with proper motion vectors (`vx`, `vy`, `vz`).
         - A UI slider will control a "time" variable, recalculating star positions in real-time to show constellations warping over cosmic timescales.
 
-4.  **Add WebXR (VR/AR) Support:**
+3.  **Add WebXR (VR/AR) Support:**
     - **Concept**: Implement WebXR to allow users to experience the star map in an immersive VR headset.
     - **Implementation**:
         - Utilize Three.js's built-in WebXR support to add an "Enter VR" mode.

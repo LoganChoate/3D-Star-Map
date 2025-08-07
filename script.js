@@ -24,12 +24,14 @@ let routePlanner = {
     activeRouteIndex: 0, // The route we are currently editing (0, 1, or 2)
     currentJumpIndex: 0, // The index of the current star in the active route's path
     currentSelection: null, // The star currently selected in the info panel
+    routeTour: { active: false, timer: null }, // New state for the route tour
     // Pre-defined colors for the routes for high contrast
     routeColors: [0xFF00FF, 0x00FFFF, 0xFFFF00] // Magenta, Cyan, Yellow
 };
 let starOctree;
 let maxDistWithGarbage, maxDistWithoutGarbage;
-let routeNavigationContainer, jumpToStartButton, nextJumpButton, jumpToEndButton, routeProgressDisplay;
+let routeNavigationContainer, jumpToStartButton, nextJumpButton, jumpToEndButton, routeProgressDisplay, followRouteButton;
+let searchBubble;
 
 let originalNarrationText = ''; // Holds the clean text for the current selection
 
@@ -69,6 +71,7 @@ function init() {
     jumpToStartButton = document.getElementById('jump-to-start-button');
     nextJumpButton = document.getElementById('next-jump-button');
     jumpToEndButton = document.getElementById('jump-to-end-button');
+    followRouteButton = document.getElementById('follow-route-button');
     routeProgressDisplay = document.getElementById('route-progress-display');
     routeButtonsContainer = document.getElementById('route-buttons-container');
 
@@ -117,6 +120,12 @@ function init() {
     selectionHighlight.visible = false;
     scene.add(selectionHighlight);
 
+    const bubbleGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, transparent: true, opacity: 0.2 });
+    searchBubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+    searchBubble.visible = false;
+    scene.add(searchBubble);
+
     // Inject CSS for word highlighting to avoid needing to edit style.css directly
     const style = document.createElement('style');
     style.innerHTML = `
@@ -145,8 +154,8 @@ function init() {
     jumpToStartButton.addEventListener('click', () => jumpToRoutePoint('start'));
     jumpToEndButton.addEventListener('click', () => jumpToRoutePoint('end'));
     nextJumpButton.addEventListener('click', handleNextJump);
+    followRouteButton.addEventListener('click', toggleFollowRoute);
     stellarTourButton.addEventListener('click', toggleStellarTour);
-    document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
     constellationSelect.addEventListener('change', viewSelectedConstellation);
@@ -413,6 +422,7 @@ function drawConstellationLines(constellationName) {
 function resetScene() {
     interruptTour();
     interruptRoutePlanner();
+    stopFollowRoute();
 
     // --- Clear all route data as per the roadmap ---
     routePlanner.routes.forEach(route => {
@@ -896,6 +906,7 @@ function initiateTourFlight(star, onTravelComplete) {
 }
 
 function interruptRoutePlanner() {
+    stopFollowRoute();
     if (routePlanner.active) {
         toggleRoutePlanner();
     }
@@ -992,6 +1003,7 @@ function calculateRoute() {
     }
 
     console.log(`Calculating route from ${activeRoute.startStar.name} to ${activeRoute.endStar.name} with max jump of ${maxJump} pc.`);
+    animateSearchBubble(activeRoute.startStar, activeRoute.endStar, maxJump);
     const result = findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
 
     if (result && result.path && result.path.length > 1) {
@@ -1037,6 +1049,7 @@ function findMinimumJumpRange() {
     // Use an async IIFE (Immediately Invoked Function Expression) to run the logic
     (async () => {
         console.log(`Searching for minimum jump range between ${activeRoute.startStar.name} and ${activeRoute.endStar.name}, starting from ${initialMaxJump} pc.`);
+        animateSearchBubble(activeRoute.startStar, activeRoute.endStar, initialMaxJump);
 
         let low = 0;
         let high = initialMaxJump;
@@ -1199,6 +1212,19 @@ function drawRouteLine(route) {
     const color = routePlanner.routeColors[routePlanner.routes.indexOf(route)] || 0xFF00FF;
     const material = new THREE.LineBasicMaterial({ color: color, linewidth: 2 });
     route.routeLine = new THREE.Line(geometry, material);
+
+    // Animate the line drawing
+    const totalVertices = points.length;
+    geometry.setDrawRange(0, 0);
+    gsap.to(geometry.drawRange, {
+        count: totalVertices,
+        duration: 2,
+        ease: "power1.inOut",
+        onUpdate: () => {
+            geometry.attributes.position.needsUpdate = true;
+        }
+    });
+
     scene.add(route.routeLine);
     updateRouteNavigationUI();
 }
@@ -1294,6 +1320,95 @@ function handleNextJump() {
     }
 
     updateRouteNavigationUI();
+}
+
+function toggleFollowRoute() {
+    if (routePlanner.routeTour.active) {
+        stopFollowRoute();
+    } else {
+        followRoute();
+    }
+}
+
+function followRoute() {
+    const activeRoute = getActiveRoute();
+    if (!activeRoute || !activeRoute.path || activeRoute.path.length < 2) {
+        alert("Please calculate a route first.");
+        return;
+    }
+
+    routePlanner.routeTour.active = true;
+    followRouteButton.textContent = "Stop Following";
+    followRouteButton.classList.add('active-mode');
+
+    // Start from the current position
+    const nextStar = activeRoute.path[routePlanner.currentJumpIndex];
+    if (nextStar) {
+        frameObjectInView(nextStar, () => {
+            routePlanner.routeTour.timer = setTimeout(handleNextJumpOnTour, 2000);
+        });
+    }
+}
+
+function stopFollowRoute() {
+    routePlanner.routeTour.active = false;
+    clearTimeout(routePlanner.routeTour.timer);
+    followRouteButton.textContent = "Follow Route";
+    followRouteButton.classList.remove('active-mode');
+}
+
+function handleNextJumpOnTour() {
+    if (!routePlanner.routeTour.active) return;
+
+    handleNextJump();
+    const activeRoute = getActiveRoute();
+    const nextStar = activeRoute.path[routePlanner.currentJumpIndex];
+
+    if (nextStar) {
+        frameObjectInView(nextStar, () => {
+            // If it's the last star, stop the tour
+            if (routePlanner.currentJumpIndex === activeRoute.path.length - 1) {
+                stopFollowRoute();
+            } else {
+                routePlanner.routeTour.timer = setTimeout(handleNextJumpOnTour, 2000);
+            }
+        });
+    }
+}
+
+        });
+    }
+}
+
+function animateSearchBubble(startNode, endNode, maxJump) {
+    searchBubble.position.copy(startNode);
+    searchBubble.scale.set(1, 1, 1);
+    searchBubble.visible = true;
+
+    const distance = startNode.distanceTo(endNode);
+
+    gsap.to(searchBubble.scale, {
+        x: maxJump * 2,
+        y: maxJump * 2,
+        z: maxJump * 2,
+        duration: 1,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut"
+    });
+
+    gsap.to(searchBubble.position, {
+        x: endNode.x,
+        y: endNode.y,
+        z: endNode.z,
+        duration: 2,
+        ease: "power2.inOut",
+        onComplete: () => {
+            searchBubble.visible = false;
+            gsap.killTweensOf(searchBubble.scale);
+            gsap.killTweensOf(searchBubble.position);
+        }
+    });
 }
 
 // --- Octree Implementation for fast spatial queries ---
