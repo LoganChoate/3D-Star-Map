@@ -22,12 +22,14 @@ let routePlanner = {
     routes: [], // Will hold up to 3 route objects
     maxRoutes: 3, // As per the roadmap
     activeRouteIndex: 0, // The route we are currently editing (0, 1, or 2)
+    currentJumpIndex: 0, // The index of the current star in the active route's path
     currentSelection: null, // The star currently selected in the info panel
     // Pre-defined colors for the routes for high contrast
     routeColors: [0xFF00FF, 0x00FFFF, 0xFFFF00] // Magenta, Cyan, Yellow
 };
 let starOctree;
 let maxDistWithGarbage, maxDistWithoutGarbage;
+let routeNavigationContainer, jumpToStartButton, nextJumpButton, jumpToEndButton, routeProgressDisplay;
 
 let originalNarrationText = ''; // Holds the clean text for the current selection
 
@@ -63,6 +65,11 @@ function init() {
     calculateRouteButton = document.getElementById('calculate-route-button');
     findMinJumpButton = document.getElementById('find-min-jump-button');
     routeCalculatingMessage = document.getElementById('route-calculating-message');
+    routeNavigationContainer = document.getElementById('route-navigation-container');
+    jumpToStartButton = document.getElementById('jump-to-start-button');
+    nextJumpButton = document.getElementById('next-jump-button');
+    jumpToEndButton = document.getElementById('jump-to-end-button');
+    routeProgressDisplay = document.getElementById('route-progress-display');
     routeButtonsContainer = document.getElementById('route-buttons-container');
 
     scene = new THREE.Scene();
@@ -135,6 +142,9 @@ function init() {
     setEndButton.addEventListener('click', setRouteEnd);
     calculateRouteButton.addEventListener('click', calculateRoute);
     findMinJumpButton.addEventListener('click', findMinimumJumpRange);
+    jumpToStartButton.addEventListener('click', () => jumpToRoutePoint('start'));
+    jumpToEndButton.addEventListener('click', () => jumpToRoutePoint('end'));
+    nextJumpButton.addEventListener('click', handleNextJump);
     stellarTourButton.addEventListener('click', toggleStellarTour);
     document.getElementById('search-button').addEventListener('click', () => searchByName(searchInput.value));
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
@@ -415,6 +425,7 @@ function resetScene() {
     routePlanner.routes = [];
     routePlanner.activeRouteIndex = 0;
     updateRoutePlannerUI();
+    updateRouteNavigationUI();
     // --- End of route clearing ---
 
     // Calculate the bounding sphere of the entire dataset to frame it perfectly.
@@ -986,6 +997,7 @@ function calculateRoute() {
     if (result && result.path && result.path.length > 1) {
         console.log("Route found:", result.path.map(p => p.name).join(" -> "));
         activeRoute.path = result.path;
+        routePlanner.currentJumpIndex = 0; // Reset jump progress
         drawRouteLine(activeRoute);
         if (result.stranded) {
             alert("Dead End! Could not reach the destination. Showing the closest possible route.");
@@ -993,6 +1005,7 @@ function calculateRoute() {
     } else {
         alert("No route could be found with the specified maximum jump range.");
         drawRouteLine(null); // Clear the line for the active route
+        updateRouteNavigationUI();
     }
 }
 
@@ -1054,6 +1067,7 @@ function findMinimumJumpRange() {
 
         maxJumpRangeInput.value = minViableRange;
         activeRoute.path = bestPath;
+        routePlanner.currentJumpIndex = 0; // Reset jump progress
         drawRouteLine(activeRoute);
         if (bestPath) {
             alert(`Minimum viable jump range is approximately ${minViableRange.toFixed(2)} pc.`);
@@ -1186,6 +1200,7 @@ function drawRouteLine(route) {
     const material = new THREE.LineBasicMaterial({ color: color, linewidth: 2 });
     route.routeLine = new THREE.Line(geometry, material);
     scene.add(route.routeLine);
+    updateRouteNavigationUI();
 }
 
 function createRouteSelectorButtons() {
@@ -1222,6 +1237,63 @@ function setActiveRoute(index) {
 
     updateRoutePlannerUI();
     createRouteSelectorButtons(); // Redraw buttons to update the 'active' class
+    updateRouteNavigationUI();
+}
+
+function updateRouteNavigationUI() {
+    const activeRoute = getActiveRoute();
+
+    if (routePlanner.active && activeRoute && activeRoute.path && activeRoute.path.length > 1) {
+        routeNavigationContainer.classList.remove('hidden');
+        routeProgressDisplay.classList.remove('hidden');
+        
+        jumpToStartButton.disabled = false;
+        jumpToEndButton.disabled = false;
+        nextJumpButton.disabled = false;
+
+        const totalJumps = activeRoute.path.length - 1;
+        const currentLeg = routePlanner.currentJumpIndex;
+        routeProgressDisplay.textContent = `Jumps: ${currentLeg} / ${totalJumps}`;
+
+    } else {
+        routeNavigationContainer.classList.add('hidden');
+        routeProgressDisplay.classList.add('hidden');
+        routeProgressDisplay.textContent = '';
+    }
+}
+
+function jumpToRoutePoint(point) {
+    const activeRoute = getActiveRoute();
+    if (!activeRoute) return;
+
+    if (point === 'start' && activeRoute.startStar) {
+        routePlanner.currentJumpIndex = 0;
+        frameObjectInView(activeRoute.startStar);
+    } else if (point === 'end' && activeRoute.endStar) {
+        routePlanner.currentJumpIndex = activeRoute.path.length - 1;
+        frameObjectInView(activeRoute.endStar);
+    }
+    updateRouteNavigationUI();
+}
+
+function handleNextJump() {
+    const activeRoute = getActiveRoute();
+    if (!activeRoute || !activeRoute.path || activeRoute.path.length < 2) return;
+
+    // Increment the jump index
+    routePlanner.currentJumpIndex++;
+
+    // If we've gone past the last star, loop back to the start
+    if (routePlanner.currentJumpIndex >= activeRoute.path.length) {
+        routePlanner.currentJumpIndex = 0;
+    }
+
+    const nextStar = activeRoute.path[routePlanner.currentJumpIndex];
+    if (nextStar) {
+        frameObjectInView(nextStar);
+    }
+
+    updateRouteNavigationUI();
 }
 
 // --- Octree Implementation for fast spatial queries ---
