@@ -159,7 +159,6 @@ function init() {
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
     constellationSelect.addEventListener('change', viewSelectedConstellation);
-    document.getElementById('clear-constellation-button').addEventListener('click', clearConstellationView);
     searchInput.addEventListener('input', handleAutocomplete);
     sizeSlider.addEventListener('input', applyFilters);
     narrateButton.addEventListener('click', handleNarration);
@@ -850,8 +849,10 @@ function selectNextTourStar() {
         stellarTour.state = 'orbiting';
         const hasDetails = starDescription.textContent.length > 0;
 
-        if (hasDetails) {
-            handleTourNarration();
+        if (hasDetails && stellarTour.targetStar.proper) {
+            setTimeout(() => {
+                if (stellarTour.active) handleTourNarration();
+            }, 1000);
         } else {
             stellarTour.timer = setTimeout(selectNextTourStar, 10000);
         }
@@ -861,14 +862,42 @@ function selectNextTourStar() {
 
 function handleTourNarration() {
     if (!stellarTour.active) return;
-    const text = starDescription.textContent;
-    const utterance = new SpeechSynthesisUtterance(text);
-    // When narration ends, wait 1 second, then move to the next star.
-    utterance.onend = () => {
+    const text = originalNarrationText;
+    if (!text) {
         if (stellarTour.active) {
-            stellarTour.timer = setTimeout(selectNextTourStar, 1000); 
+            stellarTour.timer = setTimeout(selectNextTourStar, 1000);
+        }
+        return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    utterance.onboundary = (event) => {
+        if (event.name === 'word') {
+            const wordStart = event.charIndex;
+            let wordEnd = text.indexOf(' ', wordStart);
+            if (wordEnd === -1) wordEnd = text.length;
+
+            const before = text.substring(0, wordStart);
+            const word = text.substring(wordStart, wordEnd);
+            const after = text.substring(wordEnd);
+
+            starDescription.innerHTML = `${before}<span class="highlight-word">${word}</span>${after}`;
+
+            const highlightSpan = starDescription.querySelector('.highlight-word');
+            if (highlightSpan) {
+                highlightSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     };
+
+    utterance.onend = () => {
+        starDescription.textContent = originalNarrationText; // Restore original text
+        if (stellarTour.active) {
+            stellarTour.timer = setTimeout(selectNextTourStar, 1000);
+        }
+    };
+
     speechSynthesis.speak(utterance);
 }
 
@@ -921,6 +950,11 @@ function toggleRoutePlanner() {
         toggleRoutePlannerButton.classList.add('active-mode');
         routePlannerContainer.classList.remove('hidden');
         // When entering planner, if a star is selected, show its buttons
+        // When entering planner, show all existing route lines
+        routePlanner.routes.forEach(route => {
+            if (route && route.routeLine) {
+                route.routeLine.visible = true;
+            
         if (selectionHighlight.visible) {
             routeButtonsContainer.classList.remove('hidden');
         }
@@ -1003,8 +1037,9 @@ function calculateRoute() {
     }
 
     console.log(`Calculating route from ${activeRoute.startStar.name} to ${activeRoute.endStar.name} with max jump of ${maxJump} pc.`);
-    animateSearchBubble(activeRoute.startStar, activeRoute.endStar, maxJump);
+    startSearchBubbleAnimation(activeRoute.startStar, activeRoute.endStar, maxJump);
     const result = findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+    stopSearchBubbleAnimation();
 
     if (result && result.path && result.path.length > 1) {
         console.log("Route found:", result.path.map(p => p.name).join(" -> "));
@@ -1049,7 +1084,7 @@ function findMinimumJumpRange() {
     // Use an async IIFE (Immediately Invoked Function Expression) to run the logic
     (async () => {
         console.log(`Searching for minimum jump range between ${activeRoute.startStar.name} and ${activeRoute.endStar.name}, starting from ${initialMaxJump} pc.`);
-        animateSearchBubble(activeRoute.startStar, activeRoute.endStar, initialMaxJump);
+        startSearchBubbleAnimation(activeRoute.startStar, activeRoute.endStar, initialMaxJump);
 
         let low = 0;
         let high = initialMaxJump;
@@ -1078,6 +1113,7 @@ function findMinimumJumpRange() {
             }
         }
 
+        stopSearchBubbleAnimation();
         maxJumpRangeInput.value = minViableRange;
         activeRoute.path = bestPath;
         routePlanner.currentJumpIndex = 0; // Reset jump progress
@@ -1091,7 +1127,6 @@ function findMinimumJumpRange() {
         findMinJumpButton.disabled = false;
         routeCalculatingMessage.classList.add('hidden');
     })();
-}
 
 // --- A* Pathfinding Implementation ---
 
@@ -1220,9 +1255,6 @@ function drawRouteLine(route) {
         count: totalVertices,
         duration: 2,
         ease: "power1.inOut",
-        onUpdate: () => {
-            geometry.attributes.position.needsUpdate = true;
-        }
     });
 
     scene.add(route.routeLine);
@@ -1247,19 +1279,7 @@ function createRouteSelectorButtons() {
 function setActiveRoute(index) {
     if (index < 0 || index >= routePlanner.maxRoutes) return;
 
-    // Hide the old active route's line
-    const oldActiveRoute = getActiveRoute();
-    if (oldActiveRoute && oldActiveRoute.routeLine) {
-        oldActiveRoute.routeLine.visible = false;
-    }
-
     routePlanner.activeRouteIndex = index;
-
-    // Show the new active route's line
-    const activeRoute = getActiveRoute();
-    if (activeRoute && activeRoute.routeLine) {
-        activeRoute.routeLine.visible = true;
-    }
 
     updateRoutePlannerUI();
     createRouteSelectorButtons(); // Redraw buttons to update the 'active' class
@@ -1376,11 +1396,13 @@ function handleNextJumpOnTour() {
     }
 }
 
-        });
-    }
+function stopSearchBubbleAnimation() {
+    searchBubble.visible = false;
+    gsap.killTweensOf(searchBubble.scale);
+    gsap.killTweensOf(searchBubble.position);
 }
 
-function animateSearchBubble(startNode, endNode, maxJump) {
+function startSearchBubbleAnimation(startNode, endNode, maxJump) {
     searchBubble.position.copy(startNode);
     searchBubble.scale.set(1, 1, 1);
     searchBubble.visible = true;
@@ -1404,9 +1426,7 @@ function animateSearchBubble(startNode, endNode, maxJump) {
         duration: 2,
         ease: "power2.inOut",
         onComplete: () => {
-            searchBubble.visible = false;
-            gsap.killTweensOf(searchBubble.scale);
-            gsap.killTweensOf(searchBubble.position);
+            stopSearchBubbleAnimation();
         }
     });
 }

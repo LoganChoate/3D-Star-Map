@@ -19,6 +19,10 @@ These features have been successfully implemented and are part of the current ap
   - Constellation viewer with line drawing.
   - Detailed selection info panel.
 
+- **UI Enhancements:**
+  - Relocated "Navigation" and "Modes" sections to the bottom of the main panel for a more intuitive layout.
+  - Redesigned the star name and constellation search bars for a cleaner, more consistent look, moving the clear buttons inside the search bars.
+
 - **Camera & Navigation:**
   - Dual camera control modes:
     - **Orbit Mode:** For object-focused inspection.
@@ -34,6 +38,7 @@ These features have been successfully implemented and are part of the current ap
 
 - **Automated Exploration:**
   - **Randomized "Stellar Tour" Mode:** A cinematic idle mode that flies to random stars, orbits them, and displays their information with narration. Features intelligent pause durations and "look-before-you-fly" animations.
+  - **Enhanced Narration:** The tour now automatically narrates details for named stars, including karaoke-style text highlighting, and pauses after narration before continuing.
 
 - **Travel/Route Planning Mode:**
   - An interactive mode to calculate the shortest path between two stars.

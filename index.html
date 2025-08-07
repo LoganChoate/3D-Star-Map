@@ -21,34 +21,16 @@
     </div>
 
     <div class="overlay-panel">
-        <!-- Main Controls -->
-        <div class="control-group mb-3">
-            <h2 class="panel-header">Navigation</h2>
-            <div class="grid grid-cols-2 gap-2">
-                <button id="resetViewButton" class="custom-button">Reset View</button>
-                <button id="snapToSolButton" class="custom-button">Snap to Sol</button>
-            </div>
-        </div>
-        <div class="control-group mb-3">
-            <h2 class="panel-header">Modes</h2>
-            <div class="grid grid-cols-3 gap-2">
-                <button id="toggle-fly-mode-button" class="custom-button">Fly</button>
-                <button id="stellar-tour-button" class="custom-button">Tour</button>
-                <button id="toggle-route-planner-button" class="custom-button">Route</button>
-            </div>
-        </div>
-        <hr class="my-3 border-cyan-700">
         <h2 class="panel-header">Search & View</h2>
         <div class="relative mb-1">
-            <input type="text" id="search-input" class="search-input w-full" placeholder="Star Name..." autocomplete="off">
-            <button id="clear-search-button" class="clear-search-button" title="Clear search">X</button>
+            <input type="text" id="search-input" class="search-input w-full pr-8" placeholder="Star Name..." autocomplete="off">
+            <button id="clear-search-button" class="absolute right-2 top-1/2 -translate-y-1/2 text-white" title="Clear search">X</button>
             <div id="autocomplete-suggestions" class="hidden"></div>
         </div>
-        <div class="flex gap-2 mb-3">
-            <select id="constellation-select" class="constellation-select w-full">
+        <div class="relative mb-3">
+            <select id="constellation-select" class="constellation-select w-full pr-8">
                 <option value="">Select Constellation...</option>
             </select>
-            <button id="clear-constellation-button" class="custom-button text-xs px-3 py-1">X</button>
         </div>
         <h2 class="panel-header">Filters</h2>
         <div class="mb-2">
@@ -126,6 +108,22 @@
                 </div>
                 <p id="route-progress-display" class="text-center text-cyan-400 text-sm mt-2 hidden"></p>
                 <p id="route-calculating-message" class="text-center text-cyan-400 mt-2 hidden">Calculating...</p>
+            </div>
+        </div>
+        <!-- Main Controls -->
+        <div class="control-group mb-3">
+            <h2 class="panel-header">Navigation</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="resetViewButton" class="custom-button">Reset View</button>
+                <button id="snapToSolButton" class="custom-button">Snap to Sol</button>
+            </div>
+        </div>
+        <div class="control-group mb-3">
+            <h2 class="panel-header">Modes</h2>
+            <div class="grid grid-cols-3 gap-2">
+                <button id="toggle-fly-mode-button" class="custom-button">Fly</button>
+                <button id="stellar-tour-button" class="custom-button">Tour</button>
+                <button id="toggle-route-planner-button" class="custom-button">Route</button>
             </div>
         </div>
     </div>
