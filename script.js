@@ -42,6 +42,7 @@ let routeNavigationContainer, jumpToStartButton, nextJumpButton, jumpToEndButton
 let searchBubble;
 
 let originalNarrationText = ''; // Holds the clean text for the current selection
+const spectralClasses = ['O','B','A','F','G','K','M'];
 
 // Constants for star sizing
 const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
@@ -209,6 +210,7 @@ function init() {
     });
     
     createRouteSelectorButtons();
+    buildSpectralLegend();
 
     activeControls = controls; // Start with OrbitControls
 
@@ -378,6 +380,7 @@ function applyFilters() {
 
     createStarGeometry(activeStarData);
     updateUI();
+    buildSpectralLegend();
 }
 
 function createStarGeometry(data) {
@@ -520,6 +523,53 @@ function getStarVisualParams(star) {
     // Scale halo with intrinsic apparent size
     haloFactor *= Math.min(1.0, star.relativeRadiusScale * 0.5);
     return { twinkleAmp, pulseFreq, haloFactor };
+}
+
+function buildSpectralLegend() {
+    const container = document.getElementById('spectral-legend');
+    if (!container) return;
+    container.innerHTML = '';
+    const classCounts = spectralClasses.reduce((acc, s) => (acc[s] = 0, acc), {});
+    fullStarData.forEach(star => {
+        const spect = (star.spect || '').toUpperCase();
+        const s = spect.length > 0 ? spect[0] : null;
+        if (s && classCounts[s] !== undefined) classCounts[s] += 1;
+    });
+    spectralClasses.forEach(s => {
+        const color = getRGBfromCI(classRepresentativeCI(s));
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between';
+        const left = document.createElement('div');
+        left.className = 'flex items-center gap-2';
+        const swatch = document.createElement('span');
+        swatch.style.display = 'inline-block';
+        swatch.style.width = '14px';
+        swatch.style.height = '14px';
+        swatch.style.borderRadius = '50%';
+        swatch.style.backgroundColor = `rgb(${Math.round(color.r*255)}, ${Math.round(color.g*255)}, ${Math.round(color.b*255)})`;
+        const label = document.createElement('span');
+        label.textContent = s;
+        left.appendChild(swatch);
+        left.appendChild(label);
+        const count = document.createElement('span');
+        count.textContent = classCounts[s].toLocaleString();
+        row.appendChild(left);
+        row.appendChild(count);
+        container.appendChild(row);
+    });
+}
+
+function classRepresentativeCI(s) {
+    switch(s) {
+        case 'O': return -0.2;
+        case 'B': return -0.05;
+        case 'A': return 0.1;
+        case 'F': return 0.35;
+        case 'G': return 0.65;
+        case 'K': return 1.0;
+        case 'M': return 1.4;
+        default: return 0.65;
+    }
 }
 
 function applyVisualPreset(preset) {
