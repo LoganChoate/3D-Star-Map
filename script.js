@@ -1,12 +1,12 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { FlyControls } from 'three/addons/controls/FlyControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { Line2 } from 'three/addons/lines/Line2.js';
-import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
-import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import * as THREE from './vendor/three/build/three.module.js';
+import { OrbitControls } from './vendor/three/examples/jsm/controls/OrbitControls.js';
+import { FlyControls } from './vendor/three/examples/jsm/controls/FlyControls.js';
+import { EffectComposer } from './vendor/three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from './vendor/three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from './vendor/three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { Line2 } from './vendor/three/examples/jsm/lines/Line2.js';
+import { LineGeometry } from './vendor/three/examples/jsm/lines/LineGeometry.js';
+import { LineMaterial } from './vendor/three/examples/jsm/lines/LineMaterial.js';
 
 let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
 let composer, renderPass, bloomPass;
