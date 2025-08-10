@@ -183,6 +183,7 @@ function init() {
     const bloomStrengthValue = document.getElementById('bloom-strength-value');
     const visualPresetSelect = document.getElementById('visual-preset');
     const routeArrowsToggle = document.getElementById('route-arrows-toggle');
+    const screenshotButton = document.getElementById('screenshot-button');
     if (bloomToggle && bloomStrength && bloomStrengthValue) {
         bloomToggle.addEventListener('change', () => {
             bloomPass.enabled = bloomToggle.checked;
@@ -208,6 +209,9 @@ function init() {
             if (activeRoute && activeRoute.path) drawRouteLine(activeRoute);
         });
         routePlanner.showArrows = routeArrowsToggle.checked;
+    }
+    if (screenshotButton) {
+        screenshotButton.addEventListener('click', saveScreenshot);
     }
     constellationSelect.addEventListener('change', viewSelectedConstellation);
     searchInput.addEventListener('input', handleAutocomplete);
@@ -1959,6 +1963,19 @@ function getRGBfromCI(ci) {
     if (ci < 0.9) return { r: 1.0, g: 0.9, b: 0.5 }; 
     if (ci < 1.4) return { r: 1.0, g: 0.7, b: 0.4 }; 
     return { r: 1.0, g: 0.5, b: 0.5 }; 
+}
+
+function saveScreenshot() {
+    // Render once to ensure latest frame
+    if (composer) composer.render(); else renderer.render(scene, camera);
+    const dataURL = renderer.domElement.toDataURL('image/png');
+    const a = document.createElement('a');
+    const date = new Date().toISOString().replace(/[:.]/g, '-');
+    a.href = dataURL;
+    a.download = `3D_Star_Map_${date}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 init();

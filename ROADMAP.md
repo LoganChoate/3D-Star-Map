@@ -64,6 +64,16 @@ These features have been successfully implemented and are part of the current ap
         - An animated "search bubble" effect during pathfinding calculations.
         - An animated, sequential drawing of the route lines between stars.
 
+- **✅ Visual Enhancements:**
+  - Bloom post-processing with UI toggle and strength control.
+  - Shader-driven star material with per-instance parameters (CI, twinkle, pulse, halo) and time-based animation.
+  - Consistent-thickness constellation and route lines using `Line2`.
+  - Route lines with animated flow (dashed movement) and optional arrowheads.
+  - Visual presets (Scientific/Cinematic) to quickly switch styles.
+  - Hero star composite on selection (emissive core + corona sprite).
+  - Spectral Legend panel with color swatches and live counts respecting filters.
+  - Screenshot capture button.
+
 ---
 
 ## 🚀 Future Features
