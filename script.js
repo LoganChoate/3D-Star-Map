@@ -98,6 +98,12 @@ function init() {
     console.log('Initial camera target:', camera.target);
     console.log('Camera FOV:', camera.fov);
     console.log('Camera near/far:', camera.near, '/', camera.far);
+    
+    // Force camera to a known position for debugging
+    camera.position.set(0, 0, 100);
+    controls.target.set(0, 0, 0);
+    console.log('Forced camera position:', camera.position);
+    console.log('Forced camera target:', controls.target);
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
@@ -265,6 +271,17 @@ function init() {
     buildSpectralLegend();
 
     activeControls = controls; // Start with OrbitControls
+
+    // Debug: Render a single frame immediately to test
+    console.log('About to render first frame...');
+    if (composer) {
+        console.log('Rendering first frame with composer');
+        composer.render();
+    } else {
+        console.log('Rendering first frame with basic renderer');
+        renderer.render(scene, camera);
+    }
+    console.log('First frame rendered');
 
     animate();
 }
