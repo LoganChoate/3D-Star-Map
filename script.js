@@ -1021,13 +1021,7 @@ function updateRoutePlannerUI() {
 
 function calculateRoute() {
     const activeRoute = getActiveRoute();
-    if (!activeRoute) {
-        alert("No active route to calculate. Please set a start and end star.");
-        return;
-    }
-
-
-    if (!activeRoute.startStar || !activeRoute.endStar) {
+    if (!activeRoute || !activeRoute.startStar || !activeRoute.endStar) {
         alert("Please select a start and end star for the route.");
         return;
     }
@@ -1039,23 +1033,40 @@ function calculateRoute() {
     }
 
     console.log(`Calculating route from ${activeRoute.startStar.name} to ${activeRoute.endStar.name} with max jump of ${maxJump} pc.`);
-    startSearchBubbleAnimation(activeRoute.startStar, activeRoute.endStar, maxJump);
-    const result = findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
-    stopSearchBubbleAnimation();
+    
+    // --- UI Feedback ---
+    calculateRouteButton.disabled = true;
+    findMinJumpButton.disabled = true;
+    routeCalculatingMessage.textContent = 'Calculating Route...';
+    routeCalculatingMessage.classList.remove('hidden');
+    drawRouteLine(null); // Clear previous line for this route
 
-    if (result && result.path && result.path.length > 1) {
-        console.log("Route found:", result.path.map(p => p.name).join(" -> "));
-        activeRoute.path = result.path;
-        routePlanner.currentJumpIndex = 0; // Reset jump progress
-        drawRouteLine(activeRoute);
-        if (result.stranded) {
-            alert("Dead End! Could not reach the destination. Showing the closest possible route.");
+    startSearchBubbleAnimation(activeRoute.startStar, activeRoute.endStar, maxJump);
+
+    // Use a timeout to allow the UI to update and the animation to start
+    setTimeout(() => {
+        const result = findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+        
+        stopSearchBubbleAnimation();
+
+        if (result && result.path && result.path.length > 1) {
+            console.log("Route found:", result.path.map(p => p.name).join(" -> "));
+            activeRoute.path = result.path;
+            routePlanner.currentJumpIndex = 0;
+            drawRouteLine(activeRoute); // This has its own animation
+            if (result.stranded) {
+                alert("Dead End! Could not reach the destination. Showing the closest possible route.");
+            }
+        } else {
+            alert("No route could be found with the specified maximum jump range.");
+            updateRouteNavigationUI(); // Ensure nav is hidden if route fails
         }
-    } else {
-        alert("No route could be found with the specified maximum jump range.");
-        drawRouteLine(null); // Clear the line for the active route
-        updateRouteNavigationUI();
-    }
+
+        // --- Final UI Cleanup ---
+        calculateRouteButton.disabled = false;
+        findMinJumpButton.disabled = false;
+        routeCalculatingMessage.classList.add('hidden');
+    }, 100); // A small delay is enough
 }
 
 function findMinimumJumpRange() {
@@ -1243,7 +1254,10 @@ function drawRouteLine(route) {
     }
 
     // If no valid route object with a path is provided, we're done.
-    if (!route || !route.path || route.path.length < 2) return;
+    if (!route || !route.path || route.path.length < 2) {
+        updateRouteNavigationUI(); // Hide nav if no valid line is drawn
+        return;
+    }
 
     const points = route.path.map(star => new THREE.Vector3(star.x, star.y, star.z));
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -1251,13 +1265,18 @@ function drawRouteLine(route) {
     const material = new THREE.LineBasicMaterial({ color: color, linewidth: 2 });
     route.routeLine = new THREE.Line(geometry, material);
 
-    // Animate the line drawing
+    // Animate the line drawing by animating the drawRange.count property
     const totalVertices = points.length;
-    geometry.setDrawRange(0, 0);
-    gsap.to(geometry.drawRange, {
+    const drawRange = { count: 0 }; // Start with 0 vertices drawn
+    geometry.setDrawRange(0, drawRange.count);
+
+    gsap.to(drawRange, {
         count: totalVertices,
-        duration: 2,
+        duration: 2, // Animation duration in seconds
         ease: "power1.inOut",
+        onUpdate: () => {
+            geometry.setDrawRange(0, Math.floor(drawRange.count));
+        }
     });
 
     scene.add(route.routeLine);
@@ -1406,29 +1425,32 @@ function stopSearchBubbleAnimation() {
 }
 
 function startSearchBubbleAnimation(startNode, endNode, maxJump) {
-    searchBubble.position.set(startNode.x, startNode.y, startNode.z);
-    searchBubble.scale.set(1, 1, 1);
+    const startVec = new THREE.Vector3(startNode.x, startNode.y, startNode.z);
+    const endVec = new THREE.Vector3(endNode.x, endNode.y, endNode.z);
+
+    searchBubble.position.copy(startVec);
+    searchBubble.scale.set(0.1, 0.1, 0.1);
     searchBubble.visible = true;
 
-    gsap.to(searchBubble.scale, {
-        x: maxJump * 2,
-        y: maxJump * 2,
-        z: maxJump * 2,
-        duration: 1,
-        repeat: -1,
-        yoyo: true,
+    const distance = startVec.distanceTo(endVec);
+    const travelDuration = Math.max(1, distance / 100);
+
+    gsap.to(searchBubble.position, {
+        x: endVec.x,
+        y: endVec.y,
+        z: endVec.z,
+        duration: travelDuration,
         ease: "power1.inOut"
     });
 
-    gsap.to(searchBubble.position, {
-        x: endNode.x,
-        y: endNode.y,
-        z: endNode.z,
-        duration: 2,
-        ease: "power2.inOut",
-        onComplete: () => {
-            stopSearchBubbleAnimation();
-        }
+    gsap.to(searchBubble.scale, {
+        x: maxJump * 0.5,
+        y: maxJump * 0.5,
+        z: maxJump * 0.5,
+        duration: 0.7,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut"
     });
 }
 
