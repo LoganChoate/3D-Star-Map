@@ -91,22 +91,42 @@ function init() {
     const canvasContainer = document.getElementById('canvasContainer');
     camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 400000); 
     // Initial camera position will be set after data is loaded to provide an overview.
+    
+    // Debug: Log initial camera setup
+    console.log('Canvas container dimensions:', canvasContainer.clientWidth, 'x', canvasContainer.clientHeight);
+    console.log('Initial camera position:', camera.position);
+    console.log('Initial camera target:', camera.target);
+    console.log('Camera FOV:', camera.fov);
+    console.log('Camera near/far:', camera.near, '/', camera.far);
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+    
+    // Debug: Log renderer setup
+    console.log('Renderer created:', renderer);
+    console.log('Canvas element:', canvas);
+    console.log('WebGL context:', renderer.getContext());
+    console.log('Renderer capabilities:', renderer.capabilities);
 
-    // Post-processing composer with bloom
-    composer = new EffectComposer(renderer);
-    // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instancing
-    if (!renderer.capabilities.isWebGL2) {
-        useStarShader = false;
-        console.warn('WebGL2 not detected – falling back to basic instanced material for stars.');
+    // Post-processing composer with bloom - TEMPORARILY DISABLED FOR DEBUGGING
+    try {
+        composer = new EffectComposer(renderer);
+        // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instancing
+        if (!renderer.capabilities.isWebGL2) {
+            useStarShader = false;
+            console.warn('WebGL2 not detected – falling back to basic instanced material for stars.');
+        }
+        renderPass = new RenderPass(scene, camera);
+        bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
+        composer.addPass(renderPass);
+        composer.addPass(bloomPass);
+        console.log('EffectComposer initialized successfully');
+    } catch (error) {
+        console.error('EffectComposer failed to initialize:', error);
+        composer = null;
+        console.log('Falling back to basic renderer');
     }
-    renderPass = new RenderPass(scene, camera);
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
-    composer.addPass(renderPass);
-    composer.addPass(bloomPass);
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -134,6 +154,17 @@ function init() {
     const highlightGeometry = new THREE.RingGeometry(0.95, 1.0, 32); // A thin ring
     const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
     selectionHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+    
+    // Add a test cube at origin to verify rendering is working
+    const testGeometry = new THREE.BoxGeometry(10, 10, 10);
+    const testMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+    const testCube = new THREE.Mesh(testGeometry, testMaterial);
+    testCube.position.set(0, 0, 0);
+    scene.add(testCube);
+    console.log('Added test cube at origin');
+    console.log('Scene children count after adding test cube:', scene.children.length);
+    console.log('Test cube position:', testCube.position);
+    console.log('Test cube visible:', testCube.visible);
     
     // This callback ensures the ring always faces the camera (billboarding)
     selectionHighlight.onBeforeRender = function(renderer, scene, camera) {
@@ -324,7 +355,9 @@ async function loadAndPrepareStarData() {
         sizeSlider.value = sizeSlider.max;
 
         populateConstellationDropdown();
+        console.log('About to apply filters...');
         applyFilters(); // This will perform the initial geometry creation
+        console.log('Filters applied, scene children:', scene.children.length);
         updateUI();
 
         // --- Set initial camera to the calculated overview position ---
@@ -358,6 +391,10 @@ async function loadAndPrepareStarData() {
         camera.far = newMaxDistance * 1.1;
         controls.maxDistance = newMaxDistance;
         camera.updateProjectionMatrix(); // This is crucial after changing camera.far
+        
+        console.log('Camera far plane:', camera.far);
+        console.log('Camera near plane:', camera.near);
+        console.log('Controls max distance:', controls.maxDistance);
     } catch (error) {
         console.error("Failed to load or process star data:", error);
         loadingIndicator.textContent = "Error loading data.";
@@ -1954,9 +1991,12 @@ function animate() {
         }
     }
 
+    // Debug: Log rendering method
     if (composer) {
+        console.log('Rendering with composer');
         composer.render();
     } else {
+        console.log('Rendering with basic renderer');
         renderer.render(scene, camera);
     }
 }
