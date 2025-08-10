@@ -11,6 +11,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
 let composer, renderPass, bloomPass;
 let starShaderMaterial;
+let useStarShader = true;
 let fullStarData = [];
 let activeStarData = [];
 let selectionHighlight = null;
@@ -97,6 +98,11 @@ function init() {
 
     // Post-processing composer with bloom
     composer = new EffectComposer(renderer);
+    // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instancing
+    if (!renderer.capabilities.isWebGL2) {
+        useStarShader = false;
+        console.warn('WebGL2 not detected – falling back to basic instanced material for stars.');
+    }
     renderPass = new RenderPass(scene, camera);
     bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
     composer.addPass(renderPass);
@@ -407,7 +413,8 @@ function createStarGeometry(data) {
     }
     
     if (data.length === 0) {
-        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), starShaderMaterial, 0); // Empty mesh
+        const material = useStarShader ? starShaderMaterial : new THREE.MeshBasicMaterial();
+        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), material, 0); // Empty mesh
         scene.add(stars);
         return;
     }
@@ -427,16 +434,20 @@ function createStarGeometry(data) {
         pulseArray[i] = pulseFreq;
         haloArray[i] = haloFactor;
     });
-    sphereGeometry.setAttribute('aCI', new THREE.InstancedBufferAttribute(ciArray, 1));
-    sphereGeometry.setAttribute('aTwinkle', new THREE.InstancedBufferAttribute(twinkleArray, 1));
-    sphereGeometry.setAttribute('aPulse', new THREE.InstancedBufferAttribute(pulseArray, 1));
-    sphereGeometry.setAttribute('aHalo', new THREE.InstancedBufferAttribute(haloArray, 1));
+    if (useStarShader) {
+        sphereGeometry.setAttribute('aCI', new THREE.InstancedBufferAttribute(ciArray, 1));
+        sphereGeometry.setAttribute('aTwinkle', new THREE.InstancedBufferAttribute(twinkleArray, 1));
+        sphereGeometry.setAttribute('aPulse', new THREE.InstancedBufferAttribute(pulseArray, 1));
+        sphereGeometry.setAttribute('aHalo', new THREE.InstancedBufferAttribute(haloArray, 1));
+    }
 
-    stars = new THREE.InstancedMesh(sphereGeometry, starShaderMaterial, data.length);
+    const material = useStarShader ? starShaderMaterial : new THREE.MeshBasicMaterial();
+    stars = new THREE.InstancedMesh(sphereGeometry, material, data.length);
     stars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
     const matrix = new THREE.Matrix4();
 
+    const color = new THREE.Color();
     data.forEach((star, i) => {
         // Set position and scale
         const scale = star.relativeRadiusScale * GLOBAL_VISUAL_SCALE;
@@ -446,9 +457,14 @@ function createStarGeometry(data) {
             new THREE.Vector3(scale, scale, scale)
         );
         stars.setMatrixAt(i, matrix);
+        if (!useStarShader) {
+            const c = getRGBfromCI(star.ci);
+            stars.setColorAt(i, color.setRGB(c.r, c.g, c.b));
+        }
     });
 
     stars.instanceMatrix.needsUpdate = true;
+    if (!useStarShader && stars.instanceColor) stars.instanceColor.needsUpdate = true;
 
     scene.add(stars);
 }
