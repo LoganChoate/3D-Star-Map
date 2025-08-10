@@ -179,6 +179,7 @@ function init() {
     const bloomToggle = document.getElementById('bloom-toggle');
     const bloomStrength = document.getElementById('bloom-strength');
     const bloomStrengthValue = document.getElementById('bloom-strength-value');
+    const visualPresetSelect = document.getElementById('visual-preset');
     if (bloomToggle && bloomStrength && bloomStrengthValue) {
         bloomToggle.addEventListener('change', () => {
             bloomPass.enabled = bloomToggle.checked;
@@ -191,6 +192,10 @@ function init() {
         // Initialize from UI defaults
         bloomPass.enabled = bloomToggle.checked;
         bloomPass.strength = parseFloat(bloomStrength.value);
+    }
+    if (visualPresetSelect) {
+        visualPresetSelect.addEventListener('change', () => applyVisualPreset(visualPresetSelect.value));
+        applyVisualPreset(visualPresetSelect.value);
     }
     constellationSelect.addEventListener('change', viewSelectedConstellation);
     searchInput.addEventListener('input', handleAutocomplete);
@@ -517,6 +522,19 @@ function getStarVisualParams(star) {
     return { twinkleAmp, pulseFreq, haloFactor };
 }
 
+function applyVisualPreset(preset) {
+    if (!bloomPass || !starShaderMaterial) return;
+    if (preset === 'scientific') {
+        bloomPass.enabled = false;
+        // Reduce twinkle/pulse globally by scaling time speed or amplitude
+        // We keep uTime speed same but clamp effect by setting material onBeforeCompile if needed.
+        // Simple approach: lower bloom and rely on base shader minimal effect
+    } else if (preset === 'cinematic') {
+        bloomPass.enabled = true;
+        bloomPass.strength = Math.max(bloomPass.strength, 0.6);
+    }
+}
+
 function drawConstellationLines(constellationName) {
     while(constellationLinesGroup.children.length > 0){ 
         const line = constellationLinesGroup.children[0];
@@ -778,9 +796,39 @@ function updateSelectionHighlight(star) {
         const highlightScale = (star.relativeRadiusScale * GLOBAL_VISUAL_SCALE) * 1.5 + 0.5;
         selectionHighlight.scale.set(highlightScale, highlightScale, highlightScale);
         selectionHighlight.visible = true;
+        showHeroStar(star);
     } else {
         selectionHighlight.visible = false;
+        showHeroStar(null);
     }
+}
+
+let heroStarGroup = null;
+function showHeroStar(star) {
+    if (heroStarGroup) {
+        scene.remove(heroStarGroup);
+        heroStarGroup.traverse(obj => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) obj.material.dispose();
+        });
+        heroStarGroup = null;
+    }
+    if (!star) return;
+    heroStarGroup = new THREE.Group();
+    const pos = new THREE.Vector3(star.x, star.y, star.z);
+    // Emissive core
+    const coreGeo = new THREE.SphereGeometry(0.6, 16, 16);
+    const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(getRGBfromCI(star.ci).r, getRGBfromCI(star.ci).g, getRGBfromCI(star.ci).b) });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    heroStarGroup.add(core);
+    // Corona sprite
+    const coronaMat = new THREE.SpriteMaterial({ color: 0xffffff, opacity: 0.35, transparent: true });
+    const corona = new THREE.Sprite(coronaMat);
+    const coronaScale = Math.max(4, star.relativeRadiusScale * 2);
+    corona.scale.set(coronaScale, coronaScale, 1);
+    heroStarGroup.add(corona);
+    heroStarGroup.position.copy(pos);
+    scene.add(heroStarGroup);
 }
 
 function updateInfoPanel(data) {
