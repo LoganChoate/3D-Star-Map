@@ -99,11 +99,7 @@ function init() {
     console.log('Camera FOV:', camera.fov);
     console.log('Camera near/far:', camera.near, '/', camera.far);
     
-    // Force camera to a known position for debugging
-    camera.position.set(0, 0, 100);
-    controls.target.set(0, 0, 0);
-    console.log('Forced camera position:', camera.position);
-    console.log('Forced camera target:', controls.target);
+
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
@@ -115,10 +111,10 @@ function init() {
     console.log('WebGL context:', renderer.getContext());
     console.log('Renderer capabilities:', renderer.capabilities);
 
-    // Post-processing composer with bloom - TEMPORARILY DISABLED FOR DEBUGGING
+    // Post-processing composer with bloom
     try {
         composer = new EffectComposer(renderer);
-        // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instancing
+        // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instanced
         if (!renderer.capabilities.isWebGL2) {
             useStarShader = false;
             console.warn('WebGL2 not detected – falling back to basic instanced material for stars.');
@@ -127,11 +123,9 @@ function init() {
         bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
         composer.addPass(renderPass);
         composer.addPass(bloomPass);
-        console.log('EffectComposer initialized successfully');
     } catch (error) {
         console.error('EffectComposer failed to initialize:', error);
         composer = null;
-        console.log('Falling back to basic renderer');
     }
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -161,16 +155,9 @@ function init() {
     const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
     selectionHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
     
-    // Add a test cube at origin to verify rendering is working
-    const testGeometry = new THREE.BoxGeometry(10, 10, 10);
-    const testMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
-    const testCube = new THREE.Mesh(testGeometry, testMaterial);
-    testCube.position.set(0, 0, 0);
-    scene.add(testCube);
-    console.log('Added test cube at origin');
-    console.log('Scene children count after adding test cube:', scene.children.length);
-    console.log('Test cube position:', testCube.position);
-    console.log('Test cube visible:', testCube.visible);
+
+
+
     
     // This callback ensures the ring always faces the camera (billboarding)
     selectionHighlight.onBeforeRender = function(renderer, scene, camera) {
@@ -272,16 +259,7 @@ function init() {
 
     activeControls = controls; // Start with OrbitControls
 
-    // Debug: Render a single frame immediately to test
-    console.log('About to render first frame...');
-    if (composer) {
-        console.log('Rendering first frame with composer');
-        composer.render();
-    } else {
-        console.log('Rendering first frame with basic renderer');
-        renderer.render(scene, camera);
-    }
-    console.log('First frame rendered');
+
 
     animate();
 }
@@ -513,10 +491,7 @@ function createStarGeometry(data) {
 
     scene.add(stars);
     
-    // Debug logging
-    console.log(`Created ${data.length} stars with material:`, material);
-    console.log('Stars object:', stars);
-    console.log('Scene children count:', scene.children.length);
+
 }
 
 function createStarShaderMaterial() {

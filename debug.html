@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Map Debug</title>
+    <style>
+        body { margin: 0; background: #000; }
+        #debug-info { position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; z-index: 1000; }
+        #renderCanvas { display: block; }
+    </style>
+</head>
+<body>
+    <div id="debug-info">
+        <div>Loading...</div>
+        <div id="star-count"></div>
+        <div id="webgl-info"></div>
+        <div id="errors"></div>
+    </div>
+    <canvas id="renderCanvas"></canvas>
+
+    <script type="module">
+        import * as THREE from './vendor/three/build/three.module.js';
+        
+        let scene, camera, renderer, stars;
+        let debugInfo = document.getElementById('debug-info');
+        let starCountDiv = document.getElementById('star-count');
+        let webglInfoDiv = document.getElementById('webgl-info');
+        let errorsDiv = document.getElementById('errors');
+        
+        function log(message) {
+            console.log(message);
+            debugInfo.innerHTML += '<div>' + message + '</div>';
+        }
+        
+        function logError(message) {
+            console.error(message);
+            errorsDiv.innerHTML += '<div style="color: red;">' + message + '</div>';
+        }
+        
+        try {
+            log('Starting debug...');
+            
+            // Check WebGL support
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) {
+                throw new Error('WebGL not available');
+            }
+            
+            webglInfoDiv.innerHTML = 'WebGL: Available';
+            log('WebGL is available');
+            
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 100);
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('renderCanvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Check WebGL2
+            const isWebGL2 = renderer.capabilities.isWebGL2;
+            webglInfoDiv.innerHTML += ' | WebGL2: ' + (isWebGL2 ? 'Yes' : 'No');
+            log('WebGL2: ' + (isWebGL2 ? 'Available' : 'Not available'));
+            
+            // Try to load star data
+            log('Loading star data...');
+            fetch('stars.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    log(`Loaded ${data.length} stars`);
+                    starCountDiv.innerHTML = `Stars loaded: ${data.length}`;
+                    
+                    if (data.length === 0) {
+                        logError('No stars in data');
+                        return;
+                    }
+                    
+                    // Create simple star geometry
+                    const geometry = new THREE.SphereGeometry(0.5, 8, 8);
+                    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                    
+                    // Create instanced mesh
+                    stars = new THREE.InstancedMesh(geometry, material, Math.min(data.length, 1000));
+                    
+                    const matrix = new THREE.Matrix4();
+                    const color = new THREE.Color();
+                    
+                    // Add first 1000 stars
+                    const starsToShow = Math.min(data.length, 1000);
+                    for (let i = 0; i < starsToShow; i++) {
+                        const star = data[i];
+                        if (star.x !== undefined && star.y !== undefined && star.z !== undefined) {
+                            matrix.setPosition(star.x * 0.1, star.y * 0.1, star.z * 0.1);
+                            stars.setMatrixAt(i, matrix);
+                            
+                            // Set color based on spectral class
+                            if (star.ci !== undefined) {
+                                const ci = parseFloat(star.ci);
+                                if (!isNaN(ci)) {
+                                    if (ci < 0) color.setRGB(0.67, 0.85, 1.0); // Blue
+                                    else if (ci < 0.3) color.setRGB(1.0, 1.0, 1.0); // White
+                                    else if (ci < 0.6) color.setRGB(1.0, 1.0, 0.8); // Yellow-white
+                                    else if (ci < 0.9) color.setRGB(1.0, 0.9, 0.5); // Yellow
+                                    else if (ci < 1.4) color.setRGB(1.0, 0.7, 0.4); // Orange
+                                    else color.setRGB(1.0, 0.5, 0.5); // Red
+                                    
+                                    stars.setColorAt(i, color);
+                                }
+                            }
+                        }
+                    }
+                    
+                    stars.instanceMatrix.needsUpdate = true;
+                    if (stars.instanceColor) stars.instanceColor.needsUpdate = true;
+                    
+                    scene.add(stars);
+                    log(`Added ${starsToShow} stars to scene`);
+                    
+                    // Add a simple light
+                    const light = new THREE.AmbientLight(0x404040);
+                    scene.add(light);
+                    
+                    // Start animation
+                    animate();
+                })
+                .catch(error => {
+                    logError('Failed to load star data: ' + error.message);
+                });
+                
+        } catch (error) {
+            logError('Initialization error: ' + error.message);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (stars) {
+                stars.rotation.y += 0.001;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
