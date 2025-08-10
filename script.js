@@ -34,7 +34,8 @@ let routePlanner = {
     currentSelection: null, // The star currently selected in the info panel
     routeTour: { active: false, timer: null }, // New state for the route tour
     // Pre-defined colors for the routes for high contrast
-    routeColors: [0xFF00FF, 0x00FFFF, 0xFFFF00] // Magenta, Cyan, Yellow
+    routeColors: [0xFF00FF, 0x00FFFF, 0xFFFF00], // Magenta, Cyan, Yellow
+    showArrows: true
 };
 let starOctree;
 let maxDistWithGarbage, maxDistWithoutGarbage;
@@ -181,6 +182,7 @@ function init() {
     const bloomStrength = document.getElementById('bloom-strength');
     const bloomStrengthValue = document.getElementById('bloom-strength-value');
     const visualPresetSelect = document.getElementById('visual-preset');
+    const routeArrowsToggle = document.getElementById('route-arrows-toggle');
     if (bloomToggle && bloomStrength && bloomStrengthValue) {
         bloomToggle.addEventListener('change', () => {
             bloomPass.enabled = bloomToggle.checked;
@@ -197,6 +199,15 @@ function init() {
     if (visualPresetSelect) {
         visualPresetSelect.addEventListener('change', () => applyVisualPreset(visualPresetSelect.value));
         applyVisualPreset(visualPresetSelect.value);
+    }
+    if (routeArrowsToggle) {
+        routeArrowsToggle.addEventListener('change', () => {
+            routePlanner.showArrows = routeArrowsToggle.checked;
+            // Redraw current route for immediate effect
+            const activeRoute = getActiveRoute();
+            if (activeRoute && activeRoute.path) drawRouteLine(activeRoute);
+        });
+        routePlanner.showArrows = routeArrowsToggle.checked;
     }
     constellationSelect.addEventListener('change', viewSelectedConstellation);
     searchInput.addEventListener('input', handleAutocomplete);
@@ -1548,7 +1559,53 @@ function drawRouteLine(route) {
     scene.add(route.routeLine);
     // Animate dash offset for flow effect
     route.routeFlowTween = gsap.to(route.routeLine.material, { dashOffset: -1.0, duration: 4, ease: "none", repeat: -1 });
+    if (routePlanner.showArrows) {
+        addRouteArrows(route);
+    }
     updateRouteNavigationUI();
+}
+
+function addRouteArrows(route) {
+    // Remove existing arrows
+    if (route.arrowSprites && route.arrowSprites.length) {
+        route.arrowSprites.forEach(s => scene.remove(s));
+    }
+    route.arrowSprites = [];
+    const texture = createArrowTexture();
+    const mat = new THREE.SpriteMaterial({ map: texture, color: routePlanner.routeColors[routePlanner.routes.indexOf(route)] || 0xFF00FF, transparent: true, opacity: 0.9 });
+    // Place arrows along each segment
+    for (let i = 0; i < route.path.length - 1; i++) {
+        const a = route.path[i];
+        const b = route.path[i + 1];
+        const pos = new THREE.Vector3().addVectors(new THREE.Vector3(a.x, a.y, a.z), new THREE.Vector3(b.x, b.y, b.z)).multiplyScalar(0.5);
+        const sprite = new THREE.Sprite(mat.clone());
+        const scale = 2.5; // screen/world dependent; modest size
+        sprite.scale.set(scale, scale, 1);
+        sprite.position.copy(pos);
+        // Orient roughly along segment: face camera but we can rotate UV by angle if using a quad; sprite faces camera so just place
+        scene.add(sprite);
+        route.arrowSprites.push(sprite);
+    }
+}
+
+let cachedArrowCanvas = null;
+function createArrowTexture() {
+    if (cachedArrowCanvas) return new THREE.CanvasTexture(cachedArrowCanvas);
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,size,size);
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    // Simple rightward triangle arrow
+    ctx.moveTo(20, size/2 - 10);
+    ctx.lineTo(size - 20, size/2);
+    ctx.lineTo(20, size/2 + 10);
+    ctx.closePath();
+    ctx.fill();
+    cachedArrowCanvas = canvas;
+    return new THREE.CanvasTexture(canvas);
 }
 
 function createRouteSelectorButtons() {
