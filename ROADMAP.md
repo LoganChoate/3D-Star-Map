@@ -114,3 +114,110 @@ This is the planned order for implementing new features, with concrete scope, mi
   - M1: Enter VR, view starfield.
   - M2: Select stars with controllers; see info panel.
   - M3: Follow route and tour modes in VR.
+  - Phase 2: Comfort options (vignette, teleport/step), controller haptics, tool radial menu, in-world panels for filters/toggles.
+
+---
+
+## 🔧 Usability & Onboarding (S)
+
+- First-run onboarding overlay/cards: controls, filters, route basics.
+- Persistent settings: remember filters, mode, sliders, planner state.
+- Unit toggles: pc/ly/km; app-wide mag vs. abs mag.
+- Enhanced search: fuzzy/alias (Bayer/Flamsteed/HIP/HD); partial match highlight.
+- Context tooltips: CI, magnitude, spectral classes, Garbage Sphere.
+- Screenshot/export PNG: one-click capture with optional title/watermark.
+- Bookmarks: save stars/routes/camera poses; quick go-to.
+- Measure tool: distance line between two stars with readout.
+- CSV export: export visible stars or neighborhoods with current filters.
+- Route export/import: JSON for easy sharing/restoring.
+- FPS/perf overlay toggle.
+- Color-blind palette and high-contrast UI mode.
+
+---
+
+## 📊 Data & Educational Enhancements (S/M)
+
+- Spectral class legend + mini histogram; click-to-filter.
+- Star info enrichment: computed abs mag, luminosity hints, “what it means”.
+- HR Diagram mini panel: histogram/density; highlight selection and visible set.
+- Constellation lore: short myth/notes; optional art-style line toggle.
+- Multiple catalogs surfaced: HIP/HD/Gliese quick-copy in info panel.
+
+---
+
+## 🧭 Navigation & Visualization (M)
+
+- Smart labels: dynamic labels for bright/named stars with decluttering.
+- Nearby structures overlays: ecliptic, celestial equator, Galactic plane; axis/grid toggles.
+- Minimap/overview inset: orthographic cube showing camera vs. bounds.
+- Camera waypoints: save/load named poses; smooth transitions.
+- Route line readability: switch to `Line2` for consistent thickness.
+
+---
+
+## 🧮 Analysis & Route Planning Tools (M)
+
+- Selection queries: neighbors within radius; brighter-than within radius.
+- Route cost variants: minimize jumps, minimize max jump, weighted cost; compare results.
+- Batch routes: plan against a list of targets; summary and export.
+
+---
+
+## ⚙️ Performance & Reliability (S/M)
+
+- Faster A* priority queue using a binary heap.
+- A* in a Web Worker to keep UI smooth during large searches.
+- Instanced buffers optimization: pack data in typed arrays; partial updates on filter changes.
+- LOD/culling polish: sphere-of-interest hard culling; tuned size attenuation.
+
+---
+
+## ♿ Accessibility & Internationalization (S/M)
+
+- Keyboard-only navigation coverage for all UI actions.
+- Narration options: voice selection, rate, language; caption fallback.
+- i18n scaffolding: externalize strings; start with EN.
+
+---
+
+## 🥽 WebXR Enhancements (L)
+
+- Comfort + teleport, controller haptics, in-world panels (see VR section).
+- AR “sky mode” concept: device orientation aligned sky with constellation overlay.
+
+---
+
+## 🔬 Scientific Depth & Data (L)
+
+- Density/heat overlays: voxelized density with transparency/isolines.
+- Gaia DR3 cross-match: improved proper motions, uncertainties, RUWE; higher accuracy for time slider.
+- Binary/multiple systems: detect/tag; small linking glyphs at close zoom.
+- Variable stars: tags and basic variability info.
+- Habitability tidbits: simple HZ band around Sun-like stars (educational).
+
+---
+
+## 🛠️ Developer Experience (M)
+
+- Vite bundling for fast dev server and stable local modules.
+- Unit tests for A*, Octree, filters; small harness.
+- Optional local-only telemetry for debugging (off by default).
+
+---
+
+## 🎥 Curated Tours (S/M)
+
+- Bright Stars tour; Constellations with lore; Orion Arm tour.
+- Exoplanet Hosts tour (ties into Exoplanets feature); Clusters tour (Hyades/Pleiades).
+
+---
+
+## 💼 Monetization-Oriented Release Plan
+
+High-value features that preserve fidelity and educational clarity (good “Pro” tier anchors):
+
+- Pro Core (S/M): Bookmarks; Measure tool; Screenshot export; CSV/Route export-import; Fuzzy/alias search; Spectral legend; Smart labels; Selection queries; Batch routes; Route cost variants; Curated tours; Route line readability; A* in Web Worker.
+- Education Boost (M): Star info enrichment; HR mini panel; Constellation lore; Nearby structure overlays.
+- Stability/Perf (S/M): Faster A* heap; LOD/culling polish; Instanced buffer improvements.
+
+Free tier retains: core 3D rendering, filters, search, constellation viewer, basic tour, single-route planning.
