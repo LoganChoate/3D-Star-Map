@@ -335,6 +335,10 @@ async function loadAndPrepareStarData() {
             const center = new THREE.Vector3();
             const sphere = box.getBoundingSphere(new THREE.Sphere());
             
+            console.log('Scene bounds:', box);
+            console.log('Scene center:', sphere.center);
+            console.log('Scene radius:', sphere.radius);
+            
             const fov = camera.fov * (Math.PI / 180);
             let cameraDist = sphere.radius / Math.tan(fov / 2);
             cameraDist *= 1.1; // Add a 10% buffer so it's not edge-to-edge.
@@ -342,6 +346,9 @@ async function loadAndPrepareStarData() {
             const overviewPosition = new THREE.Vector3(sphere.center.x, sphere.center.y, sphere.center.z + cameraDist);
             camera.position.copy(overviewPosition);
             controls.target.copy(sphere.center);
+            
+            console.log('Camera position:', camera.position);
+            console.log('Camera target:', controls.target);
         }
         // --- End of initial camera setup ---
 
@@ -397,11 +404,14 @@ function applyFilters() {
     tempStarData = tempStarData.filter(star => star.dist <= maxDistance);
     tempStarData = tempStarData.filter(star => star.relativeRadiusScale <= maxSize);
 
-    activeStarData = tempStarData;
+            activeStarData = tempStarData;
 
-    createStarGeometry(activeStarData);
-    updateUI();
-    buildSpectralLegend();
+        console.log('Filtered star data:', activeStarData.length, 'stars');
+        console.log('First few stars:', activeStarData.slice(0, 3));
+        
+        createStarGeometry(activeStarData);
+        updateUI();
+        buildSpectralLegend();
 }
 
 function createStarGeometry(data) {
@@ -413,41 +423,22 @@ function createStarGeometry(data) {
     }
     
     if (data.length === 0) {
-        const material = useStarShader ? starShaderMaterial : new THREE.MeshBasicMaterial();
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), material, 0); // Empty mesh
         scene.add(stars);
         return;
     }
 
-    // InstancedMesh with custom shader material for nuanced visuals.
+    // Simplified: Use basic material instead of shader for debugging
     const sphereGeometry = new THREE.SphereGeometry(BASE_STAR_RADIUS, 8, 8);
-    // Per-instance visual parameters
-    const ciArray = new Float32Array(data.length);
-    const twinkleArray = new Float32Array(data.length);
-    const pulseArray = new Float32Array(data.length);
-    const haloArray = new Float32Array(data.length);
-
-    data.forEach((star, i) => {
-        const { twinkleAmp, pulseFreq, haloFactor } = getStarVisualParams(star);
-        ciArray[i] = star.ci;
-        twinkleArray[i] = twinkleAmp;
-        pulseArray[i] = pulseFreq;
-        haloArray[i] = haloFactor;
-    });
-    if (useStarShader) {
-        sphereGeometry.setAttribute('aCI', new THREE.InstancedBufferAttribute(ciArray, 1));
-        sphereGeometry.setAttribute('aTwinkle', new THREE.InstancedBufferAttribute(twinkleArray, 1));
-        sphereGeometry.setAttribute('aPulse', new THREE.InstancedBufferAttribute(pulseArray, 1));
-        sphereGeometry.setAttribute('aHalo', new THREE.InstancedBufferAttribute(haloArray, 1));
-    }
-
-    const material = useStarShader ? starShaderMaterial : new THREE.MeshBasicMaterial();
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    
     stars = new THREE.InstancedMesh(sphereGeometry, material, data.length);
     stars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
     const matrix = new THREE.Matrix4();
-
     const color = new THREE.Color();
+
     data.forEach((star, i) => {
         // Set position and scale
         const scale = star.relativeRadiusScale * GLOBAL_VISUAL_SCALE;
@@ -457,16 +448,21 @@ function createStarGeometry(data) {
             new THREE.Vector3(scale, scale, scale)
         );
         stars.setMatrixAt(i, matrix);
-        if (!useStarShader) {
-            const c = getRGBfromCI(star.ci);
-            stars.setColorAt(i, color.setRGB(c.r, c.g, c.b));
-        }
+        
+        // Set color based on spectral class
+        const c = getRGBfromCI(star.ci);
+        stars.setColorAt(i, color.setRGB(c.r, c.g, c.b));
     });
 
     stars.instanceMatrix.needsUpdate = true;
-    if (!useStarShader && stars.instanceColor) stars.instanceColor.needsUpdate = true;
+    stars.instanceColor.needsUpdate = true;
 
     scene.add(stars);
+    
+    // Debug logging
+    console.log(`Created ${data.length} stars with material:`, material);
+    console.log('Stars object:', stars);
+    console.log('Scene children count:', scene.children.length);
 }
 
 function createStarShaderMaterial() {
