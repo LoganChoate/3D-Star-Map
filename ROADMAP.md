@@ -68,22 +68,49 @@ These features have been successfully implemented and are part of the current ap
 
 ## 🚀 Future Features
 
-This is the planned order for implementing new features.
+This is the planned order for implementing new features, with concrete scope, milestones, and technical notes.
 
-1.  **Integrate Exoplanet & Deep-Sky Object Data:**
-    - **Concept**: Introduce new data layers for known exoplanets, nebulae, and galaxies to enrich the map's educational value.
-    - **Implementation**:
-        - **Exoplanets**: Augment star data to include exoplanets. When a star is selected, display planet details and potentially render schematic orbital lines.
-        - **Deep-Sky Objects (DSOs)**: Render objects like galaxies and nebulae as textured sprites using astronomical photos, with a new filter to toggle their visibility.
+1) Integrate Exoplanet & Deep-Sky Object (DSO) Data
+- Data sources
+  - Exoplanets: NASA Exoplanet Archive (host star, planet name, semimajor axis, period, radius/mass, discovery method/year).
+  - DSOs: Curated Messier/NGC subset with RA/Dec, type (galaxy/nebula/cluster), angular size; distances where available.
+- Prep scripts
+  - `prepare_exoplanets.py`: fetch/normalize; map planets to host stars by name; fallback proximity match by coordinates; output `exoplanets.json` keyed by host `name` with `planets: [...]`.
+  - `prepare_dso.py`: convert RA/Dec (+ distance) to XYZ in our Y-up frame; output `dso.json` with `{name, type, x,y,z, texture}` or `{ra,dec,dist}` when distance is unknown.
+- Rendering
+  - Exoplanet hosts: optional global layer showing host markers; on star selection, show planet list and draw schematic orbit rings + planet markers near the star.
+  - DSOs: billboard sprites via `THREE.SpriteMaterial` with thumbnail textures; frustum/distance culling; optional LOD sizing.
+- UI
+  - Add checkboxes: “Show Exoplanet Hosts”, “Show Deep-Sky Objects”. In selection panel, render planet table and host summary.
+- Milestones
+  - M1: Load/display host markers and DSO sprites with toggles.
+  - M2: Planet details and schematic orbits when a host is selected.
+  - M3: Texture lazy-loading and caching; basic filters by DSO type.
 
-2.  **Visualize Proper Motion with a Time Slider:**
-    - **Concept**: Add a time slider to visualize how the starfield and constellations change over millennia due to the stars' proper motion.
-    - **Implementation**:
-        - Update the star dataset with proper motion vectors (`vx`, `vy`, `vz`).
-        - A UI slider will control a "time" variable, recalculating star positions in real-time to show constellations warping over cosmic timescales.
+2) Visualize Proper Motion with a Time Slider
+- Data
+  - Extend `process_hyg.py` to include proper motion and radial velocity (HYG/GAIA). Compute velocity vector `v = (vx, vy, vz)` in pc/year in our coordinate frame.
+- Simulation
+  - Maintain base position `p0`; compute `p(t) = p0 + v*t` for slider-controlled years from J2000. Recompute constellation lines for current `t`.
+- Rendering/Performance
+  - Update InstancedMesh matrices on slider changes (debounced); if needed, move A* and constellation rebuilds off main thread via Web Worker.
+- UI
+  - Add time slider `[-100k, +100k] years`, with play/pause and “Now” reset. Tooltip shows year offset.
+- Milestones
+  - M1: Stars move with slider; basic performance acceptable.
+  - M2: Constellations update to warped shapes over time.
+  - M3: Optional: route planning and tours account for time-shifted positions.
 
-3.  **Add WebXR (VR/AR) Support:**
-    - **Concept**: Implement WebXR to allow users to experience the star map in an immersive VR headset.
-    - **Implementation**:
-        - Utilize Three.js's built-in WebXR support to add an "Enter VR" mode.
-        - Adapt the UI to use VR controller laser pointers for selection and render UI panels as floating 3D planes in space.
+3) Add WebXR (VR/AR) Support
+- Base
+  - Enable WebXR: `renderer.xr.enabled = true`; add `VRButton`; verify performance budgets.
+- Interaction
+  - Controller raycasting (laser pointers) using `XRControllerModelFactory`; selection highlight ring works in VR; minimal 3D UI panels for key actions (Reset, Tour, Route toggle).
+- UI in VR
+  - Render floating panels as simple planes with large-hit-area buttons; keep desktop UI for non-VR.
+- Performance
+  - Maintain low geometry complexity (InstancedMesh is good); consider `Line2` for readable route lines; tune frustum culling and LOD.
+- Milestones
+  - M1: Enter VR, view starfield.
+  - M2: Select stars with controllers; see info panel.
+  - M3: Follow route and tour modes in VR.

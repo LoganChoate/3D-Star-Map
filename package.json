@@ -32,16 +32,13 @@
       "repo": "your-repo-name"
     },
     "win": {
-      "icon": "build/galaxy_map_icon.ico",
       "target": "nsis"
     },
-    "mac": {
-      "target": "dmg",
-      "icon": "build/galaxy_map_icon.icns"
+  "mac": {
+      "target": "dmg"
     },
     "linux": {
-      "target": "AppImage",
-      "icon": "build/galaxy_map_icon.png"
+      "target": "AppImage"
     },
     "nsis": {
       "oneClick": false,

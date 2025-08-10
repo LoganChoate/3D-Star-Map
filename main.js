@@ -7,7 +7,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1600,
     height: 900,
-    icon: path.join(__dirname, 'build/galaxy_map_icon.ico'), // Add this line to set the window icon
+    // icon: path.join(__dirname, 'build/galaxy_map_icon.ico'), // Optional: set window icon when asset is available
     webPreferences: {
       // It's best practice to enable contextIsolation and use a preload script.
       // Since this app doesn't need Node.js in the renderer, we can just enable it.

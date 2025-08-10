@@ -1406,11 +1406,9 @@ function stopSearchBubbleAnimation() {
 }
 
 function startSearchBubbleAnimation(startNode, endNode, maxJump) {
-    searchBubble.position.copy(startNode);
+    searchBubble.position.set(startNode.x, startNode.y, startNode.z);
     searchBubble.scale.set(1, 1, 1);
     searchBubble.visible = true;
-
-    const distance = startNode.distanceTo(endNode);
 
     gsap.to(searchBubble.scale, {
         x: maxJump * 2,
