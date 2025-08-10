@@ -507,20 +507,36 @@ function createStarShaderMaterial() {
 }
 
 function getStarVisualParams(star) {
-    // Derive simple visual params from spectral class
+    // Archetype presets by spectral class and luminosity class (V, III, I)
     const spect = (star.spect || '').toUpperCase();
-    const s = spect.length > 0 ? spect[0] : 'G';
-    // Baselines by spectral group (O..M)
-    let twinkleAmp = 0.03;
-    let pulseFreq = 0.8;
-    let haloFactor = 0.3;
-    if (s === 'O' || s === 'B') { twinkleAmp = 0.02; pulseFreq = 1.2; haloFactor = 0.4; }
-    else if (s === 'A') { twinkleAmp = 0.025; pulseFreq = 1.0; haloFactor = 0.35; }
-    else if (s === 'F') { twinkleAmp = 0.03; pulseFreq = 0.9; haloFactor = 0.33; }
-    else if (s === 'G') { twinkleAmp = 0.035; pulseFreq = 0.8; haloFactor = 0.32; }
-    else if (s === 'K') { twinkleAmp = 0.04; pulseFreq = 0.7; haloFactor = 0.3; }
-    else if (s === 'M') { twinkleAmp = 0.05; pulseFreq = 0.6; haloFactor = 0.28; }
-    // Scale halo with intrinsic apparent size
+    const spectral = spect.length > 0 ? spect[0] : 'G';
+    const lumClass = /I{1,3}|V|IV/.exec(spect)?.[0] || 'V';
+
+    // Base table (spectral → defaults)
+    const base = {
+        'O': { tw: 0.02, pf: 1.2, h: 0.42 },
+        'B': { tw: 0.02, pf: 1.1, h: 0.38 },
+        'A': { tw: 0.025, pf: 1.0, h: 0.36 },
+        'F': { tw: 0.03, pf: 0.9, h: 0.34 },
+        'G': { tw: 0.035, pf: 0.8, h: 0.32 },
+        'K': { tw: 0.04, pf: 0.7, h: 0.30 },
+        'M': { tw: 0.05, pf: 0.6, h: 0.28 }
+    }[spectral] || { tw: 0.035, pf: 0.8, h: 0.32 };
+
+    // Luminosity adjustments
+    const lumAdj = {
+        'I':  { tw: -0.005, pf: -0.1, h: +0.08 }, // supergiants: bigger halo, slower pulse
+        'II': { tw: -0.003, pf: -0.05, h: +0.06 },
+        'III':{ tw: -0.002, pf: -0.05, h: +0.04 }, // giants
+        'IV': { tw: 0.0, pf: 0.0, h: +0.01 },      // subgiants
+        'V':  { tw: 0.0, pf: 0.0, h: 0.0 }         // main sequence
+    }[lumClass] || { tw: 0.0, pf: 0.0, h: 0.0 };
+
+    let twinkleAmp = base.tw + lumAdj.tw;
+    let pulseFreq = base.pf + lumAdj.pf;
+    let haloFactor = base.h + lumAdj.h;
+
+    // Scale halo with intrinsic relative visual size
     haloFactor *= Math.min(1.0, star.relativeRadiusScale * 0.5);
     return { twinkleAmp, pulseFreq, haloFactor };
 }
@@ -1499,6 +1515,10 @@ function drawRouteLine(route) {
     // If route is null, it clears the line for the *active* route.
     const routeToClear = route || getActiveRoute();
     if (routeToClear && routeToClear.routeLine) {
+        if (routeToClear.routeFlowTween) {
+            routeToClear.routeFlowTween.kill();
+            routeToClear.routeFlowTween = null;
+        }
         scene.remove(routeToClear.routeLine);
         routeToClear.routeLine.geometry.dispose();
         routeToClear.routeLine.material.dispose();
@@ -1517,11 +1537,17 @@ function drawRouteLine(route) {
     geometry.setPositions(positions);
     const color = routePlanner.routeColors[routePlanner.routes.indexOf(route)] || 0xFF00FF;
     const material = new LineMaterial({ color, linewidth: 0.003, transparent: true, opacity: 1.0 });
+    material.dashed = true;
+    material.dashSize = 0.02;
+    material.gapSize = 0.01;
+    material.dashOffset = 0.0;
     material.resolution.set(renderer.domElement.width, renderer.domElement.height);
     route.routeLine = new Line2(geometry, material);
     route.routeLine.computeLineDistances();
     route.routeLine.scale.set(1, 1, 1);
     scene.add(route.routeLine);
+    // Animate dash offset for flow effect
+    route.routeFlowTween = gsap.to(route.routeLine.material, { dashOffset: -1.0, duration: 4, ease: "none", repeat: -1 });
     updateRouteNavigationUI();
 }
 
