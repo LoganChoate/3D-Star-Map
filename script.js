@@ -10,6 +10,7 @@ import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
 let composer, renderPass, bloomPass;
+let starShaderMaterial;
 let fullStarData = [];
 let activeStarData = [];
 let selectionHighlight = null;
@@ -150,6 +151,9 @@ function init() {
         }
     `;
     document.head.appendChild(style);
+
+    // Create star shader material (time-driven effects)
+    starShaderMaterial = createStarShaderMaterial();
 
     loadAndPrepareStarData();
 
@@ -380,19 +384,35 @@ function createStarGeometry(data) {
     }
     
     if (data.length === 0) {
-        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), new THREE.MeshBasicMaterial(), 0); // Empty mesh
+        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), starShaderMaterial, 0); // Empty mesh
         scene.add(stars);
         return;
     }
 
-    // Revert to InstancedMesh for high performance with thousands of objects.
+    // InstancedMesh with custom shader material for nuanced visuals.
     const sphereGeometry = new THREE.SphereGeometry(BASE_STAR_RADIUS, 8, 8);
-    const material = new THREE.MeshBasicMaterial(); // The renderer will automatically use instanceColor if available
-    stars = new THREE.InstancedMesh(sphereGeometry, material, data.length);
+    // Per-instance visual parameters
+    const ciArray = new Float32Array(data.length);
+    const twinkleArray = new Float32Array(data.length);
+    const pulseArray = new Float32Array(data.length);
+    const haloArray = new Float32Array(data.length);
+
+    data.forEach((star, i) => {
+        const { twinkleAmp, pulseFreq, haloFactor } = getStarVisualParams(star);
+        ciArray[i] = star.ci;
+        twinkleArray[i] = twinkleAmp;
+        pulseArray[i] = pulseFreq;
+        haloArray[i] = haloFactor;
+    });
+    sphereGeometry.setAttribute('aCI', new THREE.InstancedBufferAttribute(ciArray, 1));
+    sphereGeometry.setAttribute('aTwinkle', new THREE.InstancedBufferAttribute(twinkleArray, 1));
+    sphereGeometry.setAttribute('aPulse', new THREE.InstancedBufferAttribute(pulseArray, 1));
+    sphereGeometry.setAttribute('aHalo', new THREE.InstancedBufferAttribute(haloArray, 1));
+
+    stars = new THREE.InstancedMesh(sphereGeometry, starShaderMaterial, data.length);
     stars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
     const matrix = new THREE.Matrix4();
-    const color = new THREE.Color();
 
     data.forEach((star, i) => {
         // Set position and scale
@@ -403,16 +423,98 @@ function createStarGeometry(data) {
             new THREE.Vector3(scale, scale, scale)
         );
         stars.setMatrixAt(i, matrix);
-
-        // Set color
-        const starColor = getRGBfromCI(star.ci);
-        stars.setColorAt(i, color.setRGB(starColor.r, starColor.g, starColor.b));
     });
 
     stars.instanceMatrix.needsUpdate = true;
-    if (stars.instanceColor) stars.instanceColor.needsUpdate = true;
 
     scene.add(stars);
+}
+
+function createStarShaderMaterial() {
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            uTime: { value: 0 },
+        },
+        vertexShader: `
+            attribute mat4 instanceMatrix;
+            attribute float aCI;
+            attribute float aTwinkle;
+            attribute float aPulse;
+            attribute float aHalo;
+            varying float vRim;
+            varying float vCI;
+            varying float vTwinkle;
+            varying float vPulse;
+            varying float vHalo;
+            varying vec3 vNormalVS;
+            
+            void main() {
+                // Transform position and normal with instance and model matrices
+                vec3 transformed = position;
+                vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(transformed, 1.0);
+                // Normal in view space
+                mat3 normalMat = mat3(modelViewMatrix * instanceMatrix);
+                vNormalVS = normalize(normalMat * normal);
+                // Rim factor using view-space normal vs camera forward (0,0,1)
+                vRim = pow(1.0 - abs(dot(vNormalVS, vec3(0.0, 0.0, 1.0))), 2.0);
+
+                vCI = aCI;
+                vTwinkle = aTwinkle;
+                vPulse = aPulse;
+                vHalo = aHalo;
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `,
+        fragmentShader: `
+            precision highp float;
+            uniform float uTime;
+            varying float vRim;
+            varying float vCI;
+            varying float vTwinkle;
+            varying float vPulse;
+            varying float vHalo;
+
+            vec3 colorFromCI(float ci) {
+                if (ci < 0.0) return vec3(0.67, 0.85, 1.0);
+                if (ci < 0.3) return vec3(1.0, 1.0, 1.0);
+                if (ci < 0.6) return vec3(1.0, 1.0, 0.8);
+                if (ci < 0.9) return vec3(1.0, 0.9, 0.5);
+                if (ci < 1.4) return vec3(1.0, 0.7, 0.4);
+                return vec3(1.0, 0.5, 0.5);
+            }
+
+            void main() {
+                vec3 base = colorFromCI(vCI);
+                float pulse = 1.0 + sin(uTime * vPulse) * vTwinkle;
+                float rimGlow = vRim * vHalo;
+                vec3 color = base * (0.85 + 0.15 * pulse) + base * rimGlow;
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `,
+    });
+    material.transparent = false;
+    material.depthWrite = true;
+    material.depthTest = true;
+    return material;
+}
+
+function getStarVisualParams(star) {
+    // Derive simple visual params from spectral class
+    const spect = (star.spect || '').toUpperCase();
+    const s = spect.length > 0 ? spect[0] : 'G';
+    // Baselines by spectral group (O..M)
+    let twinkleAmp = 0.03;
+    let pulseFreq = 0.8;
+    let haloFactor = 0.3;
+    if (s === 'O' || s === 'B') { twinkleAmp = 0.02; pulseFreq = 1.2; haloFactor = 0.4; }
+    else if (s === 'A') { twinkleAmp = 0.025; pulseFreq = 1.0; haloFactor = 0.35; }
+    else if (s === 'F') { twinkleAmp = 0.03; pulseFreq = 0.9; haloFactor = 0.33; }
+    else if (s === 'G') { twinkleAmp = 0.035; pulseFreq = 0.8; haloFactor = 0.32; }
+    else if (s === 'K') { twinkleAmp = 0.04; pulseFreq = 0.7; haloFactor = 0.3; }
+    else if (s === 'M') { twinkleAmp = 0.05; pulseFreq = 0.6; haloFactor = 0.28; }
+    // Scale halo with intrinsic apparent size
+    haloFactor *= Math.min(1.0, star.relativeRadiusScale * 0.5);
+    return { twinkleAmp, pulseFreq, haloFactor };
 }
 
 function drawConstellationLines(constellationName) {
@@ -1628,6 +1730,9 @@ function animateCameraTo(target, position, onCompleteCallback = null) {
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
+    if (starShaderMaterial) {
+        starShaderMaterial.uniforms.uTime.value += delta;
+    }
 
     // GSAP updates itself automatically.
 
