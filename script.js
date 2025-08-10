@@ -1,8 +1,15 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
+let composer, renderPass, bloomPass;
 let fullStarData = [];
 let activeStarData = [];
 let selectionHighlight = null;
@@ -85,6 +92,13 @@ function init() {
     renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
+    // Post-processing composer with bloom
+    composer = new EffectComposer(renderer);
+    renderPass = new RenderPass(scene, camera);
+    bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
+    composer.addPass(renderPass);
+    composer.addPass(bloomPass);
+
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -158,6 +172,22 @@ function init() {
     stellarTourButton.addEventListener('click', toggleStellarTour);
     document.getElementById('clear-search-button').addEventListener('click', clearSearch);
     document.querySelectorAll('.filter-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
+    const bloomToggle = document.getElementById('bloom-toggle');
+    const bloomStrength = document.getElementById('bloom-strength');
+    const bloomStrengthValue = document.getElementById('bloom-strength-value');
+    if (bloomToggle && bloomStrength && bloomStrengthValue) {
+        bloomToggle.addEventListener('change', () => {
+            bloomPass.enabled = bloomToggle.checked;
+        });
+        bloomStrength.addEventListener('input', () => {
+            const val = parseFloat(bloomStrength.value);
+            bloomStrengthValue.textContent = val.toFixed(2);
+            bloomPass.strength = val;
+        });
+        // Initialize from UI defaults
+        bloomPass.enabled = bloomToggle.checked;
+        bloomPass.strength = parseFloat(bloomStrength.value);
+    }
     constellationSelect.addEventListener('change', viewSelectedConstellation);
     searchInput.addEventListener('input', handleAutocomplete);
     sizeSlider.addEventListener('input', applyFilters);
@@ -397,11 +427,9 @@ function drawConstellationLines(constellationName) {
     const lines = constellationData[constellationName];
     if (!lines) return;
 
-    const lineMaterial = new THREE.LineBasicMaterial({
-        color: 0x0055AA,
-        transparent: true,
-        opacity: 0.6
-    });
+    const positions = [];
+    const colors = [];
+    const color = new THREE.Color(0x0055AA);
     
     const starMap = new Map(fullStarData.map(star => [star.proper?.toLowerCase(), star]));
 
@@ -410,12 +438,21 @@ function drawConstellationLines(constellationName) {
         const star2 = starMap.get(linePair[1].toLowerCase());
 
         if (star1 && star2) {
-            const points = [new THREE.Vector3(star1.x, star1.y, star1.z), new THREE.Vector3(star2.x, star2.y, star2.z)];
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const line = new THREE.Line(geometry, lineMaterial);
-            constellationLinesGroup.add(line);
+            positions.push(star1.x, star1.y, star1.z, star2.x, star2.y, star2.z);
+            colors.push(color.r, color.g, color.b, color.r, color.g, color.b);
         }
     });
+
+    if (positions.length > 0) {
+        const geometry = new LineGeometry();
+        geometry.setPositions(positions);
+        geometry.setColors(colors);
+        const mat = new LineMaterial({ color: 0x0055AA, linewidth: 0.002, transparent: true, opacity: 0.6 });
+        mat.resolution.set(renderer.domElement.width, renderer.domElement.height);
+        const line = new Line2(geometry, mat);
+        line.computeLineDistances();
+        constellationLinesGroup.add(line);
+    }
 }
 
 function resetScene() {
@@ -789,6 +826,21 @@ function onWindowResize() {
         camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        if (composer) composer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        if (bloomPass) bloomPass.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        // Update LineMaterial resolutions for Line2 materials
+        constellationLinesGroup.children.forEach(obj => {
+            if (obj.material && obj.material.resolution) {
+                obj.material.resolution.set(renderer.domElement.width, renderer.domElement.height);
+            }
+        });
+        if (routePlanner && routePlanner.routes) {
+            routePlanner.routes.forEach(r => {
+                if (r && r.routeLine && r.routeLine.material && r.routeLine.material.resolution) {
+                    r.routeLine.material.resolution.set(renderer.domElement.width, renderer.domElement.height);
+                }
+            });
+        }
     }
 }
 
@@ -1259,26 +1311,16 @@ function drawRouteLine(route) {
         return;
     }
 
-    const points = route.path.map(star => new THREE.Vector3(star.x, star.y, star.z));
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const positions = [];
+    route.path.forEach(star => positions.push(star.x, star.y, star.z));
+    const geometry = new LineGeometry();
+    geometry.setPositions(positions);
     const color = routePlanner.routeColors[routePlanner.routes.indexOf(route)] || 0xFF00FF;
-    const material = new THREE.LineBasicMaterial({ color: color, linewidth: 2 });
-    route.routeLine = new THREE.Line(geometry, material);
-
-    // Animate the line drawing by animating the drawRange.count property
-    const totalVertices = points.length;
-    const drawRange = { count: 0 }; // Start with 0 vertices drawn
-    geometry.setDrawRange(0, drawRange.count);
-
-    gsap.to(drawRange, {
-        count: totalVertices,
-        duration: 2, // Animation duration in seconds
-        ease: "power1.inOut",
-        onUpdate: () => {
-            geometry.setDrawRange(0, Math.floor(drawRange.count));
-        }
-    });
-
+    const material = new LineMaterial({ color, linewidth: 0.003, transparent: true, opacity: 1.0 });
+    material.resolution.set(renderer.domElement.width, renderer.domElement.height);
+    route.routeLine = new Line2(geometry, material);
+    route.routeLine.computeLineDistances();
+    route.routeLine.scale.set(1, 1, 1);
     scene.add(route.routeLine);
     updateRouteNavigationUI();
 }
@@ -1610,7 +1652,11 @@ function animate() {
         }
     }
 
-    renderer.render(scene, camera);
+    if (composer) {
+        composer.render();
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
 function shuffleArray(array) {
