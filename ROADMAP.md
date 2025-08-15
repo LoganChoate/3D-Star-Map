@@ -64,6 +64,10 @@ These features have been successfully implemented and are part of the current ap
         - An animated "search bubble" effect during pathfinding calculations.
         - An animated, sequential drawing of the route lines between stars.
 
+- **✅ Visual Effects Tuning:**
+  - **Color-Aware Bloom:** Tuned the star shader to significantly amplify color output, making the global bloom effect strongly reflect the color of individual bright stars.
+  - **Visible Star Animations:** Fixed and enhanced the shader logic for star animations. The twinkle, pulse, and halo effects are now clearly visible and scaled appropriately.
+
 - **✅ Visual Enhancements:**
   - Bloom post-processing with UI toggle and strength control.
   - Shader-driven star material with per-instance parameters (CI, twinkle, pulse, halo) and time-based animation.
