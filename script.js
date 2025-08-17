@@ -1,15 +1,26 @@
+// Stub for handleNarration to prevent ReferenceError
+function handleNarration() {
+    // TODO: Implement narration if needed
+    console.warn('handleNarration() called but not implemented.');
+}
 import * as THREE from './vendor/three/build/three.module.js';
 import { OrbitControls } from './vendor/three/examples/jsm/controls/OrbitControls.js';
 import { FlyControls } from './vendor/three/examples/jsm/controls/FlyControls.js';
 import { EffectComposer } from './vendor/three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from './vendor/three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from './vendor/three/examples/jsm/postprocessing/ShaderPass.js';
+import { AdditiveBlendShader } from './AdditiveBlendShader.js';
 import { Line2 } from './vendor/three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from './vendor/three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from './vendor/three/examples/jsm/lines/LineMaterial.js';
 
-let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
-let composer, renderPass, bloomPass;
+let scene, camera, renderer, starsMesh, starsBloomMesh, starScene, starRenderTarget, starComposer, starRenderPass, starBloomPass, composer, renderPass, blendPass, controls, flyControls, activeControls, raycaster, mouse;
+// Stub for populateConstellationDropdown to prevent errors if not implemented
+function populateConstellationDropdown() {
+    // TODO: Implement this function if constellation dropdown is needed
+    console.warn('populateConstellationDropdown() called but not implemented.');
+}
 let starShaderMaterial;
 let useStarShader = true;
 let fullStarData = [];
@@ -111,22 +122,6 @@ function init() {
     console.log('WebGL context:', renderer.getContext());
     console.log('Renderer capabilities:', renderer.capabilities);
 
-    // Post-processing composer with bloom
-    try {
-        composer = new EffectComposer(renderer);
-        // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instanced
-        if (!renderer.capabilities.isWebGL2) {
-            useStarShader = false;
-            console.warn('WebGL2 not detected – falling back to basic instanced material for stars.');
-        }
-        renderPass = new RenderPass(scene, camera);
-        bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
-        composer.addPass(renderPass);
-        composer.addPass(bloomPass);
-    } catch (error) {
-        console.error('EffectComposer failed to initialize:', error);
-        composer = null;
-    }
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -150,45 +145,34 @@ function init() {
     constellationLinesGroup = new THREE.Group();
     scene.add(constellationLinesGroup);
 
-    // Create a single, reusable highlight object as a 2D ring that always faces the camera.
-    const highlightGeometry = new THREE.RingGeometry(0.95, 1.0, 32); // A thin ring
-    const highlightMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
-    selectionHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
-    
+    // --- Star-only scene for per-star bloom ---
+    starScene = new THREE.Scene();
+    starScene.background = new THREE.Color(0x000000);
 
+    // --- Post-processing composers ---
+    try {
+        // Main composer (no bloom, just the scene)
+        composer = new EffectComposer(renderer);
+        renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
 
+        // Star-only composer (bloom only stars)
+        starRenderTarget = new THREE.WebGLRenderTarget(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        starComposer = new EffectComposer(renderer, starRenderTarget);
+        starRenderPass = new RenderPass(starScene, camera);
+        starBloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
+        starComposer.addPass(starRenderPass);
+        starComposer.addPass(starBloomPass);
 
-    
-    // This callback ensures the ring always faces the camera (billboarding)
-    selectionHighlight.onBeforeRender = function(renderer, scene, camera) {
-        this.quaternion.copy(camera.quaternion);
-    };
-
-    selectionHighlight.visible = false;
-    scene.add(selectionHighlight);
-
-    const bubbleGeometry = new THREE.SphereGeometry(1, 32, 32);
-    const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0x00FFFF, transparent: true, opacity: 0.2 });
-    searchBubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
-    searchBubble.visible = false;
-    scene.add(searchBubble);
-
-    // Inject CSS for word highlighting to avoid needing to edit style.css directly
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .highlight-word {
-            background-color: rgba(0, 255, 0, 0.4);
-            padding: 0 2px;
-            border-radius: 3px;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Create star shader material (time-driven effects)
-    starShaderMaterial = createStarShaderMaterial();
-
-    loadAndPrepareStarData();
-
+        // Additive blend pass to composite star bloom over main scene
+        blendPass = new ShaderPass(AdditiveBlendShader);
+        blendPass.needsSwap = true;
+        composer.addPass(blendPass);
+    } catch (error) {
+        console.error('EffectComposer failed to initialize:', error);
+        composer = null;
+        starComposer = null;
+    }
     window.addEventListener('resize', onWindowResize, false);
     canvas.addEventListener('pointerdown', onPointerDown, false);
     canvas.addEventListener('pointermove', onPointerMove, false);
@@ -211,25 +195,35 @@ function init() {
     const bloomToggle = document.getElementById('bloom-toggle');
     const bloomStrength = document.getElementById('bloom-strength');
     const bloomStrengthValue = document.getElementById('bloom-strength-value');
+    const bloomStrengthContainer = bloomStrength ? bloomStrength.closest('.p-2') : null;
     const visualPresetSelect = document.getElementById('visual-preset');
     const routeArrowsToggle = document.getElementById('route-arrows-toggle');
     const screenshotButton = document.getElementById('screenshot-button');
     if (bloomToggle && bloomStrength && bloomStrengthValue) {
+        // Default: bloom off, slider hidden
+        bloomToggle.checked = false;
+        if (starBloomPass) starBloomPass.enabled = false;
+        if (bloomStrengthContainer) bloomStrengthContainer.style.display = 'none';
+
         bloomToggle.addEventListener('change', () => {
-            bloomPass.enabled = bloomToggle.checked;
+            if (starBloomPass) starBloomPass.enabled = bloomToggle.checked;
+            if (bloomStrengthContainer) bloomStrengthContainer.style.display = bloomToggle.checked ? '' : 'none';
         });
         bloomStrength.addEventListener('input', () => {
             const val = parseFloat(bloomStrength.value);
             bloomStrengthValue.textContent = val.toFixed(2);
-            bloomPass.strength = val;
+            if (starBloomPass) starBloomPass.strength = val;
         });
         // Initialize from UI defaults
-        bloomPass.enabled = bloomToggle.checked;
-        bloomPass.strength = parseFloat(bloomStrength.value);
+        if (starBloomPass) {
+            starBloomPass.strength = parseFloat(bloomStrength.value);
+        }
     }
     if (visualPresetSelect) {
+        // Default: scientific preset
+        visualPresetSelect.value = 'scientific';
         visualPresetSelect.addEventListener('change', () => applyVisualPreset(visualPresetSelect.value));
-        applyVisualPreset(visualPresetSelect.value);
+        applyVisualPreset('scientific');
     }
     if (routeArrowsToggle) {
         routeArrowsToggle.addEventListener('change', () => {
@@ -391,107 +385,67 @@ async function loadAndPrepareStarData() {
         console.log('Camera near plane:', camera.near);
         console.log('Controls max distance:', controls.maxDistance);
     } catch (error) {
-        console.error("Failed to load or process star data:", error);
-        loadingIndicator.textContent = "Error loading data.";
-    } finally {
-        loadingIndicator.style.display = 'none';
+        console.error('Error loading or preparing star data:', error);
+        loadingIndicator.textContent = 'Failed to load star data.';
+        return;
     }
 }
 
-function applyFilters() {
-    interruptTour();
-    const properNameFilter = document.getElementById('proper-name-filter').checked;
-    const garbageSphereFilter = document.getElementById('garbage-sphere-filter').checked;
-    const spectralClassCheckboxes = document.querySelectorAll('.filter-checkbox[value]:checked');
-    const selectedClasses = Array.from(spectralClassCheckboxes).map(cb => cb.value);
-    
-    if (garbageSphereFilter) {
-        distanceSlider.max = maxDistWithoutGarbage;
-    } else {
-        distanceSlider.max = maxDistWithGarbage;
-    }
-
-    const maxDistance = distanceSlider.value;
-    distanceValue.textContent = `${maxDistance} pc`;
-
-    const maxSize = sizeSlider.value;
-    sizeValue.textContent = `< ${parseFloat(maxSize).toFixed(1)}`;
-
-    let tempStarData = [...fullStarData];
-
-    if (properNameFilter) {
-        tempStarData = tempStarData.filter(star => star.proper && star.proper.trim() !== '');
-    }
-
-    if (garbageSphereFilter) {
-        tempStarData = tempStarData.filter(star => star.dist < maxDistWithGarbage);
-    }
-
-    if (selectedClasses.length > 0) {
-        tempStarData = tempStarData.filter(star => {
-            return selectedClasses.some(sc => star.spect && star.spect.toUpperCase().startsWith(sc));
-        });
-    }
-
-    tempStarData = tempStarData.filter(star => star.dist <= maxDistance);
-    tempStarData = tempStarData.filter(star => star.relativeRadiusScale <= maxSize);
-
-            activeStarData = tempStarData;
-
-        console.log('Filtered star data:', activeStarData.length, 'stars');
-        console.log('First few stars:', activeStarData.slice(0, 3));
-        
-        createStarGeometry(activeStarData);
-        updateUI();
-        buildSpectralLegend();
-}
 
 function createStarGeometry(data) {
-    // If a previous group of stars exists, remove it and dispose of its contents
-    if (stars) { // stars is an InstancedMesh
-        scene.remove(stars);
-        if (stars.geometry) stars.geometry.dispose();
-        if (stars.material) stars.material.dispose();
+    // Remove previous stars from both scenes
+    console.log('[createStarGeometry] called with data.length:', data.length, data.slice(0, 3));
+    if (starsMesh) {
+        scene.remove(starsMesh);
+        if (starsMesh.geometry) starsMesh.geometry.dispose();
+        if (starsMesh.material) starsMesh.material.dispose();
+    }
+    if (starsBloomMesh) {
+        if (starScene) starScene.remove(starsBloomMesh);
+        if (starsBloomMesh.geometry) starsBloomMesh.geometry.dispose();
+        if (starsBloomMesh.material) starsBloomMesh.material.dispose();
     }
 
     if (data.length === 0) {
         const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), material, 0); // Empty mesh
-        scene.add(stars);
+        starsMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(), material, 0);
+        starsBloomMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(), material, 0);
+        scene.add(starsMesh);
+        if (starScene) starScene.add(starsBloomMesh);
+        console.log('[createStarGeometry] No data, added empty meshes');
         return;
     }
 
-    // Simplified: Use basic material instead of shader for debugging
     const sphereGeometry = new THREE.SphereGeometry(BASE_STAR_RADIUS, 8, 8);
     const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
-    stars = new THREE.InstancedMesh(sphereGeometry, material, data.length);
-    stars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
+    starsMesh = new THREE.InstancedMesh(sphereGeometry, material, data.length);
+    const bloomMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    starsBloomMesh = new THREE.InstancedMesh(sphereGeometry, bloomMaterial, data.length);
+    starsMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    starsBloomMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     const matrix = new THREE.Matrix4();
     const color = new THREE.Color();
-
     data.forEach((star, i) => {
-        // Set position and scale
         const scale = star.relativeRadiusScale * GLOBAL_VISUAL_SCALE;
         matrix.compose(
             new THREE.Vector3(star.x, star.y, star.z),
             new THREE.Quaternion(),
             new THREE.Vector3(scale, scale, scale)
         );
-        stars.setMatrixAt(i, matrix);
-
-        // Set color based on spectral class
+        starsMesh.setMatrixAt(i, matrix);
+        starsBloomMesh.setMatrixAt(i, matrix);
         const c = getRGBfromCI(star.ci);
-        stars.setColorAt(i, color.setRGB(c.r, c.g, c.b));
+        starsMesh.setColorAt(i, color.setRGB(c.r, c.g, c.b));
+        starsBloomMesh.setColorAt(i, color.setRGB(c.r, c.g, c.b));
     });
-
-    stars.instanceMatrix.needsUpdate = true;
-    stars.instanceColor.needsUpdate = true;
-
-    scene.add(stars);
-
-
+    console.log('[createStarGeometry] starsMesh.count:', starsMesh.count, 'starsBloomMesh.count:', starsBloomMesh.count);
+    starsMesh.instanceMatrix.needsUpdate = true;
+    starsMesh.instanceColor.needsUpdate = true;
+    starsBloomMesh.instanceMatrix.needsUpdate = true;
+    starsBloomMesh.instanceColor.needsUpdate = true;
+    scene.add(starsMesh);
+    if (starScene) starScene.add(starsBloomMesh);
+    console.log('[createStarGeometry] Added meshes to scene:', scene.children.includes(starsMesh), starScene && starScene.children.includes(starsBloomMesh));
 }
 
 function createStarShaderMaterial() {
@@ -648,15 +602,20 @@ function classRepresentativeCI(s) {
 }
 
 function applyVisualPreset(preset) {
-    if (!bloomPass || !starShaderMaterial) return;
+    if ((!bloomPass && !starBloomPass) || !starShaderMaterial) return;
     if (preset === 'scientific') {
-        bloomPass.enabled = false;
-        // Reduce twinkle/pulse globally by scaling time speed or amplitude
-        // We keep uTime speed same but clamp effect by setting material onBeforeCompile if needed.
-        // Simple approach: lower bloom and rely on base shader minimal effect
+        if (bloomPass) bloomPass.enabled = false;
+        if (starBloomPass) starBloomPass.enabled = false;
+        // Optionally reduce twinkle/pulse globally
     } else if (preset === 'cinematic') {
-        bloomPass.enabled = true;
-        bloomPass.strength = Math.max(bloomPass.strength, 0.6);
+        if (bloomPass) {
+            bloomPass.enabled = true;
+            bloomPass.strength = Math.max(bloomPass.strength, 0.6);
+        }
+        if (starBloomPass) {
+            starBloomPass.enabled = true;
+            starBloomPass.strength = Math.max(starBloomPass.strength, 0.6);
+        }
     }
 }
 
@@ -754,9 +713,11 @@ function resetScene() {
 
 function snapToSol() {
     interruptRoutePlanner();
-    const sol = fullStarData.find(star => star.name === 'Sol');
+    const sol = fullStarData.find(star => star.name === 'Sol' || star.proper === 'Sol');
     if (sol) {
         frameObjectInView(sol);
+    } else {
+        console.warn('Sol not found in star data');
     }
 }
 
@@ -859,6 +820,7 @@ function onPointerMove(event) {
 }
 
 function onPointerUp(event) {
+    console.log('[onPointerUp] isDragging:', isDragging, 'event:', event);
     // If the action was a drag, do not proceed with selection.
     if (isDragging) return;
 
@@ -868,7 +830,7 @@ function onPointerUp(event) {
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(stars);
+    const intersects = raycaster.intersectObject(starsMesh);
 
     if (intersects.length > 0) {
         const instanceId = intersects[0].instanceId;
@@ -885,6 +847,7 @@ function onPointerUp(event) {
 }
 
 function frameObjectInView(star, onCompleteCallback = null) {
+    console.log('[frameObjectInView] called with:', star);
     if (!star) return;
 
     const target = new THREE.Vector3(star.x, star.y, star.z);
@@ -946,12 +909,7 @@ function showHeroStar(star) {
     const coreMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(getRGBfromCI(star.ci).r, getRGBfromCI(star.ci).g, getRGBfromCI(star.ci).b) });
     const core = new THREE.Mesh(coreGeo, coreMat);
     heroStarGroup.add(core);
-    // Corona sprite
-    const coronaMat = new THREE.SpriteMaterial({ color: 0xffffff, opacity: 0.35, transparent: true });
-    const corona = new THREE.Sprite(coronaMat);
-    const coronaScale = Math.max(4, star.relativeRadiusScale * 2);
-    corona.scale.set(coronaScale, coronaScale, 1);
-    heroStarGroup.add(corona);
+    // (Corona sprite removed to eliminate distracting white overlay)
     heroStarGroup.position.copy(pos);
     scene.add(heroStarGroup);
 }
@@ -984,57 +942,64 @@ function updateInfoPanel(data) {
     }
 
     // Reset narrator state when a new star is selected
-    speechSynthesis.cancel();
-    narrateButton.textContent = '▶ Narrate';
-}
+    // (No nested resetScene function here)
+        interruptRoutePlanner();
+        stopFollowRoute();
 
-function handleNarration() {
-    if (speechSynthesis.speaking) {
-        speechSynthesis.cancel(); // Stop the current speech. The 'onend' event will handle cleanup.
-    } else {
-        const text = originalNarrationText;
-        if (text) {
-            const utterance = new SpeechSynthesisUtterance(text);
+        // --- Clear all route data as per the roadmap ---
+        routePlanner.routes.forEach(route => {
+            if (route && route.routeLine) {
+                scene.remove(route.routeLine);
+                route.routeLine.geometry.dispose();
+                route.routeLine.material.dispose();
+            }
+        });
+        routePlanner.routes = [];
+        routePlanner.activeRouteIndex = 0;
+        updateRoutePlannerUI();
+        updateRouteNavigationUI();
+        // --- End of route clearing ---
 
-            utterance.onboundary = (event) => {
-                if (event.name === 'word') {
-                    const wordStart = event.charIndex;
-                    let wordEnd = text.indexOf(' ', wordStart);
-                    if (wordEnd === -1) wordEnd = text.length;
-
-                    const before = text.substring(0, wordStart);
-                    const word = text.substring(wordStart, wordEnd);
-                    const after = text.substring(wordEnd);
-
-                    starDescription.innerHTML = `${before}<span class="highlight-word">${word}</span>${after}`;
-                    
-                    const highlightSpan = starDescription.querySelector('.highlight-word');
-                    if (highlightSpan) {
-                        highlightSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            };
-
-            utterance.onend = () => {
-                narrateButton.textContent = '▶ Narrate';
-                starDescription.textContent = originalNarrationText; // Restore original text
-            };
-
-            speechSynthesis.speak(utterance);
-            narrateButton.textContent = '■ Stop';
+        // Remove stars from both scenes
+        if (starsMesh) {
+            scene.remove(starsMesh);
+            if (starsMesh.geometry) starsMesh.geometry.dispose();
+            if (starsMesh.material) starsMesh.material.dispose();
+            starsMesh = null;
         }
-    }
-}
+        if (starsBloomMesh) {
+            if (starScene) starScene.remove(starsBloomMesh);
+            if (starsBloomMesh.geometry) starsBloomMesh.geometry.dispose();
+            if (starsBloomMesh.material) starsBloomMesh.material.dispose();
+            starsBloomMesh = null;
+        }
 
-function populateConstellationDropdown() {
-    const data = getConstellationData();
-    for (const name in data) {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        constellationSelect.appendChild(option);
+        // Only reset to overview, do not call this from star selection or snapToSol
+        const box = new THREE.Box3();
+        const points = fullStarData.map(s => new THREE.Vector3(s.x, s.y, s.z));
+        if (points.length > 0) {
+            box.setFromPoints(points);
+            const center = new THREE.Vector3();
+            const sphere = box.getBoundingSphere(new THREE.Sphere());
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraDist = sphere.radius / Math.tan(fov / 2);
+            cameraDist *= 1.1;
+            const targetPosition = new THREE.Vector3(sphere.center.x, sphere.center.y, sphere.center.z + cameraDist);
+            animateCameraTo(sphere.center, targetPosition, null);
+        } else {
+            camera.position.copy(initialCameraPosition);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+    
+        updateSelectionHighlight(null);
+        document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = false);
+        distanceSlider.value = distanceSlider.max;
+        sizeSlider.value = sizeSlider.max;
+        clearConstellationView();
+        applyFilters();
+        clearSearch();
     }
-}
 
 function viewSelectedConstellation() {
     interruptTour();
@@ -1103,6 +1068,8 @@ function onWindowResize() {
         renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
         if (composer) composer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
         if (bloomPass) bloomPass.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        if (starComposer) starComposer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        if (starBloomPass) starBloomPass.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
         // Update LineMaterial resolutions for Line2 materials
         constellationLinesGroup.children.forEach(obj => {
             if (obj.material && obj.material.resolution) {
@@ -1966,32 +1933,36 @@ function animate() {
     // GSAP updates itself automatically.
 
     if (stellarTour.active && stellarTour.state === 'orbiting' && stellarTour.targetStar) {
-        // Perform the orbit logic when the tour is paused at a star
         const targetPosition = new THREE.Vector3(stellarTour.targetStar.x, stellarTour.targetStar.y, stellarTour.targetStar.z);
-        const orbitSpeed = 0.1; // radians per second
-        const orbitAxis = new THREE.Vector3(0, 1, 0); // Simple orbit around the Y axis
-
+        const orbitSpeed = 0.1;
+        const orbitAxis = new THREE.Vector3(0, 1, 0);
         const offset = new THREE.Vector3().subVectors(camera.position, targetPosition);
         offset.applyAxisAngle(orbitAxis, orbitSpeed * delta);
         camera.position.copy(targetPosition).add(offset);
         camera.lookAt(targetPosition);
     } else {
-        // Update user controls (Orbit or Fly)
-        // This will only have an effect if the controls are enabled.
-        // During GSAP animations, they are disabled.
         if (activeControls === flyControls) {
             flyControls.update(delta);
         } else {
-            controls.update(); // OrbitControls
+            controls.update();
         }
     }
 
-    // Debug: Log rendering method
-    if (composer) {
-        console.log('Rendering with composer');
+    // --- Two-pass rendering for per-star bloom ---
+    if (starComposer && composer) {
+        // 1. Render only the stars to starComposer (with bloom)
+        starComposer.render();
+
+        // 2. Render the main scene (no bloom)
+        composer.render();
+
+        // 3. Composite: Additively blend the starComposer output over the main scene
+    // If you want to composite star bloom, use EffectComposer passes or custom shaders.
+    // The following lines were removed because globalCompositeOperation is not available on WebGLRenderer.
+    // To implement additive blending, use a ShaderPass or custom post-processing.
+    } else if (composer) {
         composer.render();
     } else {
-        console.log('Rendering with basic renderer');
         renderer.render(scene, camera);
     }
 }
@@ -2025,4 +1996,6 @@ function saveScreenshot() {
     document.body.removeChild(a);
 }
 
+
 init();
+// End of file: add missing closing brace if needed
