@@ -11,6 +11,7 @@ import { LineMaterial } from './vendor/three/examples/jsm/lines/LineMaterial.js'
 let scene, camera, renderer, stars, controls, flyControls, activeControls, raycaster, mouse;
 let composer, renderPass, bloomPass;
 let starShaderMaterial;
+let useStarShader = true;
 let fullStarData = [];
 let activeStarData = [];
 let selectionHighlight = null;
@@ -113,6 +114,11 @@ function init() {
     // Post-processing composer with bloom
     try {
         composer = new EffectComposer(renderer);
+        // Fallback: if WebGL2 is not available, avoid custom ShaderMaterial for instanced
+        if (!renderer.capabilities.isWebGL2) {
+            useStarShader = false;
+            console.warn('WebGL2 not detected – falling back to basic instanced material for stars.');
+        }
         renderPass = new RenderPass(scene, camera);
         bloomPass = new UnrealBloomPass(new THREE.Vector2(canvasContainer.clientWidth, canvasContainer.clientHeight), 0.6, 0.4, 0.85);
         composer.addPass(renderPass);
@@ -442,31 +448,31 @@ function applyFilters() {
 
 function createStarGeometry(data) {
     // If a previous group of stars exists, remove it and dispose of its contents
-    if (stars) {
+    if (stars) { // stars is an InstancedMesh
         scene.remove(stars);
         if (stars.geometry) stars.geometry.dispose();
-        // The material is shared (starShaderMaterial), so we don't dispose it.
+        if (stars.material) stars.material.dispose();
     }
 
     if (data.length === 0) {
-        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), starShaderMaterial, 0);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        stars = new THREE.InstancedMesh(new THREE.SphereGeometry(), material, 0); // Empty mesh
         scene.add(stars);
         return;
     }
 
+    // Simplified: Use basic material instead of shader for debugging
     const sphereGeometry = new THREE.SphereGeometry(BASE_STAR_RADIUS, 8, 8);
-    stars = new THREE.InstancedMesh(sphereGeometry, starShaderMaterial, data.length);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    stars = new THREE.InstancedMesh(sphereGeometry, material, data.length);
     stars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
-    // Prepare our custom attribute buffers.
-    const ciAttribute = new THREE.InstancedBufferAttribute(new Float32Array(data.length), 1);
-    const twinkleAttribute = new THREE.InstancedBufferAttribute(new Float32Array(data.length), 1);
-    const pulseAttribute = new THREE.InstancedBufferAttribute(new Float32Array(data.length), 1);
-    const haloAttribute = new THREE.InstancedBufferAttribute(new Float32Array(data.length), 1);
-
     const matrix = new THREE.Matrix4();
+    const color = new THREE.Color();
+
     data.forEach((star, i) => {
-        // Set instance matrix for position and scale
+        // Set position and scale
         const scale = star.relativeRadiusScale * GLOBAL_VISUAL_SCALE;
         matrix.compose(
             new THREE.Vector3(star.x, star.y, star.z),
@@ -475,23 +481,17 @@ function createStarGeometry(data) {
         );
         stars.setMatrixAt(i, matrix);
 
-        // Set shader attributes for this instance
-        const visualParams = getStarVisualParams(star);
-        ciAttribute.setX(i, star.ci || 0);
-        twinkleAttribute.setX(i, visualParams.twinkleAmp);
-        pulseAttribute.setX(i, visualParams.pulseFreq);
-        haloAttribute.setX(i, visualParams.haloFactor);
+        // Set color based on spectral class
+        const c = getRGBfromCI(star.ci);
+        stars.setColorAt(i, color.setRGB(c.r, c.g, c.b));
     });
 
-    // Add the completed buffers to the geometry
-    stars.geometry.setAttribute('aCI', ciAttribute);
-    stars.geometry.setAttribute('aTwinkle', twinkleAttribute);
-    stars.geometry.setAttribute('aPulse', pulseAttribute);
-    stars.geometry.setAttribute('aHalo', haloAttribute);
-
     stars.instanceMatrix.needsUpdate = true;
+    stars.instanceColor.needsUpdate = true;
 
     scene.add(stars);
+
+
 }
 
 function createStarShaderMaterial() {
@@ -551,12 +551,9 @@ function createStarShaderMaterial() {
                 vec3 base = colorFromCI(vCI);
                 float pulse = 1.0 + sin(uTime * vPulse) * vTwinkle;
                 float rimGlow = vRim * vHalo;
-                // Use pulse directly to modulate brightness, instead of the heavily dampened formula.
+                // Use pulse directly to modulate brightness and add a conservative bloom multiplier.
                 vec3 color = base * pulse + base * rimGlow;
-
-                // Amplify the color output to make it 'HDR' for the bloom pass.
-                // This makes the bloom effect adopt the star's core color.
-                gl_FragColor = vec4(color * 5.0, 1.0);
+                gl_FragColor = vec4(color * 2.5, 1.0);
             }
         `,
     });
@@ -593,7 +590,7 @@ function getStarVisualParams(star) {
     }[lumClass] || { tw: 0.0, pf: 0.0, h: 0.0 };
 
     // Increased twinkle amplitude for more visibility
-    let twinkleAmp = (base.tw + lumAdj.tw) * 8.0;
+    let twinkleAmp = (base.tw + lumAdj.tw) * 4.0;
     let pulseFreq = base.pf + lumAdj.pf;
     // Increased halo factor for more visibility
     let haloFactor = (base.h + lumAdj.h) * 2.0;
