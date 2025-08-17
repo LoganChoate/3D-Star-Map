@@ -1,7 +1,61 @@
-// Stub for handleNarration to prevent ReferenceError
 function handleNarration() {
-    // TODO: Implement narration if needed
-    console.warn('handleNarration() called but not implemented.');
+    // Check if we have a selected star with description
+    const text = originalNarrationText;
+    if (!text) {
+        console.warn('No narration text available for selected star');
+        return;
+    }
+
+    // Stop any existing speech synthesis
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Configure speech synthesis
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    // Implement karaoke-style word highlighting
+    utterance.onboundary = (event) => {
+        if (event.name === 'word') {
+            const wordStart = event.charIndex;
+            let wordEnd = text.indexOf(' ', wordStart);
+            if (wordEnd === -1) wordEnd = text.length;
+
+            const before = text.substring(0, wordStart);
+            const word = text.substring(wordStart, wordEnd);
+            const after = text.substring(wordEnd);
+
+            // Update the description with highlighted word
+            starDescription.innerHTML = before + 
+                '<span style="background-color: #7DF9FF; color: #000; padding: 0 2px; border-radius: 2px;">' + 
+                word + '</span>' + after;
+
+            // Auto-scroll to keep highlighted word visible
+            const highlightedElement = starDescription.querySelector('span');
+            if (highlightedElement) {
+                highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    };
+
+    // Reset text when narration ends
+    utterance.onend = () => {
+        starDescription.textContent = originalNarrationText;
+        narrateButton.textContent = '▶ Narrate';
+    };
+
+    // Handle narration errors
+    utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event.error);
+        starDescription.textContent = originalNarrationText;
+        narrateButton.textContent = '▶ Narrate';
+    };
+
+    // Update button state and start narration
+    narrateButton.textContent = '⏸ Stop';
+    speechSynthesis.speak(utterance);
 }
 import * as THREE from './vendor/three/build/three.module.js';
 import { OrbitControls } from './vendor/three/examples/jsm/controls/OrbitControls.js';
@@ -16,10 +70,36 @@ import { LineGeometry } from './vendor/three/examples/jsm/lines/LineGeometry.js'
 import { LineMaterial } from './vendor/three/examples/jsm/lines/LineMaterial.js';
 
 let scene, camera, renderer, starsMesh, starsBloomMesh, starScene, starRenderTarget, starComposer, starRenderPass, starBloomPass, composer, renderPass, blendPass, controls, flyControls, activeControls, raycaster, mouse;
-// Stub for populateConstellationDropdown to prevent errors if not implemented
 function populateConstellationDropdown() {
-    // TODO: Implement this function if constellation dropdown is needed
-    console.warn('populateConstellationDropdown() called but not implemented.');
+    if (!constellationSelect) {
+        console.warn('Constellation select element not found');
+        return;
+    }
+
+    // Clear existing options except the first placeholder
+    while (constellationSelect.children.length > 1) {
+        constellationSelect.removeChild(constellationSelect.lastChild);
+    }
+
+    // Get constellation data
+    const constellations = getConstellationData();
+    if (!constellations) {
+        console.warn('No constellation data available');
+        return;
+    }
+
+    // Sort constellation names alphabetically
+    const constellationNames = Object.keys(constellations).sort();
+
+    // Populate dropdown with constellation options
+    constellationNames.forEach(constellationName => {
+        const option = document.createElement('option');
+        option.value = constellationName;
+        option.textContent = constellationName;
+        constellationSelect.appendChild(option);
+    });
+
+    console.log(`Populated constellation dropdown with ${constellationNames.length} constellations`);
 }
 let starShaderMaterial;
 let useStarShader = true;
@@ -57,6 +137,115 @@ let searchBubble;
 let originalNarrationText = ''; // Holds the clean text for the current selection
 const spectralClasses = ['O','B','A','F','G','K','M'];
 
+// Centralized error handling system
+class ErrorHandler {
+    static showError(message, details = null, isRetryable = false) {
+        console.error('Application Error:', message, details);
+        
+        // Show user-friendly error notification
+        this.showNotification(message, 'error', isRetryable);
+        
+        // Log to external service in production
+        if (window.location.hostname !== 'localhost') {
+            this.logError(message, details);
+        }
+    }
+
+    static showWarning(message, details = null) {
+        console.warn('Application Warning:', message, details);
+        this.showNotification(message, 'warning');
+    }
+
+    static showNotification(message, type = 'info', isRetryable = false) {
+        // Remove any existing notifications
+        const existingNotification = document.querySelector('.app-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `app-notification ${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: ${type === 'error' ? '#ff4444' : type === 'warning' ? '#ffaa00' : '#4444ff'};
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 400px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        `;
+
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()" style="
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                margin-left: 12px;
+                opacity: 0.8;
+            ">×</button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds for non-error messages
+        if (type !== 'error') {
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    }
+
+    static logError(message, details) {
+        // Placeholder for external error logging
+        // In production, this could send to Sentry, LogRocket, etc.
+        const errorData = {
+            message,
+            details,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            url: window.location.href
+        };
+        console.log('Would log to external service:', errorData);
+    }
+
+    static safeElementAccess(elementId, operation, fallback = null) {
+        try {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                this.showWarning(`UI element "${elementId}" not found`);
+                return fallback;
+            }
+            return operation(element);
+        } catch (error) {
+            this.showError(`Error accessing element "${elementId}": ${error.message}`, error);
+            return fallback;
+        }
+    }
+
+    static safeFunctionCall(fn, context = null, ...args) {
+        try {
+            return context ? fn.apply(context, args) : fn(...args);
+        } catch (error) {
+            this.showError(`Function execution failed: ${error.message}`, error);
+            return null;
+        }
+    }
+}
+
 // Constants for star sizing
 const SOL_ABSOLUTE_MAGNITUDE = 4.83; // Absolute magnitude of the Sun
 const BASE_STAR_RADIUS = 1.0; // Base radius for the THREE.SphereGeometry
@@ -64,63 +253,157 @@ const GLOBAL_VISUAL_SCALE = 0.5;
 let loadingIndicator, canvas, starCountDisplay, constellationSelect, searchInput, autocompleteContainer, distanceSlider, distanceValue, sizeSlider, sizeValue, narrateButton, starDescriptionContainer, starDescription, stellarTourButton, toggleRoutePlannerButton, routePlannerContainer, setStartButton, setEndButton, routeStartStar, routeEndStar, maxJumpRangeInput, calculateRouteButton, routeButtonsContainer, findMinJumpButton, routeCalculatingMessage;
 
 function init() {
-    // Assign DOM elements once the document is ready
-    loadingIndicator = document.getElementById('loading-indicator');
-    canvas = document.getElementById('renderCanvas');
-    starCountDisplay = document.getElementById('star-count-display');
-    constellationSelect = document.getElementById('constellation-select');
-    searchInput = document.getElementById('search-input');
-    autocompleteContainer = document.getElementById('autocomplete-suggestions');
-    distanceSlider = document.getElementById('distance-slider');
-    distanceValue = document.getElementById('distance-value');
-    sizeSlider = document.getElementById('size-slider');
-    sizeValue = document.getElementById('size-value');
-    narrateButton = document.getElementById('narrate-button');
-    starDescriptionContainer = document.getElementById('star-description-container');
-    starDescription = document.getElementById('star-description');
-    stellarTourButton = document.getElementById('stellar-tour-button');
-    toggleRoutePlannerButton = document.getElementById('toggle-route-planner-button');
-    routePlannerContainer = document.getElementById('route-planner-container');
-    setStartButton = document.getElementById('set-start-button');
-    setEndButton = document.getElementById('set-end-button');
-    routeStartStar = document.getElementById('route-start-star');
-    routeEndStar = document.getElementById('route-end-star');
-    maxJumpRangeInput = document.getElementById('max-jump-range');
-    calculateRouteButton = document.getElementById('calculate-route-button');
-    findMinJumpButton = document.getElementById('find-min-jump-button');
-    routeCalculatingMessage = document.getElementById('route-calculating-message');
-    routeNavigationContainer = document.getElementById('route-navigation-container');
-    jumpToStartButton = document.getElementById('jump-to-start-button');
-    nextJumpButton = document.getElementById('next-jump-button');
-    jumpToEndButton = document.getElementById('jump-to-end-button');
-    followRouteButton = document.getElementById('follow-route-button');
-    routeProgressDisplay = document.getElementById('route-progress-display');
-    routeButtonsContainer = document.getElementById('route-buttons-container');
+    // Safely assign DOM elements with error handling
+    const requiredElements = {
+        loadingIndicator: 'loading-indicator',
+        canvas: 'renderCanvas',
+        starCountDisplay: 'star-count-display',
+        constellationSelect: 'constellation-select',
+        searchInput: 'search-input',
+        autocompleteContainer: 'autocomplete-suggestions',
+        distanceSlider: 'distance-slider',
+        distanceValue: 'distance-value',
+        sizeSlider: 'size-slider',
+        sizeValue: 'size-value',
+        narrateButton: 'narrate-button',
+        starDescriptionContainer: 'star-description-container',
+        starDescription: 'star-description',
+        stellarTourButton: 'stellar-tour-button',
+        toggleRoutePlannerButton: 'toggle-route-planner-button',
+        routePlannerContainer: 'route-planner-container'
+    };
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000011);
-    const canvasContainer = document.getElementById('canvasContainer');
-    camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 400000); 
-    // Initial camera position will be set after data is loaded to provide an overview.
-    
-    // Debug: Log initial camera setup
-    console.log('Canvas container dimensions:', canvasContainer.clientWidth, 'x', canvasContainer.clientHeight);
-    console.log('Initial camera position:', camera.position);
-    console.log('Initial camera target:', camera.target);
-    console.log('Camera FOV:', camera.fov);
-    console.log('Camera near/far:', camera.near, '/', camera.far);
-    
+    const optionalElements = {
+        setStartButton: 'set-start-button',
+        setEndButton: 'set-end-button',
+        routeStartStar: 'route-start-star',
+        routeEndStar: 'route-end-star',
+        maxJumpRangeInput: 'max-jump-range',
+        calculateRouteButton: 'calculate-route-button',
+        findMinJumpButton: 'find-min-jump-button',
+        routeCalculatingMessage: 'route-calculating-message',
+        routeNavigationContainer: 'route-navigation-container',
+        jumpToStartButton: 'jump-to-start-button',
+        nextJumpButton: 'next-jump-button',
+        jumpToEndButton: 'jump-to-end-button',
+        followRouteButton: 'follow-route-button',
+        routeProgressDisplay: 'route-progress-display',
+        routeButtonsContainer: 'route-buttons-container'
+    };
 
+    // Check required elements
+    const missingElements = [];
+    for (const [varName, elementId] of Object.entries(requiredElements)) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            missingElements.push(elementId);
+        }
+        window[varName] = element;
+    }
 
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    
-    // Debug: Log renderer setup
-    console.log('Renderer created:', renderer);
-    console.log('Canvas element:', canvas);
-    console.log('WebGL context:', renderer.getContext());
-    console.log('Renderer capabilities:', renderer.capabilities);
+    // Check optional elements (warn but don't fail)
+    for (const [varName, elementId] of Object.entries(optionalElements)) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            ErrorHandler.showWarning(`Optional UI element "${elementId}" not found - some features may be disabled`);
+        }
+        window[varName] = element;
+    }
+
+    // Fail if critical elements are missing
+    if (missingElements.length > 0) {
+        ErrorHandler.showError(
+            `Critical UI elements missing: ${missingElements.join(', ')}. Please refresh the page.`,
+            { missingElements },
+            true
+        );
+        return false;
+    }
+
+    try {
+        // Initialize Three.js scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000011);
+        
+        const canvasContainer = document.getElementById('canvasContainer');
+        if (!canvasContainer) {
+            throw new Error('Canvas container element not found');
+        }
+
+        if (canvasContainer.clientWidth === 0 || canvasContainer.clientHeight === 0) {
+            throw new Error('Canvas container has invalid dimensions');
+        }
+
+        camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 400000);
+        
+        // Initialize WebGL renderer with error detection
+        if (!canvas) {
+            throw new Error('Canvas element not found');
+        }
+
+        // Check WebGL support
+        const testContext = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!testContext) {
+            throw new Error('WebGL not supported by this browser');
+        }
+
+        renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            antialias: true,
+            alpha: false,
+            preserveDrawingBuffer: false // Better performance
+        });
+        
+        // Verify renderer was created successfully
+        if (!renderer.getContext()) {
+            throw new Error('Failed to initialize WebGL context');
+        }
+
+        renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
+        
+        // Log successful initialization
+        console.log('Three.js initialized successfully');
+        console.log('Canvas container dimensions:', canvasContainer.clientWidth, 'x', canvasContainer.clientHeight);
+        console.log('WebGL context:', renderer.getContext());
+        console.log('Renderer capabilities:', renderer.capabilities);
+
+    } catch (error) {
+        ErrorHandler.showError(
+            'Failed to initialize 3D graphics. Your browser may not support WebGL.',
+            error
+        );
+        
+        // Show fallback content
+        if (canvas && canvas.parentElement) {
+            canvas.parentElement.innerHTML = `
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
+                    color: #7DF9FF;
+                    text-align: center;
+                    padding: 20px;
+                ">
+                    <h2>3D Graphics Not Available</h2>
+                    <p>Your browser doesn't support WebGL, which is required for the 3D star map.</p>
+                    <p>Please try using a modern browser like Chrome, Firefox, or Edge.</p>
+                    <button onclick="location.reload()" style="
+                        background: #7DF9FF;
+                        color: #000;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin-top: 16px;
+                    ">Try Again</button>
+                </div>
+            `;
+        }
+        return false;
+    }
 
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -259,13 +542,51 @@ function init() {
 }
 
 async function loadAndPrepareStarData() {
+    if (!loadingIndicator) {
+        ErrorHandler.showError('Loading indicator not available - initialization failed');
+        return false;
+    }
+
     loadingIndicator.style.display = 'block';
+    loadingIndicator.textContent = 'Loading star data...';
+
     try {
-        const response = await fetch('stars.json');
+        // Attempt to load star data with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        const response = await fetch('stars.json', { 
+            signal: controller.signal,
+            cache: 'default' // Allow browser caching
+        });
+
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`Failed to load star data: HTTP ${response.status} ${response.statusText}`);
         }
+
+        loadingIndicator.textContent = 'Parsing star data...';
+        
         const rawData = await response.json();
+        
+        // Validate data structure
+        if (!Array.isArray(rawData)) {
+            throw new Error('Invalid star data format: expected array');
+        }
+
+        if (rawData.length === 0) {
+            throw new Error('Star data is empty');
+        }
+
+        // Validate first few entries to ensure data integrity
+        const sampleEntry = rawData[0];
+        const requiredFields = ['name', 'x', 'y', 'z', 'dist', 'mag', 'spect'];
+        const missingFields = requiredFields.filter(field => !(field in sampleEntry));
+        
+        if (missingFields.length > 0) {
+            throw new Error(`Star data missing required fields: ${missingFields.join(', ')}`);
+        }
 
         // Step 1: Initial parsing of raw data into a workable format.
         let initialData = rawData.map(star => ({
@@ -385,9 +706,49 @@ async function loadAndPrepareStarData() {
         console.log('Camera near plane:', camera.near);
         console.log('Controls max distance:', controls.maxDistance);
     } catch (error) {
-        console.error('Error loading or preparing star data:', error);
-        loadingIndicator.textContent = 'Failed to load star data.';
-        return;
+        loadingIndicator.style.display = 'none';
+        
+        // Handle different types of errors with specific messages
+        let userMessage = 'Failed to load star data';
+        let isRetryable = false;
+
+        if (error.name === 'AbortError') {
+            userMessage = 'Star data loading timed out. Please check your internet connection and try again.';
+            isRetryable = true;
+        } else if (error.message.includes('HTTP')) {
+            userMessage = 'Could not download star data. Please check your internet connection.';
+            isRetryable = true;
+        } else if (error.message.includes('JSON')) {
+            userMessage = 'Star data file is corrupted. Please refresh the page.';
+            isRetryable = true;
+        } else if (error.message.includes('format') || error.message.includes('fields')) {
+            userMessage = 'Star data format is invalid. The application may need to be updated.';
+        } else {
+            userMessage = `Unexpected error loading star data: ${error.message}`;
+        }
+
+        ErrorHandler.showError(userMessage, error, isRetryable);
+        
+        // Show retry button for retryable errors
+        if (isRetryable) {
+            loadingIndicator.innerHTML = `
+                <div style="text-align: center;">
+                    <p>Failed to load star data</p>
+                    <button onclick="location.reload()" style="
+                        background: #7DF9FF;
+                        color: #000;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin-top: 8px;
+                    ">Retry</button>
+                </div>
+            `;
+            loadingIndicator.style.display = 'block';
+        }
+        
+        return false;
     }
 }
 
@@ -1455,76 +1816,150 @@ class PriorityQueue {
 }
 
 function findPathAStar(startNode, endNode, maxJump) {
-    const openSet = new PriorityQueue();
-    const cameFrom = new Map();
-    const gScore = new Map();
-    const fScore = new Map();
-
-    const nodeMap = new Map(fullStarData.map(node => [node.name, node]));
-    
-    fullStarData.forEach(node => {
-        gScore.set(node.name, Infinity);
-        fScore.set(node.name, Infinity);
-    });
-
-    gScore.set(startNode.name, 0);
-    fScore.set(startNode.name, heuristic(startNode, endNode));
-    openSet.enqueue(startNode, fScore.get(startNode.name));
-
-    while (!openSet.isEmpty()) {
-        const current = openSet.dequeue();
-
-        if (current.name === endNode.name) {
-            // Path found, reconstruct it
-            const totalPath = [current];
-            let temp = current;
-            while (cameFrom.has(temp.name)) {
-                temp = cameFrom.get(temp.name);
-                totalPath.unshift(temp);
-            }
-            return { path: totalPath, stranded: false };
+    try {
+        // Validate inputs
+        if (!startNode || !endNode) {
+            throw new Error('Start and end nodes are required for pathfinding');
         }
 
-        // Use the Octree to find neighbors efficiently
-        const neighbors = starOctree.query(current, maxJump).filter(n => n.name !== current.name);
+        if (!startNode.name || !endNode.name) {
+            throw new Error('Invalid node data: missing name property');
+        }
 
-        for (const neighbor of neighbors) {
-            const tentativeGScore = gScore.get(current.name) + distance(current, neighbor);
-            if (tentativeGScore < gScore.get(neighbor.name)) {
-                cameFrom.set(neighbor.name, current);
-                gScore.set(neighbor.name, tentativeGScore);
-                fScore.set(neighbor.name, tentativeGScore + heuristic(neighbor, endNode));
-                openSet.enqueue(neighbor, fScore.get(neighbor.name));
+        if (typeof maxJump !== 'number' || maxJump <= 0) {
+            throw new Error('Maximum jump distance must be a positive number');
+        }
+
+        if (!fullStarData || fullStarData.length === 0) {
+            throw new Error('No star data available for pathfinding');
+        }
+
+        if (!starOctree) {
+            throw new Error('Spatial index (Octree) not initialized');
+        }
+
+        // Performance timeout for large searches
+        const startTime = Date.now();
+        const MAX_EXECUTION_TIME = 10000; // 10 seconds
+
+        const openSet = new PriorityQueue();
+        const cameFrom = new Map();
+        const gScore = new Map();
+        const fScore = new Map();
+
+        const nodeMap = new Map(fullStarData.map(node => [node.name, node]));
+        
+        // Verify start and end nodes exist in the dataset
+        if (!nodeMap.has(startNode.name)) {
+            throw new Error(`Start node "${startNode.name}" not found in star data`);
+        }
+        if (!nodeMap.has(endNode.name)) {
+            throw new Error(`End node "${endNode.name}" not found in star data`);
+        }
+        
+        fullStarData.forEach(node => {
+            gScore.set(node.name, Infinity);
+            fScore.set(node.name, Infinity);
+        });
+
+        gScore.set(startNode.name, 0);
+        fScore.set(startNode.name, heuristic(startNode, endNode));
+        openSet.enqueue(startNode, fScore.get(startNode.name));
+
+        let iterations = 0;
+        const MAX_ITERATIONS = 50000; // Prevent infinite loops
+
+        while (!openSet.isEmpty()) {
+            // Check for timeout and iteration limits
+            iterations++;
+            if (iterations > MAX_ITERATIONS) {
+                throw new Error('Pathfinding exceeded maximum iterations limit');
+            }
+
+            if (Date.now() - startTime > MAX_EXECUTION_TIME) {
+                throw new Error('Pathfinding timed out - try reducing search area or max jump distance');
+            }
+
+            const current = openSet.dequeue();
+            if (!current) break; // Safety check
+
+            if (current.name === endNode.name) {
+                // Path found, reconstruct it
+                const totalPath = [current];
+                let temp = current;
+                while (cameFrom.has(temp.name)) {
+                    temp = cameFrom.get(temp.name);
+                    totalPath.unshift(temp);
+                }
+                console.log(`A* pathfinding completed in ${iterations} iterations, ${Date.now() - startTime}ms`);
+                return { path: totalPath, stranded: false };
+            }
+
+            // Use the Octree to find neighbors efficiently
+            let neighbors;
+            try {
+                neighbors = starOctree.query(current, maxJump).filter(n => n.name !== current.name);
+            } catch (octreeError) {
+                throw new Error(`Octree query failed: ${octreeError.message}`);
+            }
+
+            for (const neighbor of neighbors) {
+                if (!neighbor || !neighbor.name) continue; // Skip invalid neighbors
+
+                const tentativeGScore = gScore.get(current.name) + distance(current, neighbor);
+                if (tentativeGScore < gScore.get(neighbor.name)) {
+                    cameFrom.set(neighbor.name, current);
+                    gScore.set(neighbor.name, tentativeGScore);
+                    fScore.set(neighbor.name, tentativeGScore + heuristic(neighbor, endNode));
+                    openSet.enqueue(neighbor, fScore.get(neighbor.name));
+                }
             }
         }
-    }
 
-    // --- Handle stranded case: No complete path found ---
-    // Find the node we reached that is closest to the end destination.
-    let closestNode = startNode;
-    let minHeuristic = heuristic(startNode, endNode);
+        // --- Handle stranded case: No complete path found ---
+        // Find the node we reached that is closest to the end destination.
+        let closestNode = startNode;
+        let minHeuristic = heuristic(startNode, endNode);
 
-    for (const [nodeName, score] of gScore.entries()) {
-        if (score !== Infinity) { // If the node was reached
-            const reachableNode = nodeMap.get(nodeName);
-            const h = heuristic(reachableNode, endNode);
-            if (h < minHeuristic) {
-                minHeuristic = h;
-                closestNode = reachableNode;
+        for (const [nodeName, score] of gScore.entries()) {
+            if (score !== Infinity) { // If the node was reached
+                const reachableNode = nodeMap.get(nodeName);
+                if (reachableNode) {
+                    const h = heuristic(reachableNode, endNode);
+                    if (h < minHeuristic) {
+                        minHeuristic = h;
+                        closestNode = reachableNode;
+                    }
+                }
             }
         }
-    }
 
-    // Reconstruct the path to this "closest" node.
-    const partialPath = [closestNode];
-    let temp = closestNode;
-    while (cameFrom.has(temp.name)) {
-        temp = cameFrom.get(temp.name);
-        partialPath.unshift(temp);
-    }
+        // Reconstruct the path to this "closest" node.
+        const partialPath = [closestNode];
+        let temp = closestNode;
+        while (cameFrom.has(temp.name)) {
+            temp = cameFrom.get(temp.name);
+            partialPath.unshift(temp);
+        }
 
-    // If the path is just the start node, we couldn't go anywhere.
-    return partialPath.length > 1 ? { path: partialPath, stranded: true } : null;
+        console.log(`A* pathfinding completed (stranded) in ${iterations} iterations, ${Date.now() - startTime}ms`);
+        
+        // If the path is just the start node, we couldn't go anywhere.
+        return partialPath.length > 1 ? { path: partialPath, stranded: true } : null;
+        
+    } catch (error) {
+        ErrorHandler.showError(
+            `Route calculation failed: ${error.message}`,
+            error
+        );
+        
+        // Re-enable UI elements
+        if (calculateRouteButton) calculateRouteButton.disabled = false;
+        if (findMinJumpButton) findMinJumpButton.disabled = false;
+        if (routeCalculatingMessage) routeCalculatingMessage.classList.add('hidden');
+        
+        return null;
+    }
 }
 
 function distance(nodeA, nodeB) {
