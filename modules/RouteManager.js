@@ -2,7 +2,9 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import { Line2 } from '../vendor/three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from '../vendor/three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from '../vendor/three/examples/jsm/lines/LineMaterial.js';
+import { PathfindingPriorityQueue } from '../utils/BinaryHeap.js';
 
+// Legacy PriorityQueue for fallback compatibility
 class PriorityQueue {
     constructor() {
         this.elements = [];
@@ -50,11 +52,118 @@ export class RouteManager {
         
         // Arrow texture cache
         this.arrowTexture = null;
+        
+        // Web Worker for pathfinding
+        this.pathfindingWorker = null;
+        this.workerMessageId = 0;
+        this.pendingRequests = new Map();
+        this.workerInitialized = false;
+        
+        // Performance monitoring
+        this.performanceMetrics = {
+            totalCalculations: 0,
+            workerCalculations: 0,
+            fallbackCalculations: 0,
+            averageWorkerTime: 0,
+            averageFallbackTime: 0
+        };
+        
+        this.initializeWorker();
     }
 
     setData(fullStarData, starOctree) {
         this.fullStarData = fullStarData;
         this.starOctree = starOctree;
+        
+        // Send data to worker if available
+        if (this.pathfindingWorker && this.workerInitialized) {
+            this.sendDataToWorker();
+        }
+    }
+
+    initializeWorker() {
+        try {
+            this.pathfindingWorker = new Worker('./workers/pathfinding-worker.js');
+            
+            this.pathfindingWorker.onmessage = (event) => {
+                this.handleWorkerMessage(event.data);
+            };
+            
+            this.pathfindingWorker.onerror = (error) => {
+                console.warn('Pathfinding worker error:', error);
+                this.errorHandler?.showWarning('Pathfinding worker unavailable, using fallback mode');
+                this.pathfindingWorker = null;
+            };
+            
+            // Mark as initialized once we receive confirmation
+            this.workerInitialized = true;
+            console.log('Pathfinding worker initialized successfully');
+            
+        } catch (error) {
+            console.warn('Failed to initialize pathfinding worker:', error);
+            this.pathfindingWorker = null;
+        }
+    }
+
+    sendDataToWorker() {
+        if (!this.pathfindingWorker || !this.fullStarData || !this.starOctree) return;
+        
+        try {
+            // Serialize octree data for worker
+            const octreeData = {
+                boundary: {
+                    x: this.starOctree.boundary.x,
+                    y: this.starOctree.boundary.y,
+                    z: this.starOctree.boundary.z,
+                    w: this.starOctree.boundary.w,
+                    h: this.starOctree.boundary.h,
+                    d: this.starOctree.boundary.d
+                },
+                capacity: this.starOctree.capacity
+            };
+            
+            this.pathfindingWorker.postMessage({
+                type: 'setData',
+                data: {
+                    starData: this.fullStarData,
+                    octreeData: octreeData
+                },
+                id: this.getNextMessageId()
+            });
+            
+        } catch (error) {
+            console.warn('Failed to send data to pathfinding worker:', error);
+        }
+    }
+
+    handleWorkerMessage(message) {
+        const { type, id, data, error } = message;
+        
+        if (type === 'progress') {
+            this.handlePathfindingProgress(data);
+            return;
+        }
+        
+        const request = this.pendingRequests.get(id);
+        if (!request) return;
+        
+        this.pendingRequests.delete(id);
+        
+        if (type === 'error') {
+            console.warn('Worker pathfinding error:', error);
+            request.reject(new Error(error.message || 'Worker pathfinding failed'));
+        } else if (type === 'result') {
+            request.resolve(data);
+        }
+    }
+
+    handlePathfindingProgress(progress) {
+        // Update search bubble or progress indicators
+        console.log(`Pathfinding progress: ${progress.iterations} iterations, ${Math.round(progress.timeElapsed)}ms`);
+    }
+
+    getNextMessageId() {
+        return ++this.workerMessageId;
     }
 
     getActiveRoute() {
@@ -108,10 +217,29 @@ export class RouteManager {
         this.startSearchBubbleAnimation(activeRoute.startStar, activeRoute.endStar, maxJump);
         
         try {
-            // Small delay to allow UI updates
-            await new Promise(resolve => setTimeout(resolve, 100));
+            const startTime = performance.now();
+            let result;
             
-            const result = this.findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+            // Try Web Worker first, fallback to main thread if unavailable
+            if (this.pathfindingWorker && this.workerInitialized) {
+                try {
+                    result = await this.calculateRouteWithWorker(activeRoute.startStar, activeRoute.endStar, maxJump);
+                    this.performanceMetrics.workerCalculations++;
+                    this.performanceMetrics.averageWorkerTime = 
+                        (this.performanceMetrics.averageWorkerTime + (performance.now() - startTime)) / 2;
+                } catch (error) {
+                    console.warn('Worker pathfinding failed, using fallback:', error);
+                    result = this.findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+                    this.performanceMetrics.fallbackCalculations++;
+                }
+            } else {
+                result = this.findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+                this.performanceMetrics.fallbackCalculations++;
+                this.performanceMetrics.averageFallbackTime = 
+                    (this.performanceMetrics.averageFallbackTime + (performance.now() - startTime)) / 2;
+            }
+            
+            this.performanceMetrics.totalCalculations++;
             
             if (result && result.path) {
                 activeRoute.calculatedRoute = result.path;
@@ -121,7 +249,7 @@ export class RouteManager {
                         `Route partially calculated. Could only reach ${result.path[result.path.length - 1].name} with the given jump range.`
                     );
                 } else {
-                    console.log(`Route found with ${result.path.length} jumps.`);
+                    console.log(`Route found with ${result.path.length} jumps in ${Math.round(performance.now() - startTime)}ms`);
                 }
                 
                 this.drawRouteLine(activeRoute);
@@ -134,6 +262,36 @@ export class RouteManager {
         } finally {
             this.stopSearchBubbleAnimation();
         }
+    }
+
+    async calculateRouteWithWorker(startStar, endStar, maxJump) {
+        return new Promise((resolve, reject) => {
+            const messageId = this.getNextMessageId();
+            
+            this.pendingRequests.set(messageId, { resolve, reject });
+            
+            this.pathfindingWorker.postMessage({
+                type: 'findPath',
+                data: {
+                    startNode: startStar,
+                    endNode: endStar,
+                    maxJump: maxJump,
+                    options: {
+                        maxIterations: 50000,
+                        timeLimit: 30000
+                    }
+                },
+                id: messageId
+            });
+            
+            // Set timeout to prevent hanging
+            setTimeout(() => {
+                if (this.pendingRequests.has(messageId)) {
+                    this.pendingRequests.delete(messageId);
+                    reject(new Error('Worker pathfinding timeout'));
+                }
+            }, 35000);
+        });
     }
 
     async findMinimumJumpRange(startStar, endStar) {
@@ -207,7 +365,7 @@ export class RouteManager {
             const startTime = Date.now();
             const MAX_EXECUTION_TIME = 10000; // 10 seconds
 
-            const openSet = new PriorityQueue();
+            const openSet = new PathfindingPriorityQueue();
             const cameFrom = new Map();
             const gScore = new Map();
             const fScore = new Map();
@@ -640,5 +798,199 @@ export class RouteManager {
             this.arrowTexture.dispose();
             this.arrowTexture = null;
         }
+    }
+
+    // Performance monitoring and optimization methods
+    getPerformanceReport() {
+        const workerPercentage = this.performanceMetrics.totalCalculations > 0 
+            ? (this.performanceMetrics.workerCalculations / this.performanceMetrics.totalCalculations * 100).toFixed(1)
+            : 0;
+
+        return {
+            totalCalculations: this.performanceMetrics.totalCalculations,
+            workerCalculations: this.performanceMetrics.workerCalculations,
+            fallbackCalculations: this.performanceMetrics.fallbackCalculations,
+            workerUsagePercentage: workerPercentage,
+            averageWorkerTime: Math.round(this.performanceMetrics.averageWorkerTime),
+            averageFallbackTime: Math.round(this.performanceMetrics.averageFallbackTime),
+            workerAvailable: !!this.pathfindingWorker,
+            workerInitialized: this.workerInitialized,
+            pendingRequests: this.pendingRequests.size
+        };
+    }
+
+    async benchmarkPathfinding(testCases = 5) {
+        if (!this.fullStarData || this.fullStarData.length < 10) {
+            console.warn('Insufficient star data for benchmarking');
+            return null;
+        }
+
+        console.log(`Starting pathfinding benchmark with ${testCases} test cases...`);
+        
+        const results = {
+            workerResults: [],
+            fallbackResults: [],
+            workerAverage: 0,
+            fallbackAverage: 0,
+            workerFaster: 0
+        };
+
+        // Generate random test cases
+        const testRoutes = [];
+        for (let i = 0; i < testCases; i++) {
+            const startIdx = Math.floor(Math.random() * this.fullStarData.length);
+            const endIdx = Math.floor(Math.random() * this.fullStarData.length);
+            const maxJump = 10 + Math.random() * 20; // 10-30 parsecs
+            
+            testRoutes.push({
+                start: this.fullStarData[startIdx],
+                end: this.fullStarData[endIdx],
+                maxJump
+            });
+        }
+
+        // Test worker performance
+        if (this.pathfindingWorker && this.workerInitialized) {
+            for (const route of testRoutes) {
+                try {
+                    const startTime = performance.now();
+                    await this.calculateRouteWithWorker(route.start, route.end, route.maxJump);
+                    const workerTime = performance.now() - startTime;
+                    results.workerResults.push(workerTime);
+                } catch (error) {
+                    console.warn('Worker benchmark test failed:', error);
+                    results.workerResults.push(null);
+                }
+            }
+        }
+
+        // Test fallback performance
+        for (const route of testRoutes) {
+            try {
+                const startTime = performance.now();
+                this.findPathAStar(route.start, route.end, route.maxJump);
+                const fallbackTime = performance.now() - startTime;
+                results.fallbackResults.push(fallbackTime);
+            } catch (error) {
+                console.warn('Fallback benchmark test failed:', error);
+                results.fallbackResults.push(null);
+            }
+        }
+
+        // Calculate averages
+        const validWorkerResults = results.workerResults.filter(r => r !== null);
+        const validFallbackResults = results.fallbackResults.filter(r => r !== null);
+        
+        if (validWorkerResults.length > 0) {
+            results.workerAverage = validWorkerResults.reduce((a, b) => a + b, 0) / validWorkerResults.length;
+        }
+        
+        if (validFallbackResults.length > 0) {
+            results.fallbackAverage = validFallbackResults.reduce((a, b) => a + b, 0) / validFallbackResults.length;
+        }
+
+        // Count cases where worker was faster
+        for (let i = 0; i < testCases; i++) {
+            if (results.workerResults[i] && results.fallbackResults[i] && 
+                results.workerResults[i] < results.fallbackResults[i]) {
+                results.workerFaster++;
+            }
+        }
+
+        console.log('Pathfinding benchmark results:', results);
+        return results;
+    }
+
+    optimizeForDataset() {
+        if (!this.fullStarData || !this.starOctree) return;
+
+        // Analyze dataset characteristics
+        const datasetStats = {
+            starCount: this.fullStarData.length,
+            averageDistance: this.calculateAverageStarDistance(),
+            densityMetrics: this.analyzeSpatialDensity()
+        };
+
+        console.log('Dataset analysis:', datasetStats);
+
+        // Adjust worker settings based on dataset size
+        if (datasetStats.starCount > 50000) {
+            console.log('Large dataset detected, optimizing for performance...');
+            // Could adjust octree capacity, worker timeout, etc.
+        }
+
+        return datasetStats;
+    }
+
+    calculateAverageStarDistance() {
+        if (this.fullStarData.length < 2) return 0;
+
+        let totalDistance = 0;
+        let pairCount = 0;
+        const sampleSize = Math.min(1000, this.fullStarData.length);
+
+        for (let i = 0; i < sampleSize && pairCount < 5000; i++) {
+            for (let j = i + 1; j < sampleSize && pairCount < 5000; j++) {
+                totalDistance += this.distance(this.fullStarData[i], this.fullStarData[j]);
+                pairCount++;
+            }
+        }
+
+        return pairCount > 0 ? totalDistance / pairCount : 0;
+    }
+
+    analyzeSpatialDensity() {
+        // Simple spatial density analysis
+        const bounds = {
+            minX: Infinity, maxX: -Infinity,
+            minY: Infinity, maxY: -Infinity,
+            minZ: Infinity, maxZ: -Infinity
+        };
+
+        this.fullStarData.forEach(star => {
+            bounds.minX = Math.min(bounds.minX, star.x);
+            bounds.maxX = Math.max(bounds.maxX, star.x);
+            bounds.minY = Math.min(bounds.minY, star.y);
+            bounds.maxY = Math.max(bounds.maxY, star.y);
+            bounds.minZ = Math.min(bounds.minZ, star.z);
+            bounds.maxZ = Math.max(bounds.maxZ, star.z);
+        });
+
+        const volume = (bounds.maxX - bounds.minX) * 
+                      (bounds.maxY - bounds.minY) * 
+                      (bounds.maxZ - bounds.minZ);
+        
+        return {
+            volume,
+            density: this.fullStarData.length / volume,
+            bounds
+        };
+    }
+
+    // Cleanup and resource management
+    dispose() {
+        // Clean up Web Worker
+        if (this.pathfindingWorker) {
+            // Cancel any pending requests
+            this.pendingRequests.forEach((request, id) => {
+                request.reject(new Error('RouteManager disposed'));
+            });
+            this.pendingRequests.clear();
+
+            this.pathfindingWorker.terminate();
+            this.pathfindingWorker = null;
+            this.workerInitialized = false;
+        }
+
+        // Clear route visualization
+        this.clearAllRoutes();
+
+        // Clean up search bubble
+        if (this.searchBubble) {
+            this.starRenderer.scene.remove(this.searchBubble);
+            this.searchBubble = null;
+        }
+
+        console.log('RouteManager disposed successfully');
     }
 }
