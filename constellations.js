@@ -1,4 +1,4 @@
-function getConstellationData() {
+export function getConstellationData() {
     return {
         "Ursa Major": [
             // Big Dipper Bowl
@@ -51,3 +51,5 @@ function getConstellationData() {
         ]
     };
 }
+
+export const constellationData = getConstellationData();

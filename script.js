@@ -285,6 +285,8 @@ async function init() {
             throw new Error('Failed to initialize 3D renderer');
         }
 
+        await starRenderer.loadVisualPresets();
+
         // Initialize UI manager
         if (!await uiManager.initialize()) {
             throw new Error('Failed to initialize UI manager');
@@ -389,12 +391,13 @@ async function loadAndPrepareStarData() {
             mag: star.mag,
             spect: star.spect,
             ci: star.ci || 0.65,
-            relativeRadiusScale: calculateStarRadius(star.mag)
+            relativeRadiusScale: Math.min(10, Math.max(0.1, calculateStarRadius(star.mag)))
         }));
 
         console.log(`Loaded ${initialData.length} stars`);
 
         fullStarData = initialData;
+        starRenderer.setFullStarData(fullStarData);
         
         loadingIndicator.textContent = 'Building spatial index...';
 
@@ -413,6 +416,23 @@ async function loadAndPrepareStarData() {
             sizeSlider.max = Math.ceil(maxSize);
             sizeSlider.step = 0.1;
             sizeSlider.value = sizeSlider.max;
+            const sizeValue = document.getElementById('size-value');
+            if (sizeValue) {
+                sizeValue.textContent = sizeSlider.value;
+            }
+        }
+
+        const distanceSlider = document.getElementById('distance-slider');
+        if (distanceSlider) {
+            const maxDistance = fullStarData.reduce((max, star) => Math.max(max, star.dist || 0), 0);
+            distanceSlider.min = 0;
+            distanceSlider.max = Math.ceil(maxDistance);
+            distanceSlider.step = Math.max(0.1, Math.ceil(maxDistance / 500));
+            distanceSlider.value = distanceSlider.max;
+            const distanceValue = document.getElementById('distance-value');
+            if (distanceValue) {
+                distanceValue.textContent = distanceSlider.value;
+            }
         }
 
         loadingIndicator.style.display = 'none';
@@ -516,7 +536,7 @@ function applyFilters() {
     const distanceSlider = document.getElementById('distance-slider');
     const sizeSlider = document.getElementById('size-slider');
     const maxDistance = distanceSlider ? parseFloat(distanceSlider.value) : Infinity;
-    const minSize = sizeSlider ? parseFloat(sizeSlider.value) : 0;
+    const maxSize = sizeSlider ? parseFloat(sizeSlider.value) : Infinity;
 
     // Get checked spectral classes
     const checkedSpectralClasses = Array.from(document.querySelectorAll('.filter-checkbox:checked'))
@@ -528,7 +548,7 @@ function applyFilters() {
         if (star.dist > maxDistance) return false;
 
         // Size filter
-        if (star.relativeRadiusScale < minSize) return false;
+        if (star.relativeRadiusScale > maxSize) return false;
 
         // Spectral class filter
         if (checkedSpectralClasses.length > 0) {
@@ -573,6 +593,8 @@ function applyVisualPreset() {
             if (preset) {
                 // Apply the preset values to the UI and renderer
                 console.log(`Applied visual preset: ${selectedPreset}`);
+            } else {
+                console.warn('Visual preset not found, disabling preset blend');
             }
         })
         .catch(error => {

@@ -38,6 +38,12 @@ These features have been successfully implemented and are part of the current ap
 
 - **Automated Exploration:**
   - **Randomized "Stellar Tour" Mode:** A cinematic idle mode that flies to random stars, orbits them, and displays their information with narration. Features intelligent pause durations and "look-before-you-fly" animations.
+
+- **Recent Stability & UX Improvements:**
+  - Hardened WebGL initialization and post-processing fallbacks to avoid blank renders on browsers that reuse canvas contexts.
+  - Converted legacy data scripts into ES modules and updated imports to ensure stars and constellations load reliably in the standalone build.
+  - Refined distance/size filtering defaults, clamped star scale metadata, and improved selection highlights so the full dataset renders immediately with clearer picking cues.
+  - Added accessibility metadata to filter controls and improved logging around dataset preparation to aid future diagnostics.
   - **Enhanced Narration:** The tour now automatically narrates details for named stars, including karaoke-style text highlighting, and pauses after narration before continuing.
 
 - **Travel/Route Planning Mode:**
