@@ -43,7 +43,7 @@ These features have been successfully implemented and are part of the current ap
   - Hardened WebGL initialization and post-processing fallbacks to avoid blank renders on browsers that reuse canvas contexts.
   - Converted legacy data scripts into ES modules and updated imports to ensure stars and constellations load reliably in the standalone build.
   - Refined distance/size filtering defaults, clamped star scale metadata, and improved selection highlights so the full dataset renders immediately with clearer picking cues.
-  - Added accessibility metadata to filter controls and improved logging around dataset preparation to aid future diagnostics.
+  - Set initial camera home position to (0, 20, 100) so the starfield is visible on launch, and restricted spectral filters to spectral-class toggles to prevent empty results.
   - **Enhanced Narration:** The tour now automatically narrates details for named stars, including karaoke-style text highlighting, and pauses after narration before continuing.
 
 - **Travel/Route Planning Mode:**
@@ -292,4 +292,7 @@ High-value features that preserve fidelity and educational clarity (good â€œProâ
 - Education Boost (M): Star info enrichment; HR mini panel; Constellation lore; Nearby structure overlays.
 - Stability/Perf (S/M): Faster A* heap; LOD/culling polish; Instanced buffer improvements.
 
-Free tier retains: core 3D rendering, filters, search, constellation viewer, basic tour, single-route planning.
+Free tier retains: core 3D rendering, filters, search, constellation viewer, basic tour, single-route planning.- [2025-09-16] Initial camera home position set to (0, 20, 100) on load so stars render immediately; constrained spectral filters to only the class checkboxes to avoid empty datasets.
+
+
+

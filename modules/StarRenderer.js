@@ -90,6 +90,8 @@ export class StarRenderer {
         }
 
         this.camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 400000);
+        this.camera.position.set(0, 20, 100);
+        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
         
         // Initialize WebGL renderer with error detection
         if (!this.canvas) {
@@ -138,6 +140,7 @@ export class StarRenderer {
         this.controls.minDistance = 0.1;
         this.controls.maxDistance = 2000;
         this.controls.target.set(0, 0, 0);
+        this.controls.update();
 
         this.flyControls = new FlyControls(this.camera, this.renderer.domElement);
         this.flyControls.movementSpeed = 150;

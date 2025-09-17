@@ -539,8 +539,10 @@ function applyFilters() {
     const maxSize = sizeSlider ? parseFloat(sizeSlider.value) : Infinity;
 
     // Get checked spectral classes
-    const checkedSpectralClasses = Array.from(document.querySelectorAll('.filter-checkbox:checked'))
-        .map(cb => cb.value);
+    const spectralCheckboxes = document.querySelectorAll('.filter-checkbox[name^="spectral-"]:checked');
+    const checkedSpectralClasses = Array.from(spectralCheckboxes)
+        .map(cb => cb.value)
+        .filter(Boolean);
 
     // Apply filters
     activeStarData = fullStarData.filter(star => {
