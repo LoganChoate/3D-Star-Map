@@ -139,57 +139,117 @@ These features have been successfully implemented and are part of the current ap
 
 ---
 
-## 🚀 Future Features
+## Future Features
 
-This is the planned order for implementing new features, with concrete scope, milestones, and technical notes.
+1. **Automated UI Validation (Low Effort / Quick Win)**
+   - Integrate Playwright-driven smoke tests that load the WebGL scene headlessly, exercise star selection, filters, and mode toggles, then assert exported telemetry (star count, camera/canvas metrics).
+   - Add an optional debug HUD/telemetry endpoint to expose render-state snapshots (selected star radius, camera distance) so automated scripts can assert without brittle DOM scraping.
+   - Establish deterministic visual regression tests (Playwright + pixel diff) with approved baselines; disable twinkle/noise during test runs to keep frames stable and diffable.
+   - Capture screenshot artifacts in CI/CD so intentional visual changes can be reviewed, while regressions fail fast.
+   - Extend Jest unit coverage around projection/framing helpers to complement the browser-based checks.
+   - Feasibility note: bootstrap with a single Playwright scenario and Jest helper tests; expand to pixel diffs once deterministic rendering is confirmed.
 
-1) Integrate Exoplanet & Deep-Sky Object (DSO) Data
-- Data sources
-  - Exoplanets: NASA Exoplanet Archive (host star, planet name, semimajor axis, period, radius/mass, discovery method/year).
-  - DSOs: Curated Messier/NGC subset with RA/Dec, type (galaxy/nebula/cluster), angular size; distances where available.
-- Prep scripts
-  - `prepare_exoplanets.py`: fetch/normalize; map planets to host stars by name; fallback proximity match by coordinates; output `exoplanets.json` keyed by host `name` with `planets: [...]`.
-  - `prepare_dso.py`: convert RA/Dec (+ distance) to XYZ in our Y-up frame; output `dso.json` with `{name, type, x,y,z, texture}` or `{ra,dec,dist}` when distance is unknown.
-- Rendering
-  - Exoplanet hosts: optional global layer showing host markers; on star selection, show planet list and draw schematic orbit rings + planet markers near the star.
-  - DSOs: billboard sprites via `THREE.SpriteMaterial` with thumbnail textures; frustum/distance culling; optional LOD sizing.
-- UI
-  - Add checkboxes: “Show Exoplanet Hosts”, “Show Deep-Sky Objects”. In selection panel, render planet table and host summary.
-- Milestones
-  - M1: Load/display host markers and DSO sprites with toggles.
-  - M2: Planet details and schematic orbits when a host is selected.
-  - M3: Texture lazy-loading and caching; basic filters by DSO type.
+2. **Usability & Onboarding Enhancements (Low / Medium Effort)**
+   - First-run overlay/cards that introduce controls, filters, and route basics.
+   - Persistent settings for filters, control mode, sliders, and planner state.
+   - Unit toggles (pc/ly/km) and a global magnitude vs. absolute magnitude switch.
+   - Enhanced search with fuzzy/alias lookup (Bayer/Flamsteed/HIP/HD) and highlighted matches.
+   - Context tooltips for spectral class, magnitude, Garbage Sphere, and other jargon.
+   - Screenshot/export PNG flow with optional title/watermark.
+   - Bookmarks for stars/routes/camera poses plus a quick go-to panel.
+   - Measure tool showing distance between two stars; CSV export for visible stars or neighborhoods.
+   - Route export/import to JSON for sharing; FPS/perf overlay toggle; color-blind palette/high-contrast UI mode.
+   - Feasibility note: tackle in slices—start with persistent settings and the overlay, layer in advanced search/bookmarks once telemetry proves the basics are solid.
 
-2) Visualize Proper Motion with a Time Slider
-- Data
-  - Extend `process_hyg.py` to include proper motion and radial velocity (HYG/GAIA). Compute velocity vector `v = (vx, vy, vz)` in pc/year in our coordinate frame.
-- Simulation
-  - Maintain base position `p0`; compute `p(t) = p0 + v*t` for slider-controlled years from J2000. Recompute constellation lines for current `t`.
-- Rendering/Performance
-  - Update InstancedMesh matrices on slider changes (debounced); if needed, move A* and constellation rebuilds off main thread via Web Worker.
-- UI
-  - Add time slider `[-100k, +100k] years`, with play/pause and “Now” reset. Tooltip shows year offset.
-- Milestones
-  - M1: Stars move with slider; basic performance acceptable.
-  - M2: Constellations update to warped shapes over time.
-  - M3: Optional: route planning and tours account for time-shifted positions.
+3. **Exoplanet & Deep-Sky Object Layers (Medium Effort)**
+   - Data sources: NASA Exoplanet Archive for host-star metadata; curated Messier/NGC subset with RA/Dec, distance, type, and thumbnail references.
+   - Prep scripts: `prepare_exoplanets.py` (normalize host/planet data, coordinate fallback); `prepare_dso.py` (convert RA/Dec/dist to XYZ, emit `dso.json`).
+   - Rendering: optional host markers and orbit schematics; billboard sprites for DSOs with frustum/distance culling and LOD sizing.
+   - UI: toggles for "Show Exoplanet Hosts" / "Show Deep-Sky Objects"; selection panel lists planets and host summary.
+   - Milestones: M1 markers + sprites; M2 planet details/orbits; M3 texture lazy-loading and DSO filters.
+   - Feasibility note: reuse the existing data-prep pipeline; initial pass can treat DSOs as static sprites to avoid heavy geometry.
 
-3) Add WebXR (VR/AR) Support
-- Base
-  - Enable WebXR: `renderer.xr.enabled = true`; add `VRButton`; verify performance budgets.
-- Interaction
-  - Controller raycasting (laser pointers) using `XRControllerModelFactory`; selection highlight ring works in VR; minimal 3D UI panels for key actions (Reset, Tour, Route toggle).
-- UI in VR
-  - Render floating panels as simple planes with large-hit-area buttons; keep desktop UI for non-VR.
-- Performance
-  - Maintain low geometry complexity (InstancedMesh is good); consider `Line2` for readable route lines; tune frustum culling and LOD.
-- Milestones
-  - M1: Enter VR, view starfield.
-  - M2: Select stars with controllers; see info panel.
-  - M3: Follow route and tour modes in VR.
-  - Phase 2: Comfort options (vignette, teleport/step), controller haptics, tool radial menu, in-world panels for filters/toggles.
+4. **Proper-Motion Time Slider (Medium / High Effort)**
+   - Data: extend `process_hyg.py` to export proper motion + radial velocity; compute velocity vectors in pc/year within our coordinate frame.
+   - Simulation: maintain base positions `p0`; compute `p(t) = p0 + v*t`; rebuild constellation lines per time slice.
+   - Rendering: update InstancedMesh matrices on slider changes; consider Web Worker offload for constellation rebuilds/A* updates.
+   - UI: time slider `[-100k, +100k]` years with play/pause and "Now" reset; tooltip shows year offset.
+   - Milestones: M1 stars move; M2 constellations warp; M3 tours/routes respect time shift.
+   - Feasibility note: prototype with coarse time steps and throttled updates to gauge performance before adding animation.
 
----
+5. **WebXR (VR/AR) Support (High Effort / Multi-Phase)**
+   - Base: enable WebXR (`renderer.xr.enabled = true`), add `VRButton`, profile performance budgets.
+   - Interaction: controller raycasting via `XRControllerModelFactory`, selection highlight, minimal 3D panels for core actions (Reset, Tour, Route toggle).
+   - UI in VR: floating panels with large hit areas; keep desktop UI path.
+   - Performance: keep InstancedMesh; use `Line2` for readable routes; tune frustum culling/LOD specifically for VR.
+   - Milestones: M1 view starfield in VR; M2 select stars + info panel; M3 follow routes/tours in VR. Phase 2 introduces comfort options, haptics, radial menus, in-world filters.
+   - Feasibility note: plan for staged delivery—start with seated VR, defer AR/tooling until the base experience feels smooth.
+
+6. **Data & Educational Enhancements (S/M)**
+   - Spectral class legend + mini histogram with click-to-filter capability.
+   - Star info enrichment: computed absolute magnitude, luminosity hints, and plain-language explanations.
+   - HR diagram mini panel: histogram/density plot that highlights the current selection and filtered set.
+   - Constellation lore: short myth/notes with optional art-style line toggle.
+   - Multiple catalogs surfaced (HIP/HD/Gliese) with quick-copy helpers in the info panel.
+   - Feasibility note: incremental rollout—start with textual enrichment and catalog copy helpers before charting work.
+
+7. **Navigation & Visualization Upgrades (M)**
+   - Smart labels: dynamic labeling for bright/named stars with decluttering rules.
+   - Nearby-structure overlays: ecliptic, celestial equator, Galactic plane, plus axis/grid toggles.
+   - Minimap/overview inset: orthographic cube showing camera pose vs. scene bounds.
+   - Camera waypoints: save/load named poses with smooth transitions.
+   - Route line readability: migrate to `Line2` for consistent thickness at all zoom levels.
+   - Feasibility note: treat `Line2` migration as the first win, then layer UI affordances one at a time.
+
+8. **Analysis & Route Planning Tools (M)**
+   - Selection queries: list neighbors within a radius, or stars brighter than a threshold near the selection.
+   - Route cost variants: minimize jump count, minimize max jump, weighted costs, and side-by-side comparisons.
+   - Batch routes: plan against a list of targets, return summaries, and export results.
+   - Feasibility note: begin with read-only query tools (no new UI panels) to validate performance before adding batch planners.
+
+9. **Performance & Reliability Improvements (S/M)**
+   - Faster A* priority queue using a binary heap.
+   - Offload A* to a Web Worker to keep the UI responsive during large searches.
+   - Instanced-buffer optimization: pack data into typed arrays and support partial updates on filter changes.
+   - LOD/culling polish: sphere-of-interest culling, tuned size attenuation.
+   - Feasibility note: swapping in the heap is low-risk; worker offload and partial-buffer writes can follow once profiling highlights hot spots.
+
+10. **Accessibility & Internationalization (S/M)**
+    - Keyboard-only navigation coverage for all UI actions.
+    - Narration options: voice selection, rate control, language selection, caption fallback.
+    - i18n scaffolding: externalize strings, start with English, and prepare for additional locales.
+    - Feasibility note: prioritize keyboard coverage and string externalization so later locale work is straightforward.
+
+11. **WebXR Comfort & AR Concepts (L)**
+    - Comfort enhancements: teleport locomotion, vignette options, controller haptics, in-world control panels.
+    - AR "sky mode": device-orientation-aligned sky with constellation overlay.
+    - Feasibility note: schedule only after core VR experience (item 5) feels solid; AR requires separate UX exploration.
+
+12. **Scientific Depth & Advanced Data (L)**
+    - Density/heat overlays: voxelized density with transparency/isolines.
+    - Gaia DR3 cross-match: improved proper motions, uncertainties, RUWE—feeds the time slider.
+    - Binary/multiple systems: detect/tag; draw linking glyphs at close zoom.
+    - Variable stars: tags and basic variability info.
+    - Habitability tidbits: simple habitable-zone bands for Sun-like stars.
+    - Feasibility note: prerequisite is the proper-motion pipeline; expect heavy data-processing investment.
+
+13. **Developer Experience Enhancements (M)**
+    - Vite bundling for a faster dev server and stable module loading.
+    - Unit tests for A*, Octree, filters; lightweight harness.
+    - Optional local-only telemetry flag for debugging.
+    - Feasibility note: migrate to Vite first, then layer in targeted unit tests.
+
+14. **Curated Tours & Content Packs (S/M)**
+    - Bright Stars tour, constellation-lore tour, Orion Arm tour.
+    - Exoplanet Hosts tour (ties into item 3); cluster tours (Hyades/Pleiades).
+    - Feasibility note: once exoplanet/DSO data lands, tours become scripted data exercises with minimal new tech.
+
+15. **Monetization-Oriented Release Plan**
+    - Pro Core (S/M): Bookmarks; measure tool; screenshot export; CSV/Route export-import; fuzzy/alias search; spectral legend; smart labels; selection queries; batch routes; route cost variants; curated tours; route line readability; A* in Web Worker.
+    - Education Boost (M): Star info enrichment; HR mini panel; constellation lore; nearby-structure overlays.
+    - Stability/Performance (S/M): Faster A* heap; LOD/culling polish; instanced-buffer optimizations.
+    - Free tier retains: core 3D rendering, filters, search, constellation viewer, basic tour, single-route planning.
+    - Feasibility note: align monetization bundles with the delivery milestones above so upgrades map cleanly to feature unlocks.
 
 ## 🔧 Usability & Onboarding (S)
 
