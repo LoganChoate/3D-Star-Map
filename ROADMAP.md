@@ -44,6 +44,7 @@ These features have been successfully implemented and are part of the current ap
   - Converted legacy data scripts into ES modules and updated imports to ensure stars and constellations load reliably in the standalone build.
   - Refined distance/size filtering defaults, clamped star scale metadata, and improved selection highlights so the full dataset renders immediately with clearer picking cues.
   - Set initial camera home position to (0, 20, 100) so the starfield is visible on launch, and restricted spectral filters to spectral-class toggles to prevent empty results.
+  - Garbage Sphere toggle now hides or reveals the placeholder shell and keeps the distance slider in sync with the active dataset.\r\n  - Star selection recenters and orbits the camera again without feedback loops, keeping tour and route interactions stable.
   - **Enhanced Narration:** The tour now automatically narrates details for named stars, including karaoke-style text highlighting, and pauses after narration before continuing.
 
 - **Travel/Route Planning Mode:**
@@ -293,6 +294,8 @@ High-value features that preserve fidelity and educational clarity (good â€œProâ
 - Stability/Perf (S/M): Faster A* heap; LOD/culling polish; Instanced buffer improvements.
 
 Free tier retains: core 3D rendering, filters, search, constellation viewer, basic tour, single-route planning.- [2025-09-16] Initial camera home position set to (0, 20, 100) on load so stars render immediately; constrained spectral filters to only the class checkboxes to avoid empty datasets.
+
+
 
 
 

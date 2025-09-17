@@ -282,7 +282,8 @@ export class UIManager {
                 const index = intersects[0].index;
                 if (index !== undefined && this.activeStarData && this.activeStarData[index]) {
                     const star = this.activeStarData[index];
-                    this.selectStar(star);
+                    const shouldFrame = !(this.routeManager && this.routeManager.isActive());
+                    this.selectStar(star, { focusCamera: shouldFrame });
                 }
             } else {
                 this.deselectStar();
@@ -294,28 +295,39 @@ export class UIManager {
         this.starRenderer.onWindowResize();
     }
 
-    selectStar(star) {
+    selectStar(star, options = {}) {
+        if (!star) return;
+
+        const { focusCamera = false, suppressEvent = false, eventSource = 'UIManager' } = options;
         this.selectedStar = star;
         this.starRenderer.updateSelectionHighlight(star);
         this.updateInfoPanel(star);
         this.updateUI();
 
-        // Dispatch event for other modules
-        window.dispatchEvent(new CustomEvent('starSelection', {
-            detail: { type: 'selected', star: star }
-        }));
+        if (focusCamera) {
+            this.starRenderer.frameObjectInView(star);
+        }
+
+        if (!suppressEvent) {
+            window.dispatchEvent(new CustomEvent('starSelection', {
+                detail: { type: 'selected', star: star, source: eventSource }
+            }));
+        }
     }
 
-    deselectStar() {
+    deselectStar(options = {}) {
+        const { suppressEvent = false, eventSource = 'UIManager' } = options;
+
         this.selectedStar = null;
         this.starRenderer.updateSelectionHighlight(null);
         this.hideInfoPanel();
         this.updateUI();
 
-        // Dispatch event for other modules
-        window.dispatchEvent(new CustomEvent('starSelection', {
-            detail: { type: 'deselected', star: null }
-        }));
+        if (!suppressEvent) {
+            window.dispatchEvent(new CustomEvent('starSelection', {
+                detail: { type: 'deselected', star: null, source: eventSource }
+            }));
+        }
     }
 
     updateInfoPanel(star) {
@@ -412,8 +424,7 @@ export class UIManager {
 
         const star = this.fullStarData.find(s => s.name.toLowerCase() === name.toLowerCase());
         if (star) {
-            this.selectStar(star);
-            this.starRenderer.frameObjectInView(star);
+            this.selectStar(star, { focusCamera: true });
             
             // Hide "not found" message if visible
             const notFoundMsg = document.getElementById('search-not-found');
@@ -554,8 +565,7 @@ export class UIManager {
         
         const sol = this.fullStarData.find(star => star.name === 'Sol');
         if (sol) {
-            this.selectStar(sol);
-            this.starRenderer.frameObjectInView(sol);
+            this.selectStar(sol, { focusCamera: true });
         }
     }
 
@@ -801,10 +811,16 @@ export class UIManager {
     onStarSelection(event) {
         const { type, star } = event.detail;
         
+        const source = event.detail?.source;
+        if (source === 'UIManager') {
+            return;
+        }
+
         if (type === 'selected' && star) {
-            this.selectStar(star);
+            const focusCamera = source !== 'UIManager';
+            this.selectStar(star, { focusCamera, suppressEvent: true, eventSource: source });
         } else if (type === 'deselected') {
-            this.deselectStar();
+            this.deselectStar({ suppressEvent: true, eventSource: source });
         }
     }
 
