@@ -1,4 +1,4 @@
-function getStarDetails() {
+export function getStarDetails() {
     return {
     "268 g. cet": {
         "description": "Welcome to 268 G. Ceti, also known as Gliese 105 A, the primary star in a fascinating triple-star system located about 23.6 light-years away in the constellation Cetus. To the naked eye, it is a faint point of light, but it represents the brightest member of a complex stellar family. Its two companions, Gliese 105 B and Gliese 105 C, are dim red dwarfs, making the system a wonderful natural laboratory for studying the dynamics of different star types.\n\n268 G. Ceti is a K-type main-sequence star, often called an 'orange dwarf.' It is smaller, cooler, and less massive than our Sun, with about 70% of the Sun's mass. This means it burns its nuclear fuel much more slowly, giving it a potential lifespan far longer than that of our own star. Its orange hue provides a beautiful contrast to its much fainter, redder companions, which can be observed with a powerful telescope.\n\nBecause of its relative proximity and the presence of multiple stars, the 268 G. Ceti system is a target of interest for astronomers studying how planetary systems might form in such complex gravitational environments. While no planets have been discovered here yet, its structure offers valuable clues about the diversity of star systems in our galactic neighborhood.\n\nFun Fact: If you were to stand on a planet orbiting 268 G. Ceti, you would see two other 'suns' in your sky—the two red dwarf companions—though they would appear more like very bright, reddish stars than a brilliant primary like our own Sun."
@@ -1487,3 +1487,5 @@ function getStarDetails() {
     }
 };
 }
+
+export const starDetails = getStarDetails();

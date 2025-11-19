@@ -341,7 +341,8 @@ export class TourController {
         window.dispatchEvent(new CustomEvent('starSelection', {
             detail: {
                 type: eventType,
-                star: star
+                star: star,
+                source: 'TourController'
             }
         }));
     }

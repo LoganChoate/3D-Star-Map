@@ -9,6 +9,7 @@ import { AdditiveBlendShader } from '../AdditiveBlendShader.js';
 import { Line2 } from '../vendor/three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from '../vendor/three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from '../vendor/three/examples/jsm/lines/LineMaterial.js';
+import { getConstellationData } from '../constellations.js';
 
 export class StarRenderer {
     constructor(canvas, errorHandler) {
@@ -50,6 +51,12 @@ export class StarRenderer {
 
         // Clock for animations
         this.clock = new THREE.Clock();
+
+        // Cached visual presets loaded from disk
+        this.visualPresets = null;
+
+        // Reference to the unfiltered star catalog for lookups
+        this.fullStarData = [];
     }
 
     async initialize() {
@@ -89,9 +96,8 @@ export class StarRenderer {
             throw new Error('Canvas element not found');
         }
 
-        // Check WebGL support
-        const testContext = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
-        if (!testContext) {
+        // Check for WebGL availability before attempting initialization
+        if (typeof window.WebGLRenderingContext === 'undefined') {
             throw new Error('WebGL not supported by this browser');
         }
 
@@ -103,7 +109,7 @@ export class StarRenderer {
         });
 
         // Verify renderer was created successfully
-        if (!this.renderer.getContext()) {
+        if (!this.renderer || !this.renderer.getContext()) {
             throw new Error('Failed to initialize WebGL context');
         }
 
@@ -128,6 +134,7 @@ export class StarRenderer {
         this.controls.minDistance = 0.1;
         this.controls.maxDistance = 2000;
         this.controls.target.set(0, 0, 0);
+        this.controls.update();
 
         this.flyControls = new FlyControls(this.camera, this.renderer.domElement);
         this.flyControls.movementSpeed = 150;
@@ -157,15 +164,43 @@ export class StarRenderer {
 
             // Blend pass to combine normal scene + bloomed stars
             this.blendPass = new ShaderPass(AdditiveBlendShader);
-            this.blendPass.uniforms['tBase'].value = this.renderPass.renderTarget.texture;
-            this.blendPass.uniforms['tAdd'].value = this.starComposer.renderTarget.texture;
-            this.blendPass.needsSwap = true;
-            this.composer.addPass(this.blendPass);
+            const baseTexture = this.composer?.renderTarget2?.texture || this.composer?.renderTarget1?.texture || null;
+            const addTexture = this.starComposer?.renderTarget2?.texture || this.starComposer?.renderTarget1?.texture || null;
+
+            if (baseTexture && addTexture) {
+                this.blendPass.uniforms['tBase'].value = baseTexture;
+                this.blendPass.uniforms['tAdd'].value = addTexture;
+                this.blendPass.needsSwap = true;
+                this.composer.addPass(this.blendPass);
+            } else {
+                console.warn('Post-processing targets unavailable, disabling bloom composer');
+                this.composer = null;
+                this.starComposer = null;
+                this.blendPass = null;
+            }
         } catch (error) {
             console.error('EffectComposer failed to initialize:', error);
             this.composer = null;
             this.starComposer = null;
         }
+    }
+
+    async loadVisualPresets() {
+        try {
+            const response = await fetch('visual_presets.json', { cache: 'no-cache' });
+            if (!response.ok) {
+                throw new Error('Failed to load visual presets: ' + response.status);
+            }
+            this.visualPresets = await response.json();
+            console.log('Visual presets loaded');
+        } catch (error) {
+            this.visualPresets = null;
+            console.warn('Visual presets unavailable, using defaults', error);
+        }
+    }
+
+    setFullStarData(data) {
+        this.fullStarData = Array.isArray(data) ? data : [];
     }
 
     createStarGeometry(data) {
@@ -203,7 +238,8 @@ export class StarRenderer {
             colors[i * 3 + 1] = color.g;
             colors[i * 3 + 2] = color.b;
 
-            sizes[i] = star.relativeRadiusScale * this.GLOBAL_VISUAL_SCALE;
+            const radiusScale = star.relativeRadiusScale || 1;
+            sizes[i] = Math.max(0.1, radiusScale * this.GLOBAL_VISUAL_SCALE);
 
             // Get visual parameters for this star
             const params = this.getStarVisualParams(star);
@@ -311,7 +347,16 @@ export class StarRenderer {
 
         const defaultParams = { twinkle: 0.02, pulse: 0.8, halo: 0.35 };
 
-        // Note: visual_presets.json loading is async and handled elsewhere or simplified here
+        try {
+            const response = await fetch('visual_presets.json');
+            if (response.ok) {
+                const presets = await response.json();
+                return presets.grid[spectral]?.[lumClass] || defaultParams;
+            }
+        } catch (error) {
+            console.warn('Could not load visual presets:', error);
+        }
+
         return defaultParams;
     }
 
@@ -324,12 +369,14 @@ export class StarRenderer {
         }
 
         if (star) {
-            const geometry = new THREE.RingGeometry(3, 5, 16);
+            const geometry = new THREE.RingGeometry(3.2, 3.8, 32);
             const material = new THREE.MeshBasicMaterial({
                 color: 0x7DF9FF,
                 side: THREE.DoubleSide,
                 transparent: true,
-                opacity: 0.6
+                opacity: 0.45,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
             });
 
             this.selectionHighlight = new THREE.Mesh(geometry, material);
@@ -355,8 +402,8 @@ export class StarRenderer {
         if (!lines) return;
 
         lines.forEach(([star1Name, star2Name]) => {
-            const star1 = fullStarData.find(s => s.name === star1Name);
-            const star2 = fullStarData.find(s => s.name === star2Name);
+            const star1 = this.fullStarData.find(s => s.name === star1Name);
+            const star2 = this.fullStarData.find(s => s.name === star2Name);
 
             if (star1 && star2) {
                 const geometry = new LineGeometry();

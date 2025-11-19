@@ -13,6 +13,12 @@ import { starDetails } from './star_details.js';
 let fullStarData = [];
 let activeStarData = [];
 let starOctree = null;
+let hasGarbageSphere = false;
+let garbageSphereDistance = null;
+let maxDistanceWithGarbage = 0;
+let maxDistanceWithoutGarbage = 0;
+
+const GARBAGE_SPHERE_EPSILON = 1e-3;
 
 // Module instances
 let starRenderer = null;
@@ -285,6 +291,8 @@ async function init() {
             throw new Error('Failed to initialize 3D renderer');
         }
 
+        await starRenderer.loadVisualPresets();
+
         // Initialize UI manager
         if (!await uiManager.initialize()) {
             throw new Error('Failed to initialize UI manager');
@@ -379,48 +387,178 @@ async function loadAndPrepareStarData() {
 
         loadingIndicator.textContent = 'Processing star data...';
 
+
+
+        const garbageSphereToggle = document.getElementById('garbage-sphere-filter');
+
+
+
         // Step 1: Initial parsing of raw data into a workable format.
-        let initialData = rawData.map(star => ({
-            name: star.name,
-            x: star.x,
-            y: star.y,
-            z: star.z,
-            dist: star.dist,
-            mag: star.mag,
-            spect: star.spect,
-            ci: star.ci || 0.65,
-            relativeRadiusScale: calculateStarRadius(star.mag)
-        }));
+
+        const initialData = rawData.map(star => {
+
+            const numericDist = Number(star.dist);
+
+            const numericMag = Number(star.mag);
+
+            const numericCI = Number(star.ci);
+
+            const numericX = Number(star.x);
+
+            const numericY = Number(star.y);
+
+            const numericZ = Number(star.z);
+
+            const safeMag = Number.isFinite(numericMag) ? numericMag : 0;
+
+            return {
+
+                name: star.name,
+
+                x: Number.isFinite(numericX) ? numericX : 0,
+
+                y: Number.isFinite(numericY) ? numericY : 0,
+
+                z: Number.isFinite(numericZ) ? numericZ : 0,
+
+                dist: Number.isFinite(numericDist) ? numericDist : 0,
+
+                mag: safeMag,
+
+                spect: star.spect,
+
+                ci: Number.isFinite(numericCI) ? numericCI : 0.65,
+
+                relativeRadiusScale: Math.min(10, Math.max(0.1, calculateStarRadius(safeMag)))
+
+            };
+
+        });
+
+
 
         console.log(`Loaded ${initialData.length} stars`);
 
-        fullStarData = initialData;
-        
+
+
+        const maxDistance = initialData.reduce((max, star) => Math.max(max, star.dist || 0), 0);
+
+        hasGarbageSphere = maxDistance > 0 && initialData.some(star => Math.abs((star.dist || 0) - maxDistance) < GARBAGE_SPHERE_EPSILON);
+
+        garbageSphereDistance = hasGarbageSphere ? maxDistance : null;
+
+
+
+        const processedData = initialData.map(star => {
+
+            const isGarbage = hasGarbageSphere && Math.abs((star.dist || 0) - maxDistance) < GARBAGE_SPHERE_EPSILON;
+
+            return { ...star, isGarbageSphere: isGarbage };
+
+        });
+
+
+
+        maxDistanceWithGarbage = Math.ceil(maxDistance);
+
+        const maxRealDistance = processedData
+
+            .filter(star => !star.isGarbageSphere)
+
+            .reduce((max, star) => Math.max(max, star.dist || 0), 0);
+
+        maxDistanceWithoutGarbage = Math.ceil(maxRealDistance || maxDistance);
+
+
+
+        fullStarData = processedData;
+
+        starRenderer.setFullStarData(fullStarData);
+
+
+
         loadingIndicator.textContent = 'Building spatial index...';
 
+
+
         // Build octree for spatial queries
+
         const sceneBounds = calculateSceneBounds(fullStarData);
+
         starOctree = new Octree(sceneBounds);
+
         fullStarData.forEach(star => starOctree.insert(star));
+
         console.log("Octree built successfully.");
 
+
+
         // Set up size slider based on calculated relativeRadiusScale
+
         const sizeSlider = document.getElementById('size-slider');
+
         if (sizeSlider) {
+
             const minSize = fullStarData.reduce((min, star) => Math.min(min, star.relativeRadiusScale), Infinity);
+
             const maxSize = fullStarData.reduce((max, star) => Math.max(max, star.relativeRadiusScale), 0);
+
             sizeSlider.min = minSize;
+
             sizeSlider.max = Math.ceil(maxSize);
+
             sizeSlider.step = 0.1;
+
             sizeSlider.value = sizeSlider.max;
+
+            const sizeValue = document.getElementById('size-value');
+
+            if (sizeValue) {
+
+                sizeValue.textContent = sizeSlider.value;
+
+            }
+
         }
+
+
+
+        const distanceSlider = document.getElementById('distance-slider');
+
+        if (distanceSlider) {
+
+            const stepWithGarbage = Math.max(0.1, Math.ceil(maxDistanceWithGarbage / 500));
+
+            const stepWithoutGarbage = Math.max(0.1, Math.ceil((maxDistanceWithoutGarbage || maxDistanceWithGarbage) / 500));
+
+            distanceSlider.dataset.maxWithGarbage = String(maxDistanceWithGarbage);
+
+            distanceSlider.dataset.maxWithoutGarbage = String(maxDistanceWithoutGarbage);
+
+            distanceSlider.dataset.stepWithGarbage = String(stepWithGarbage);
+
+            distanceSlider.dataset.stepWithoutGarbage = String(stepWithoutGarbage);
+
+            distanceSlider.min = 0;
+
+
+
+            const includeGarbageSphere = garbageSphereToggle ? garbageSphereToggle.checked : true;
+
+            updateDistanceSliderRange(includeGarbageSphere, { snapToMax: true });
+
+        }
+
+        applyFilters();
+
+
+
 
         loadingIndicator.style.display = 'none';
         console.log('Star data loaded and processed successfully');
         return true;
 
     } catch (error) {
-        loadingIndicator.style.display = 'none';
         
         // Handle different types of errors with specific messages
         let userMessage = 'Failed to load star data';
@@ -509,28 +647,66 @@ function setupCustomEventListeners() {
     window.addEventListener('visualPresetChanged', applyVisualPreset);
 }
 
+
+function updateDistanceSliderRange(includeGarbageSphere, options = {}) {
+    const distanceSlider = document.getElementById('distance-slider');
+    if (!distanceSlider) return;
+
+    const distanceValue = document.getElementById('distance-value');
+    const { snapToMax = false } = options;
+
+    const maxWithGarbage = parseFloat(distanceSlider.dataset.maxWithGarbage || distanceSlider.max || 0);
+    const maxWithoutGarbage = parseFloat(distanceSlider.dataset.maxWithoutGarbage || maxWithGarbage || 0);
+    const stepWithGarbage = parseFloat(distanceSlider.dataset.stepWithGarbage || distanceSlider.step || 1);
+    const stepWithoutGarbage = parseFloat(distanceSlider.dataset.stepWithoutGarbage || distanceSlider.step || 1);
+
+    const useGarbage = includeGarbageSphere || !hasGarbageSphere;
+    const targetMax = useGarbage ? maxWithGarbage : maxWithoutGarbage;
+    const targetStep = useGarbage ? stepWithGarbage : stepWithoutGarbage;
+
+    if (targetMax > 0) {
+        distanceSlider.max = targetMax;
+    }
+    if (targetStep > 0) {
+        distanceSlider.step = targetStep;
+    }
+    distanceSlider.min = 0;
+
+    const sliderValue = parseFloat(distanceSlider.value);
+    if (snapToMax || (!Number.isNaN(sliderValue) && sliderValue > targetMax)) {
+        distanceSlider.value = targetMax;
+    } else if (Number.isNaN(sliderValue)) {
+        distanceSlider.value = targetMax;
+    }
+
+    if (distanceValue) {
+        distanceValue.textContent = distanceSlider.value;
+    }
+}
+
 function applyFilters() {
     if (!fullStarData || fullStarData.length === 0) return;
 
-    // Get filter values from UI
+    const garbageSphereToggle = document.getElementById('garbage-sphere-filter');
+    const includeGarbageSphere = garbageSphereToggle ? garbageSphereToggle.checked : true;
+
+    updateDistanceSliderRange(includeGarbageSphere);
+
     const distanceSlider = document.getElementById('distance-slider');
     const sizeSlider = document.getElementById('size-slider');
     const maxDistance = distanceSlider ? parseFloat(distanceSlider.value) : Infinity;
-    const minSize = sizeSlider ? parseFloat(sizeSlider.value) : 0;
+    const maxSize = sizeSlider ? parseFloat(sizeSlider.value) : Infinity;
 
-    // Get checked spectral classes
-    const checkedSpectralClasses = Array.from(document.querySelectorAll('.filter-checkbox:checked'))
-        .map(cb => cb.value);
+    const spectralCheckboxes = document.querySelectorAll('.filter-checkbox[name^="spectral-"]:checked');
+    const checkedSpectralClasses = Array.from(spectralCheckboxes)
+        .map(cb => cb.value)
+        .filter(Boolean);
 
-    // Apply filters
     activeStarData = fullStarData.filter(star => {
-        // Distance filter
+        if (!includeGarbageSphere && star.isGarbageSphere) return false;
         if (star.dist > maxDistance) return false;
+        if (star.relativeRadiusScale > maxSize) return false;
 
-        // Size filter
-        if (star.relativeRadiusScale < minSize) return false;
-
-        // Spectral class filter
         if (checkedSpectralClasses.length > 0) {
             const spectralClass = star.spect ? star.spect[0] : 'G';
             if (!checkedSpectralClasses.includes(spectralClass)) return false;
@@ -539,10 +715,7 @@ function applyFilters() {
         return true;
     });
 
-    // Update star geometry
     starRenderer.createStarGeometry(activeStarData);
-
-    // Update UI
     uiManager.updateUI();
 
     console.log(`Filtered to ${activeStarData.length} stars`);
@@ -573,6 +746,8 @@ function applyVisualPreset() {
             if (preset) {
                 // Apply the preset values to the UI and renderer
                 console.log(`Applied visual preset: ${selectedPreset}`);
+            } else {
+                console.warn('Visual preset not found, disabling preset blend');
             }
         })
         .catch(error => {
@@ -693,3 +868,4 @@ export {
     tourController,
     uiManager
 };
+

@@ -35,7 +35,7 @@
         <h2 class="panel-header">Filters</h2>
         <div class="mb-2">
             <label class="flex items-center space-x-2">
-                <input type="checkbox" id="proper-name-filter" class="filter-checkbox">
+                <input type="checkbox" id="proper-name-filter" name="proper-name-filter" class="filter-checkbox">
                 <span>Show Only Named Stars</span>
             </label>
         </div>
@@ -45,7 +45,7 @@
         </div>
         <div class="mb-2">
             <label class="flex items-center space-x-2">
-                <input type="checkbox" id="garbage-sphere-filter" class="filter-checkbox">
+                <input type="checkbox" id="garbage-sphere-filter" name="garbage-sphere-filter" class="filter-checkbox">
                 <span>Toggle Garbage Sphere</span>
             </label>
         </div>
@@ -58,13 +58,13 @@
             <input type="range" id="size-slider" class="w-full">
         </div>
         <div class="filter-grid">
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="O"><span>O</span></label>
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="B"><span>B</span></label>
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="A"><span>A</span></label>
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="F"><span>F</span></label>
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="G"><span>G</span></label>
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="K"><span>K</span></label>
-            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" value="M"><span>M</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-O" value="O"><span>O</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-B" value="B"><span>B</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-A" value="A"><span>A</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-F" value="F"><span>F</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-G" value="G"><span>G</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-K" value="K"><span>K</span></label>
+            <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-M" value="M"><span>M</span></label>
         </div>
         <hr class="my-3 border-cyan-700">
         <h2 class="panel-header">Selection Info</h2>
@@ -97,7 +97,7 @@
             </div>
             <div class="mb-2">
                 <label class="flex items-center space-x-2">
-                    <input type="checkbox" id="route-arrows-toggle" class="filter-checkbox" checked>
+                    <input type="checkbox" id="route-arrows-toggle" name="route-arrows-toggle" class="filter-checkbox" checked>
                     <span>Show Route Arrows</span>
                 </label>
             </div>
@@ -174,8 +174,6 @@
             }
         }
     </script>
-    <script src="star_details.js" defer></script>
-    <script src="constellations.js" defer></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
