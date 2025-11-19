@@ -61,6 +61,7 @@ export class StarRenderer {
 
     async initialize() {
         try {
+            await this.loadVisualPresets();
             await this.initializeScene();
             await this.initializeControls();
             await this.initializePostProcessing();
@@ -164,8 +165,10 @@ export class StarRenderer {
 
             // Blend pass to combine normal scene + bloomed stars
             this.blendPass = new ShaderPass(AdditiveBlendShader);
-            const baseTexture = this.composer?.renderTarget2?.texture || this.composer?.renderTarget1?.texture || null;
-            const addTexture = this.starComposer?.renderTarget2?.texture || this.starComposer?.renderTarget1?.texture || null;
+
+            // Use readBuffer.texture which is the standard way to get the composer's output
+            const baseTexture = this.composer?.readBuffer?.texture || null;
+            const addTexture = this.starComposer?.readBuffer?.texture || null;
 
             if (baseTexture && addTexture) {
                 this.blendPass.uniforms['tBase'].value = baseTexture;
@@ -174,6 +177,8 @@ export class StarRenderer {
                 this.composer.addPass(this.blendPass);
             } else {
                 console.warn('Post-processing targets unavailable, disabling bloom composer');
+                // Don't disable composer entirely, just the blend pass if it fails
+                // But if we can't blend, we might as well fallback to direct rendering or just main composer
                 this.composer = null;
                 this.starComposer = null;
                 this.blendPass = null;
@@ -347,14 +352,9 @@ export class StarRenderer {
 
         const defaultParams = { twinkle: 0.02, pulse: 0.8, halo: 0.35 };
 
-        try {
-            const response = await fetch('visual_presets.json');
-            if (response.ok) {
-                const presets = await response.json();
-                return presets.grid[spectral]?.[lumClass] || defaultParams;
-            }
-        } catch (error) {
-            console.warn('Could not load visual presets:', error);
+        // Use cached presets if available
+        if (this.visualPresets && this.visualPresets.grid) {
+            return this.visualPresets.grid[spectral]?.[lumClass] || defaultParams;
         }
 
         return defaultParams;

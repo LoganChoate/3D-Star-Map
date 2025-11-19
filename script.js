@@ -26,14 +26,17 @@ let routeManager = null;
 let tourController = null;
 let uiManager = null;
 
+// DEBUG: Expose to window
+window.starRenderer = null;
+
 // Centralized error handling system
 class ErrorHandler {
     static showError(message, details = null, isRetryable = false) {
         console.error('Application Error:', message, details);
-        
+
         // Show user-friendly error notification
         this.showNotification(message, 'error', isRetryable);
-        
+
         // Log to external service in production
         if (window.location.hostname !== 'localhost') {
             this.logError(message, details);
@@ -139,7 +142,7 @@ class ErrorHandler {
 const SOL_ABSOLUTE_MAGNITUDE = 4.83;
 const BASE_STAR_RADIUS = 1.0;
 const GLOBAL_VISUAL_SCALE = 0.5;
-const spectralClasses = ['O','B','A','F','G','K','M'];
+const spectralClasses = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
 
 // Octree implementation for spatial queries
 class Octree {
@@ -198,7 +201,7 @@ class Octree {
 
     query(center, radius, found = []) {
         const range = new Sphere3D(center.x, center.y, center.z, radius);
-        
+
         if (!this.boundary.intersects(range)) {
             return found;
         }
@@ -273,7 +276,7 @@ class Sphere3D {
 async function init() {
     try {
         console.log('Initializing 3D Star Map Explorer...');
-        
+
         // Get canvas element
         const canvas = document.getElementById('renderCanvas');
         if (!canvas) {
@@ -282,6 +285,7 @@ async function init() {
 
         // Initialize modules
         starRenderer = new StarRenderer(canvas, ErrorHandler);
+        window.starRenderer = starRenderer; // DEBUG: Expose instance
         routeManager = new RouteManager(starRenderer, ErrorHandler);
         tourController = new TourController(starRenderer, ErrorHandler);
         uiManager = new UIManager(starRenderer, routeManager, tourController, ErrorHandler);
@@ -352,7 +356,7 @@ async function loadAndPrepareStarData() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-        const response = await fetch('stars.json', { 
+        const response = await fetch('stars.json', {
             signal: controller.signal,
             cache: 'default' // Allow browser caching
         });
@@ -364,9 +368,9 @@ async function loadAndPrepareStarData() {
         }
 
         loadingIndicator.textContent = 'Parsing star data...';
-        
+
         const rawData = await response.json();
-        
+
         // Validate data structure
         if (!Array.isArray(rawData)) {
             throw new Error('Invalid star data format: expected array');
@@ -380,7 +384,7 @@ async function loadAndPrepareStarData() {
         const sampleEntry = rawData[0];
         const requiredFields = ['name', 'x', 'y', 'z', 'dist', 'mag', 'spect'];
         const missingFields = requiredFields.filter(field => !(field in sampleEntry));
-        
+
         if (missingFields.length > 0) {
             throw new Error(`Star data missing required fields: ${missingFields.join(', ')}`);
         }
@@ -549,6 +553,11 @@ async function loadAndPrepareStarData() {
 
         }
 
+        // Pass full star data to renderer
+        if (starRenderer) {
+            starRenderer.setFullStarData(fullStarData);
+        }
+
         applyFilters();
 
 
@@ -559,7 +568,7 @@ async function loadAndPrepareStarData() {
         return true;
 
     } catch (error) {
-        
+
         // Handle different types of errors with specific messages
         let userMessage = 'Failed to load star data';
         let isRetryable = false;
@@ -580,7 +589,7 @@ async function loadAndPrepareStarData() {
         }
 
         ErrorHandler.showError(userMessage, error, isRetryable);
-        
+
         // Show retry button for retryable errors
         if (isRetryable) {
             loadingIndicator.innerHTML = `
@@ -599,7 +608,7 @@ async function loadAndPrepareStarData() {
             `;
             loadingIndicator.style.display = 'block';
         }
-        
+
         return false;
     }
 }
@@ -639,10 +648,10 @@ function calculateSceneBounds(starData) {
 function setupCustomEventListeners() {
     // Listen for filter changes
     window.addEventListener('filtersChanged', applyFilters);
-    
+
     // Listen for bloom settings changes
     window.addEventListener('bloomSettingsChanged', updateBloomSettings);
-    
+
     // Listen for visual preset changes
     window.addEventListener('visualPresetChanged', applyVisualPreset);
 }
@@ -724,7 +733,7 @@ function applyFilters() {
 function updateBloomSettings() {
     const bloomToggle = document.getElementById('bloom-toggle');
     const bloomStrength = document.getElementById('bloom-strength');
-    
+
     if (starRenderer.starBloomPass && bloomToggle && bloomStrength) {
         starRenderer.starBloomPass.enabled = bloomToggle.checked;
         starRenderer.starBloomPass.strength = parseFloat(bloomStrength.value);
@@ -758,16 +767,16 @@ function applyVisualPreset() {
 function buildSpectralLegend() {
     const container = document.getElementById('spectral-legend');
     if (!container || !fullStarData) return;
-    
+
     container.innerHTML = '';
     const classCounts = spectralClasses.reduce((acc, s) => (acc[s] = 0, acc), {});
-    
+
     fullStarData.forEach(star => {
         const spect = (star.spect || '').toUpperCase();
         const s = spect.length > 0 ? spect[0] : null;
         if (s && classCounts[s] !== undefined) classCounts[s] += 1;
     });
-    
+
     spectralClasses.forEach(s => {
         const color = getRGBfromCI(classRepresentativeCI(s));
         const row = document.createElement('div');
@@ -793,7 +802,7 @@ function buildSpectralLegend() {
 }
 
 function classRepresentativeCI(s) {
-    switch(s) {
+    switch (s) {
         case 'O': return -0.2;
         case 'B': return -0.1;
         case 'A': return 0.0;
@@ -808,7 +817,7 @@ function classRepresentativeCI(s) {
 function getRGBfromCI(ci) {
     // Convert color index to RGB (from StarRenderer, but needed here for legend)
     const clampedCI = Math.max(-0.5, Math.min(2.0, ci || 0.65));
-    
+
     let r, g, b;
     if (clampedCI < 0.0) {
         r = 0.7 + 0.3 * (clampedCI + 0.5) / 0.5;
@@ -834,7 +843,7 @@ function getRGBfromCI(ci) {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    
+
     if (starRenderer) {
         starRenderer.render();
     }
@@ -858,7 +867,7 @@ window.getConstellationData = getConstellationData;
 document.addEventListener('DOMContentLoaded', init);
 
 // Export for module use
-export { 
+export {
     ErrorHandler,
     fullStarData,
     activeStarData,
