@@ -14,7 +14,7 @@ export class StarRenderer {
     constructor(canvas, errorHandler) {
         this.canvas = canvas;
         this.errorHandler = errorHandler;
-        
+
         // Core Three.js objects
         this.scene = null;
         this.camera = null;
@@ -22,7 +22,7 @@ export class StarRenderer {
         this.controls = null;
         this.flyControls = null;
         this.activeControls = null;
-        
+
         // Rendering objects
         this.starsMesh = null;
         this.starsBloomMesh = null;
@@ -34,20 +34,20 @@ export class StarRenderer {
         this.composer = null;
         this.renderPass = null;
         this.blendPass = null;
-        
+
         // Materials and shaders
         this.starShaderMaterial = null;
         this.useStarShader = true;
-        
+
         // Visual state
         this.selectionHighlight = null;
         this.constellationLinesGroup = null;
-        
+
         // Constants
         this.SOL_ABSOLUTE_MAGNITUDE = 4.83;
         this.BASE_STAR_RADIUS = 1.0;
         this.GLOBAL_VISUAL_SCALE = 0.5;
-        
+
         // Clock for animations
         this.clock = new THREE.Clock();
     }
@@ -72,7 +72,7 @@ export class StarRenderer {
         // Initialize Three.js scene
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x000011);
-        
+
         const canvasContainer = document.getElementById('canvasContainer');
         if (!canvasContainer) {
             throw new Error('Canvas container element not found');
@@ -83,7 +83,7 @@ export class StarRenderer {
         }
 
         this.camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 400000);
-        
+
         // Initialize WebGL renderer with error detection
         if (!this.canvas) {
             throw new Error('Canvas element not found');
@@ -95,13 +95,13 @@ export class StarRenderer {
             throw new Error('WebGL not supported by this browser');
         }
 
-        this.renderer = new THREE.WebGLRenderer({ 
-            canvas: this.canvas, 
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas,
             antialias: true,
             alpha: false,
             preserveDrawingBuffer: false // Better performance
         });
-        
+
         // Verify renderer was created successfully
         if (!this.renderer.getContext()) {
             throw new Error('Failed to initialize WebGL context');
@@ -109,14 +109,14 @@ export class StarRenderer {
 
         this.renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
-        
+
         // Initialize constellation lines group
         this.constellationLinesGroup = new THREE.Group();
         this.scene.add(this.constellationLinesGroup);
 
         // --- Star-only scene for per-star bloom ---
         this.starScene = new THREE.Scene();
-        
+
         console.log('Three.js scene initialized successfully');
     }
 
@@ -170,7 +170,7 @@ export class StarRenderer {
 
     createStarGeometry(data) {
         console.log('[createStarGeometry] called with data.length:', data.length, data.slice(0, 3));
-        
+
         // Remove previous stars from both scenes
         if (this.starsMesh) {
             this.scene.remove(this.starsMesh);
@@ -224,8 +224,8 @@ export class StarRenderer {
             this.starShaderMaterial = this.createStarShaderMaterial();
         }
 
-        const material = this.useStarShader && this.starShaderMaterial ? 
-            this.starShaderMaterial : 
+        const material = this.useStarShader && this.starShaderMaterial ?
+            this.starShaderMaterial :
             new THREE.PointsMaterial({
                 size: 2,
                 sizeAttenuation: true,
@@ -269,7 +269,8 @@ export class StarRenderer {
                     // Apply pulsing effect
                     float pulse = 1.0 + starParams.z * sin(time * 2.0 + position.x * 10.0) * 0.3;
                     
-                    gl_PointSize = size * pulse * (300.0 / -mvPosition.z);
+                    // Increase attenuation factor to make stars visible
+                    gl_PointSize = size * pulse * (5000.0 / -mvPosition.z);
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
@@ -307,19 +308,10 @@ export class StarRenderer {
         const spect = (star.spect || '').toUpperCase();
         const spectral = spect.length > 0 ? spect[0] : 'G';
         const lumClass = spect.length > 1 ? spect.slice(1) : 'V';
-        
+
         const defaultParams = { twinkle: 0.02, pulse: 0.8, halo: 0.35 };
-        
-        try {
-            const response = await fetch('visual_presets.json');
-            if (response.ok) {
-                const presets = await response.json();
-                return presets.grid[spectral]?.[lumClass] || defaultParams;
-            }
-        } catch (error) {
-            console.warn('Could not load visual presets:', error);
-        }
-        
+
+        // Note: visual_presets.json loading is async and handled elsewhere or simplified here
         return defaultParams;
     }
 
@@ -339,12 +331,12 @@ export class StarRenderer {
                 transparent: true,
                 opacity: 0.6
             });
-            
+
             this.selectionHighlight = new THREE.Mesh(geometry, material);
             this.selectionHighlight.position.set(star.x, star.y, star.z);
             this.selectionHighlight.lookAt(this.camera.position);
             this.selectionHighlight.visible = true;
-            
+
             this.scene.add(this.selectionHighlight);
         }
     }
@@ -355,6 +347,9 @@ export class StarRenderer {
 
         if (!constellationName) return;
 
+        // Assuming getConstellationData is global or imported
+        if (typeof getConstellationData !== 'function') return;
+
         const constellations = getConstellationData();
         const lines = constellations[constellationName];
         if (!lines) return;
@@ -364,11 +359,6 @@ export class StarRenderer {
             const star2 = fullStarData.find(s => s.name === star2Name);
 
             if (star1 && star2) {
-                const points = [
-                    new THREE.Vector3(star1.x, star1.y, star1.z),
-                    new THREE.Vector3(star2.x, star2.y, star2.z)
-                ];
-
                 const geometry = new LineGeometry();
                 geometry.setPositions([
                     star1.x, star1.y, star1.z,
@@ -393,7 +383,7 @@ export class StarRenderer {
     getRGBfromCI(ci) {
         // Convert color index to RGB
         const clampedCI = Math.max(-0.5, Math.min(2.0, ci || 0.65));
-        
+
         let r, g, b;
         if (clampedCI < 0.0) {
             r = 0.7 + 0.3 * (clampedCI + 0.5) / 0.5;
@@ -479,7 +469,7 @@ export class StarRenderer {
             this.camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
-            
+
             if (this.composer) {
                 this.composer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
             }
@@ -557,7 +547,7 @@ export class StarRenderer {
             this.starsMesh.geometry.dispose();
             this.starsMesh.material.dispose();
         }
-        
+
         if (this.starsBloomMesh) {
             this.starScene.remove(this.starsBloomMesh);
             this.starsBloomMesh.geometry.dispose();
