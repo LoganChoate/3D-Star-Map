@@ -10,6 +10,27 @@ if (verificationDirectory) {
   app.setPath('userData', path.join(verificationDirectory, 'profile'));
 }
 
+// The dashboard's custom URL is launch-only. Its contents are never evaluated,
+// opened as files or forwarded to the renderer. Keep repeat launches in one window.
+let mainWindow = null;
+const hasInstanceLock = !!verificationDirectory || app.requestSingleInstanceLock();
+function focusMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+if (!hasInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', focusMainWindow);
+  app.on('open-url', event => {
+    event.preventDefault();
+    focusMainWindow();
+  });
+}
+
 function checkForUpdates() {
   // Updating is optional; a missing network or update service must never prevent exploration.
   if (!app.isPackaged || offline) return;
@@ -27,7 +48,7 @@ function checkForUpdates() {
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1600,
     height: 900,
     // icon: path.join(__dirname, 'build/galaxy_map_icon.ico'), // Optional: set window icon when asset is available
@@ -40,12 +61,13 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  mainWindow.on('closed', () => { mainWindow = null; });
 
   // Optional: Open the DevTools.
   // mainWindow.webContents.openDevTools();
 }
 
-app.whenReady().then(() => {
+if (hasInstanceLock) app.whenReady().then(() => {
   if (offline) {
     session.defaultSession.enableNetworkEmulation({ offline: true });
     if (verificationDirectory) {

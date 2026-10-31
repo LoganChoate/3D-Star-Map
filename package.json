@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "test:filtering": "node tests/filtering.test.js",
     "test:integration": "node tests/integration.test.js",
     "test:launch": "electron tests/launch-smoke.cjs",
+    "test:launcher": "electron tests/launcher-runtime.cjs",
     "test:markers": "electron tests/marker-rendering.cjs",
     "test:assets": "node tests/offline-assets.cjs",
     "pack:win": "electron-builder --win --x64 --dir --publish never",
@@ -30,6 +31,14 @@
     "appId": "com.loganstarmap.explorer",
     "productName": "3D Star Map Explorer",
     "copyright": "Copyright © 2024 Logan",
+    "protocols": [
+      {
+        "name": "Galaxy Map",
+        "schemes": [
+          "galaxymap"
+        ]
+      }
+    ],
     "files": [
       "main.js",
       "index.html",
@@ -64,7 +73,8 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "include": "build/launcher.nsh"
     }
   }
 }

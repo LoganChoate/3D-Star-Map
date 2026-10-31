@@ -17,6 +17,8 @@ npm.cmd start -- --offline
 
 The offline option disables update checks and blocks remote HTTP/WebSocket requests for the app. Catalog, interface styles, fonts, Three.js and GSAP are bundled locally. Normal launches also use these local assets; optional update failures are logged without preventing exploration, and updates are never downloaded automatically.
 
+Version 1.0.3 adds the dashboard's **Launch Galaxy Map** button. Its `galaxymap://launch` link opens the installed Windows app; another click brings the existing window forward. The installer registers this launch-only link and removes its registration on uninstall. Browsers may ask permission before opening a desktop app. The link requires installation on the computer where the dashboard is being viewed.
+
 Star markers are exaggerated visual aids bounded to 2–10 CSS pixels, not physical stellar radii. Catalog coordinates are unchanged. Scientific mode removes decorative animation and bloom; Cinematic adds them. The size slider filters catalog-relative stellar sizes rather than changing astronomical positions.
 
 ## Verify and build
@@ -26,6 +28,7 @@ npm.cmd test
 npm.cmd run test:assets
 npm.cmd run test:markers
 npm.cmd run test:launch
+npm.cmd run test:launcher
 npm.cmd run pack:win
 npm.cmd run dist:win
 ```
