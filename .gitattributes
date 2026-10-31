@@ -1,0 +1,3 @@
+# Preserve upstream asset bytes so integrity hashes survive Windows checkouts.
+vendor/fonts/** -text
+vendor/gsap/** -text
