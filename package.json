@@ -10,7 +10,8 @@
     "test:pathfinding": "node tests/pathfinding.test.js",
     "test:octree": "node tests/octree.test.js",
     "test:filtering": "node tests/filtering.test.js",
-    "test:integration": "node tests/integration.test.js"
+    "test:integration": "node tests/integration.test.js",
+    "test:launch": "electron tests/launch-smoke.cjs"
   },
   "author": "Logan",
   "license": "ISC",
@@ -39,7 +40,7 @@
     "win": {
       "target": "nsis"
     },
-  "mac": {
+    "mac": {
       "target": "dmg"
     },
     "linux": {
