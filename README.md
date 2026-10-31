@@ -1,45 +1,56 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first 3D space atlas with a shared browser visualization core. This recovered development baseline is an Electron / Three.js application with a HYG-derived stellar catalog. The intended first release covers the Solar System and nearby stars; that complete experience is not delivered yet.
+Windows-first Electron / Three.js atlas with a shared web visualization core. The intended first release covers the Solar System and nearby stars; that full experience is not delivered yet.
 
 ## Execution tracker
 
-The [Galaxy Map Execution Control dashboard](https://galaxy-map-execution.loganvchoategmail-com.chatgpt.site) is the authoritative roadmap, acceptance checklist, evidence index, and next-action tracker. Do not maintain another active roadmap in this repository.
+The [Galaxy Map Execution Control dashboard](https://galaxy-map-execution.loganvchoategmail-com.chatgpt.site) is the sole active roadmap, acceptance checklist and evidence index. Historical plans remain unchanged in `docs/history/`, Git history, and `script.js.backup`.
 
-Historical material is preserved unchanged in [the original README](docs/history/README-2026-10-31.md), [the original roadmap](docs/history/ROADMAP-2026-10-31.md), Git history, and `script.js.backup`. Historical completion claims are not current acceptance evidence.
+## Run on Windows
 
-## Development launch on Windows
-
-Open PowerShell in this directory, then run:
+From this folder:
 
 ```powershell
 npm.cmd start
+npm.cmd start -- --offline
 ```
 
-The recovered workspace already includes a copy of the original dependencies. Verified local versions: Node 22.17.1, npm 10.9.2, Electron 31.7.7, electron-updater 6.6.2, electron-builder 24.13.3. `npm.cmd ls --depth=0` passes. For a new checkout, dependency installation uses `npm.cmd ci`; a clean network install has not yet been verified in this recovery session.
+The offline option disables update checks and blocks remote HTTP/WebSocket requests for the app. Catalog, interface styles, fonts, Three.js and GSAP are bundled locally. Normal launches also use these local assets; optional update failures are logged without preventing exploration, and updates are never downloaded automatically.
 
-Run the repeatable launch check:
+Star markers are exaggerated visual aids bounded to 2–10 CSS pixels, not physical stellar radii. Catalog coordinates are unchanged. Scientific mode removes decorative animation and bloom; Cinematic adds them. The size slider filters catalog-relative stellar sizes rather than changing astronomical positions.
+
+## Verify and build
 
 ```powershell
+npm.cmd run test:assets
+npm.cmd run test:markers
 npm.cmd run test:launch
+npm.cmd run pack:win
+npm.cmd run dist:win
 ```
 
-This launches the real `main.js`, loads the actual renderer and catalog, checks WebGL/geometry/frame activity, and writes timestamped JSON and PNG evidence in `.runtime/` before exiting. It passed twice on 2026-10-31 with 117,735 catalog records and 107,771 initially displayed points. It is a startup check, not a route, selection, offline, or scientific-correctness certification. In the agent's restricted command environment, Electron required a narrowly scoped approved launch; normal shell/file work and Git in this checkout worked without it.
+For an actual packaged or installed executable, use a new output folder for each check:
+
+```powershell
+& '.\dist\win-unpacked\3D Star Map Explorer.exe' '--verify-offline=C:\path\to\fresh-evidence-folder'
+```
+
+This explicit diagnostic mode uses a fresh profile, disables session networking before loading the real application, cancels remote requests, loads the shipped updater dependency, validates actual catalog/WebGL buffers and local assets, tests camera animation, and saves JSON plus a screenshot before exiting. It does not change system network settings. Electron's `navigator.onLine` may reflect the host adapter; observed canceled session/renderer requests are the offline proof. Full disconnection of the Windows adapter is not claimed.
+
+The renderer GPU test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. The older `npm test` suite still contains copied implementations and a faulty assertion helper; its pass counts are not release acceptance.
+
+The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, updater 6.6.2 and builder 24.13.3. A fresh checkout uses `npm.cmd ci`; a clean dependency install has not yet been verified. Build commands explicitly use `--publish never`; no GitHub release is published by them. The installer is not code-signed.
 
 ## Recovery and limits
 
-Original source and live GitHub `main` matched commit `9027f9e193832ec7af76b921f4c652da06d39635`. All 55 copied source files matched SHA256 checks before documentation/test changes. The original Desktop repository was left unchanged. The parent workspace's `evidence/` contains the source manifest, a verified complete original Git bundle, installed-build comparison, and actual launch records.
+Phase 1 baseline was `cf47a6782a31449bd55cb656cc59802c33f9e914`; original Desktop and live GitHub main matched `9027f9e193832ec7af76b921f4c652da06d39635`. The Desktop source remains untouched. Recovery bundles and the source manifest are in the parent workspace's `evidence/` folder. Phase 2 evidence is in `evidence/phase2/`, including the old installed-program backup.
 
-No production application fixes were made for this baseline. Known follow-up work includes oversized overlapping star markers seen in the launch screenshot; installed packaging that omits `electron-updater`; online Tailwind/GSAP/font assets; and testing production identity, selection, filters, routing, descriptions, and scientific metadata. The existing installed application is not this recovered checkout and has not been repaired or replaced.
-
-The older `npm test` suite includes copied implementations and a defective assertion helper. Its results must not be treated as release acceptance evidence.
+Version 1.0.1 repairs star sizing/composition/preset data, bundles offline assets, includes runtime updater dependencies and handles update failures without interrupting startup. Description lookup, stale filtered selection, name-based route identity, legacy assertion reliability and broader navigation/scientific validation remain open. Narration may depend on the user's installed speech voices and is outside offline acceptance.
 
 ## Source layout
 
-- `main.js`: Electron entry point.
-- `index.html`, `script.js`, `modules/`, `workers/`, `utils/`, `vendor/`: shared visualization code.
+- `main.js`: Electron startup, optional updates and explicit offline mode.
+- `index.html`, `script.js`, `modules/`, `workers/`, `utils/`, `vendor/`: shared visualization core and bundled assets.
 - `stars.json`, `hyg_v42.csv`, Python utilities: existing catalog and preparation inputs.
-- `script.js.backup`: preserved older monolithic implementation with behavior that needs parity review before removal.
-- `tests/launch-smoke.cjs`: actual application startup verification.
-
-Build configuration still contains placeholder publication settings. Do not publish a release until Phase 2 packaging and offline acceptance checks pass.
+- `vendor/OFFLINE-ASSETS.md`: upstream sources and licensing; `vendor/offline-assets.json`: integrity hashes.
+- `tests/offline-runtime.cjs`: real packaged/installed application verification.

@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,11 @@
     "test:octree": "node tests/octree.test.js",
     "test:filtering": "node tests/filtering.test.js",
     "test:integration": "node tests/integration.test.js",
-    "test:launch": "electron tests/launch-smoke.cjs"
+    "test:launch": "electron tests/launch-smoke.cjs",
+    "test:markers": "electron tests/marker-rendering.cjs",
+    "test:assets": "node tests/offline-assets.cjs",
+    "pack:win": "electron-builder --win --x64 --dir --publish never",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
   },
   "author": "Logan",
   "license": "ISC",
@@ -27,15 +31,26 @@
     "productName": "3D Star Map Explorer",
     "copyright": "Copyright © 2024 Logan",
     "files": [
-      "**/*",
-      "!**/node_modules/*",
-      "!*.md",
-      "!*.py"
+      "main.js",
+      "index.html",
+      "script.js",
+      "star_details.js",
+      "constellations.js",
+      "AdditiveBlendShader.js",
+      "style.css",
+      "ui-utilities.css",
+      "visual_presets.json",
+      "stars.json",
+      "modules/**/*",
+      "utils/**/*",
+      "workers/**/*",
+      "vendor/**/*",
+      "tests/offline-runtime.cjs"
     ],
     "publish": {
       "provider": "github",
-      "owner": "your-github-username",
-      "repo": "your-repo-name"
+      "owner": "LoganChoate",
+      "repo": "3D-Star-Map"
     },
     "win": {
       "target": "nsis"

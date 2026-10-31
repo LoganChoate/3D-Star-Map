@@ -747,21 +747,19 @@ function applyVisualPreset() {
     const selectedPreset = visualPresetSelect.value;
     if (!selectedPreset) return;
 
-    // Load and apply visual preset
-    fetch('visual_presets.json')
-        .then(response => response.json())
-        .then(presets => {
-            const preset = presets.presets[selectedPreset];
-            if (preset) {
-                // Apply the preset values to the UI and renderer
-                console.log(`Applied visual preset: ${selectedPreset}`);
-            } else {
-                console.warn('Visual preset not found, disabling preset blend');
-            }
-        })
-        .catch(error => {
-            console.warn('Could not load visual presets:', error);
-        });
+    if (!starRenderer.setVisualPreset(selectedPreset)) return;
+    // Scientific removes decorative bloom, twinkle and pulse; both modes keep
+    // the same catalog coordinates and bounded visual marker diameters.
+    const bloomToggle = document.getElementById('bloom-toggle');
+    const bloomStrength = document.getElementById('bloom-strength');
+    const bloomStrengthValue = document.getElementById('bloom-strength-value');
+    if (bloomToggle) bloomToggle.checked = selectedPreset === 'cinematic';
+    if (bloomStrength && selectedPreset === 'cinematic') {
+        bloomStrength.value = Math.max(0.6, Number(bloomStrength.value) || 0.6);
+        if (bloomStrengthValue) bloomStrengthValue.textContent = Number(bloomStrength.value).toFixed(2);
+    }
+    updateBloomSettings();
+    console.log(`Applied visual preset: ${selectedPreset}`);
 }
 
 function buildSpectralLegend() {

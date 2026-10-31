@@ -1,0 +1,56 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Production star shader regression</title>
+<style>#canvasContainer { width:256px; height:256px; }</style>
+<div id="canvasContainer"><canvas id="canvas"></canvas></div>
+<script type="module">
+import * as THREE from '../vendor/three/build/three.module.js';
+import { StarRenderer } from '../modules/StarRenderer.js';
+
+const results = [];
+try {
+    const atlas = new StarRenderer(document.querySelector('canvas'), {showError(message) { throw Error(message); }});
+    atlas.visualPresets = await (await fetch('../visual_presets.json')).json();
+    await atlas.initializeScene();
+    atlas.scene.background.set(0x000000);
+    atlas.camera.position.set(0, 0, 0);
+    atlas.camera.lookAt(0, 0, -1);
+    atlas.camera.updateMatrixWorld();
+    for (const pixelRatio of [1, 2]) {
+        atlas.renderer.setPixelRatio(pixelRatio);
+        for (const [label, depth, radius] of [['near bright', 0.101, 10], ['near faint', 0.101, 0.1], ['far bright', 100000, 10], ['far faint', 100000, 0.1], ['camera plane', 0, 10], ['behind camera', -1, 10]]) {
+            atlas.createStarGeometry([{x:0, y:0, z:-depth, ci:0.65, spect:'B', relativeRadiusScale:radius}]);
+            for (const attribute of ['size', 'starParams']) {
+                if (![...atlas.starsMesh.geometry.attributes[attribute].array].every(Number.isFinite)) {
+                    throw Error(`Non-finite ${attribute} in actual grid-backed geometry`);
+                }
+            }
+            const target = new THREE.WebGLRenderTarget(256 * pixelRatio, 256 * pixelRatio);
+            atlas.renderer.setRenderTarget(target);
+            atlas.renderer.render(atlas.scene, atlas.camera);
+            const pixels = new Uint8Array(target.width * target.height * 4);
+            atlas.renderer.readRenderTargetPixels(target, 0, 0, target.width, target.height, pixels);
+            let minX = Infinity, minY = Infinity, maxX = -1, maxY = -1, lit = 0;
+            for (let y = 0; y < target.height; y++) for (let x = 0; x < target.width; x++) {
+                const i = (y * target.width + x) * 4;
+                if (pixels[i] + pixels[i + 1] + pixels[i + 2] > 5) {
+                    lit++; minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+                    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+                }
+            }
+            const width = lit ? maxX - minX + 1 : 0;
+            const height = lit ? maxY - minY + 1 : 0;
+            results.push({label, pixelRatio, width, height, litPixels:lit});
+            if (width > 10 * pixelRatio || height > 10 * pixelRatio) throw Error(`Oversized marker: ${JSON.stringify(results.at(-1))}`);
+            if (depth > 0 && !lit) throw Error(`Visible star disappeared: ${label}`);
+            if (depth <= 0 && lit) throw Error(`Clipped star became visible: ${label}`);
+            target.dispose();
+        }
+    }
+    atlas.renderer.setRenderTarget(null);
+    atlas.dispose();
+    window.testResult = {status:'passed', scope:'Actual grid-backed production ShaderMaterial rasterized by WebGL; finite size/starParams and bounding boxes measured from GPU pixels', cases:results};
+} catch (error) {
+    window.testResult = {status:'failed', error:error.stack, cases:results};
+}
+</script>

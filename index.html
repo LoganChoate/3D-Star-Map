@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive 3D Star Map</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-utilities.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -56,6 +54,7 @@
         <div class="mb-3 p-2 border border-cyan-800 rounded-md">
             <label for="size-slider" class="block mb-1 text-sm font-semibold">Star Size Filter (Relative): <span id="size-value" class="font-normal"></span></label>
             <input type="range" id="size-slider" class="w-full">
+            <p class="text-xs">Markers are enlarged for visibility, not shown at physical stellar size.</p>
         </div>
         <div class="filter-grid">
             <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-O" value="O"><span>O</span></label>
@@ -165,7 +164,7 @@
         <div id="star-count-display" class="text-cyan-300 text-sm font-semibold"></div>
     </div>    
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="vendor/gsap/gsap-3.12.5.min.js"></script>
     <script type="importmap">
         {
             "imports": {
