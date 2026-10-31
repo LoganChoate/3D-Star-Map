@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import { OrbitControls } from '../vendor/three/examples/jsm/controls/OrbitControls.js';
 import { measureDistance, formatDistance } from '../utils/ExplorationMath.js';
 import { catalogQualityLabel, catalogIdentifierLabel } from '../utils/CatalogMetadata.js';
+import { buildNearbyCollection, nearbyDisplayLabel } from '../utils/NearbyCatalog.js';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const normalized = value => String(value ?? '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
@@ -13,6 +14,7 @@ export class ExplorationController {
         this.mount = mount;
         this.onModeChange = onModeChange;
         this.currentMode = 'atlas';
+        this.nearbyCollection = 'highlights';
         this.selectedObject = null;
         this.measurement = { from:null, to:null, result:null };
         this.objects = [];
@@ -27,6 +29,7 @@ export class ExplorationController {
         const response = await fetch('data/exploration-catalog.json');
         if (!response.ok) throw new Error(`Exploration catalog unavailable (${response.status})`);
         this.catalog = await response.json();
+        this.fullStarData = fullStarData;
         const starIndex = new Map(fullStarData.map(star => [star.id,star]));
         this.solarObjects = this.catalog.solar.objects.map(body => ({...body,space:'solar',position:body.position.slice()}));
         this.nearbyObjects = this.catalog.nearby.objects.map(entry => {
@@ -38,6 +41,9 @@ export class ExplorationController {
             const sun = this.solarObjects.find(body => body.id === 'sol');
             this.nearbyObjects.unshift({...sun,space:'nearby',position:[0,0,0],description:'The Sun is the origin of this nearby-star view. Other positions are from the bundled HYG catalog.'});
         }
+        this.curatedNearbyObjects = this.nearbyObjects;
+        this.nearbyCollectionInfo = buildNearbyCollection(fullStarData, this.curatedNearbyObjects, this.nearbyCollection);
+        this.nearbyObjects = this.nearbyCollectionInfo.objects;
         for (const group of [this.solarObjects,this.nearbyObjects]) {
             if (new Set(group.map(body=>body.id)).size !== group.length) throw new Error('Duplicate exploration identity');
             for (const body of group) {
@@ -64,6 +70,12 @@ export class ExplorationController {
           <section id="ex-workspace" class="ex-workspace" hidden aria-label="Solar System and nearby-star explorer">
             <aside class="ex-sidebar">
               <div class="ex-section-heading"><span class="ex-eyebrow">EXPLORE YOUR NEIGHBORHOOD</span><h2 id="ex-sidebar-title">Solar System</h2></div>
+              <div id="ex-nearby-collections" class="ex-collection-control" hidden>
+                <label for="ex-nearby-collection" class="ex-field-label">Nearby collection</label>
+                <select id="ex-nearby-collection"><option value="highlights">Highlights · 13 objects</option><option value="5pc">Within 5 parsecs · 57 objects</option></select>
+                <p id="ex-nearby-selection-note" class="ex-muted"></p>
+                <details class="ex-collection-limits"><summary>Collection sources & limits</summary><p id="ex-nearby-selection-details"></p></details>
+              </div>
               <label for="ex-search" class="ex-field-label">Find an object</label>
               <div class="ex-search-row"><input id="ex-search" type="search" autocomplete="off" placeholder="Earth, Moon, Sirius…"><button id="ex-search-go" aria-label="Search objects">↵</button></div>
               <div id="ex-search-results" class="ex-search-results" aria-live="polite"></div>
@@ -110,6 +122,7 @@ export class ExplorationController {
 
     bindEvents() {
         this.mount.querySelectorAll('[data-ex-mode]').forEach(button=>button.addEventListener('click',()=>this.setMode(button.dataset.exMode)));
+        this.elements['ex-nearby-collection'].addEventListener('change',event=>this.setNearbyCollection(event.target.value));
         this.elements['ex-search'].addEventListener('input',()=>this.search(this.elements['ex-search'].value));
         this.elements['ex-search'].addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();this.search(this.elements['ex-search'].value,true);}});
         this.elements['ex-search-go'].addEventListener('click',()=>this.search(this.elements['ex-search'].value,true));
@@ -135,6 +148,7 @@ export class ExplorationController {
         this.currentMode=mode;
         if(changed){this.selectedObject=null;this.clearMeasurement();}
         this.elements['ex-workspace'].hidden=mode==='atlas';
+        this.elements['ex-nearby-collections'].hidden=mode!=='nearby';
         document.body.classList.toggle('exploration-active',mode!=='atlas');
         this.mount.querySelectorAll('[data-ex-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.exMode===mode)));
         this.controls.enabled=mode!=='atlas';
@@ -154,6 +168,30 @@ export class ExplorationController {
         }
         this.onModeChange(mode);
         return mode;
+    }
+
+    setNearbyCollection(collection) {
+        if(collection===this.nearbyCollection) return this.nearbyCollectionInfo;
+        // Build and validate the replacement before changing active identities.
+        const next=buildNearbyCollection(this.fullStarData,this.curatedNearbyObjects,collection);
+        this.nearbyCollection=collection;
+        this.nearbyCollectionInfo=next;
+        this.nearbyObjects=next.objects;
+        this.allObjects=[...this.solarObjects,...this.nearbyObjects.filter(body=>body.id!=='sol')];
+        this.elements['ex-nearby-collection'].value=collection;
+        this.elements['ex-search-results'].replaceChildren();
+        this.elements['ex-search'].value='';
+        if(this.currentMode==='nearby') {
+            this.selectedObject=null;
+            this.clearMeasurement();
+            this.objects=this.nearbyObjects;
+            this.buildGeometry();
+            this.renderCatalog();
+            this.renderInfo();
+            this.renderPresets();
+            this.setPreset('all');
+        }
+        return next;
     }
 
     worldPosition(body) {
@@ -191,21 +229,24 @@ export class ExplorationController {
         }
         this.elements['ex-labels'].replaceChildren();
         this.labels=this.objects.map(body=>{
-            const label=document.createElement('button');label.className='ex-point-label';label.textContent=body.name;label.dataset.objectId=body.id;label.setAttribute('aria-label',`Select ${body.name}`);
+            const label=document.createElement('button');label.className='ex-point-label';label.textContent=nearbyDisplayLabel(body);label.dataset.objectId=body.id;label.setAttribute('aria-label',`Select ${nearbyDisplayLabel(body)}`);
             label.addEventListener('click',()=>this.selectObject(body.id,{focus:false}));this.elements['ex-labels'].append(label);
-            return {body,element:label};
+            return {body,element:label,width:label.offsetWidth,height:label.offsetHeight};
         });
     }
 
     renderCatalog() {
         this.elements['ex-sidebar-title'].textContent=this.currentMode==='solar'?'Solar System':'Nearby stars';
         this.elements['ex-object-count'].textContent=String(this.objects.length);
-        this.elements['ex-object-list'].innerHTML=this.objects.map(body=>`<button class="ex-object-row" data-object-id="${escape(body.id)}"><span class="ex-object-dot" style="background:${COLORS[body.id] || '#c3dcff'}"></span><span>${escape(body.name)}</span><small>${escape(body.kind || 'Star')}</small></button>`).join('');
+        this.elements['ex-nearby-collection'].value=this.nearbyCollection;
+        this.elements['ex-nearby-selection-note'].textContent=this.nearbyCollection==='5pc'?'56 retained stars plus the Sun, selected by catalog distance up to 5 pc. Not a complete census.':'Twelve selected nearby stars plus the Sun.';
+        this.elements['ex-nearby-selection-details'].textContent=this.nearbyCollectionInfo.selectionNote;
+        this.elements['ex-object-list'].innerHTML=this.objects.map(body=>`<button class="ex-object-row${nearbyDisplayLabel(body)!==body.name?' ex-object-disambiguated':''}" data-object-id="${escape(body.id)}" title="${escape(nearbyDisplayLabel(body))}"><span class="ex-object-dot" style="background:${COLORS[body.id] || '#c3dcff'}"></span><span>${escape(nearbyDisplayLabel(body))}</span><small>${escape(body.kind || 'Star')}</small></button>`).join('');
         this.elements['ex-object-list'].querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>this.selectObject(button.dataset.objectId)));
-        const options='<option value="">Choose an object…</option>'+this.objects.map(body=>`<option value="${escape(body.id)}">${escape(body.name)}</option>`).join('');
+        const options='<option value="">Choose an object…</option>'+this.objects.map(body=>`<option value="${escape(body.id)}">${escape(nearbyDisplayLabel(body))}</option>`).join('');
         this.elements['ex-measure-from'].innerHTML=options;this.elements['ex-measure-to'].innerHTML=options;
         this.elements['ex-view-title'].textContent=this.currentMode==='solar'?'SOLAR SYSTEM':'THE SOLAR NEIGHBORHOOD';
-        this.elements['ex-view-subtitle'].textContent=this.currentMode==='solar'?'A reference moment, to scale':'Our nearest stellar neighbors';
+        this.elements['ex-view-subtitle'].textContent=this.currentMode==='solar'?'A reference moment, to scale':this.nearbyCollection==='5pc'?'Explore within 5 parsecs':'Our nearest stellar neighbors';
         this.elements['ex-epoch'].textContent=this.currentMode==='solar'?this.catalog.solar.epochLabel:'HYG v4.2 · epoch/equinox J2000.0 · Retained positions, not a live sky';
         this.elements['ex-scale-note'].textContent=this.currentMode==='solar'?'Positions and distances use AU. Markers are enlarged to 9–17 pixels, not physical sizes. Rings: 1, 5, 10, 20 and 30 AU from the Sun; these are distance guides, not orbits.':'Positions and distances use parsecs. Markers are enlarged to 9–17 pixels, not physical sizes. Separations are calculated from the retained coordinates.';
     }
@@ -223,9 +264,9 @@ export class ExplorationController {
         const matches=this.allObjects.filter(body=>normalized(body.name).includes(key)||normalized(body.id)===key||(body.catalogName&&normalized(body.catalogName).includes(key)));
         const exact=matches.filter(body=>normalized(body.name)===key||normalized(body.id)===key||normalized(body.catalogName)===key);
         if(selectExact && exact.length===1) {this.selectObject(exact[0].id);return exact;}
-        if(!matches.length) {results.textContent='No match in the curated collection. Use Star atlas for the full catalog.';return [];}
+        if(!matches.length) {results.textContent='No match in these collections. Use Star atlas for the full catalog.';return [];}
         matches.slice(0,12).forEach(body=>{
-            const button=document.createElement('button');button.dataset.searchObjectId=body.id;button.textContent=`${body.name} · ${body.space==='solar'?'Solar System':'Nearby stars'}`;
+            const button=document.createElement('button');button.dataset.searchObjectId=body.id;button.textContent=`${nearbyDisplayLabel(body)} · ${body.space==='solar'?'Solar System':'Nearby stars'}`;
             button.addEventListener('click',()=>this.selectObject(body.id));results.append(button);
         });
         return matches;
@@ -261,6 +302,7 @@ export class ExplorationController {
         const radius=Number.isFinite(body.radiusKm)?`<dt>${escape(body.radiusDefinition || 'Physical radius')}</dt><dd>${new Intl.NumberFormat('en-US',{maximumFractionDigits:1}).format(body.radiusKm)} km</dd>`:'';
         const stellar=body.space==='nearby'&&body.id!=='sol'?`${body.spectralType?`<dt>Spectral type</dt><dd>${escape(body.spectralType)}</dd>`:''}${Number.isFinite(body.apparentMagnitude)?`<dt>Apparent magnitude</dt><dd>${escape(body.apparentMagnitude)}</dd>`:''}${Number.isFinite(body.distancePc)?`<dt>Catalog distance</dt><dd>${escape(body.distancePc)} pc</dd>`:''}`:'';
         panel.innerHTML=`<span class="ex-eyebrow">${escape(body.kind || 'Star')}</span><h3 id="ex-object-name" data-object-id="${escape(body.id)}">${escape(body.name)}</h3><p class="ex-description">${escape(body.description || 'Position from the bundled star catalog.')}</p><dl><dt>Catalog identity</dt><dd>${escape(body.id)}</dd>${radius}${stellar}<dt>Coordinate separation from Sun</dt><dd>${escape(distance.primary)}<small>${escape(distance.secondary)}</small></dd><dt>Reference</dt><dd>${escape(body.space==='solar'?this.catalog.solar.epochLabel:'Bundled HYG catalog positions')}</dd></dl><div class="ex-selection-actions"><button id="ex-focus-selected">Focus view</button><button id="ex-measure-selected">Measure from here</button></div><details class="ex-provenance"><summary>Coordinates & sources</summary><p>${escape(body.space==='solar'?this.catalog.solar.frame:(this.catalog.nearby.frame || 'HYG heliocentric catalog frame, rotated by the atlas renderer'))}</p><p class="ex-coordinates">${body.position.map(value=>Number(value).toPrecision(9)).join(' · ')} ${body.space==='solar'?'AU':'pc'}</p>${sources.map(source=>`<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${escape(source.label || 'Data source')} ↗</a>`).join('')}</details>`;
+        panel.querySelector('#ex-object-name').textContent=nearbyDisplayLabel(body);
         if(body.space==='nearby' && body.catalogMetadata) {
             const quality=document.createElement('p');quality.id='ex-catalog-quality';quality.className='ex-muted';quality.textContent=catalogQualityLabel(body);
             panel.querySelector('.ex-description').after(quality);
@@ -385,12 +427,15 @@ export class ExplorationController {
         const width=this.canvas.clientWidth,height=this.canvas.clientHeight;
         this.camera.updateMatrixWorld();const occupied=[];
         const sorted=this.labels.slice().sort((a,b)=>Number(b.body.id===this.selectedObject?.id)-Number(a.body.id===this.selectedObject?.id));
-        for(const {body,element} of sorted) {
+        for(const {body,element,width:labelWidth,height:labelHeight} of sorted) {
             const projected=this.worldPosition(body).project(this.camera);
             const x=(projected.x+1)*width/2,y=(1-projected.y)*height/2;
-            const visible=projected.z>=-1&&projected.z<=1&&x>0&&x<width-100&&y>85&&y<height-72&&!occupied.some(point=>Math.hypot(point.x-x,point.y-y)<36);
+            const box={left:x+11,top:y-10,right:x+11+labelWidth,bottom:y-10+labelHeight};
+            // Use the caption's real box, not only the distance between stars.
+            // Cache dimensions outside the animation loop to avoid layout reads.
+            const visible=projected.z>=-1&&projected.z<=1&&box.left>0&&box.right<width-12&&box.top>85&&box.bottom<height-72&&!occupied.some(other=>box.left<other.right+4&&box.right+4>other.left&&box.top<other.bottom+4&&box.bottom+4>other.top);
             element.hidden=!visible; if(!visible)continue;
-            occupied.push({x,y});element.style.transform=`translate(${x+11}px,${y-10}px)`;element.classList.toggle('selected',body.id===this.selectedObject?.id);
+            occupied.push(box);element.style.transform=`translate(${box.left}px,${box.top}px)`;element.classList.toggle('selected',body.id===this.selectedObject?.id);
         }
     }
 
@@ -398,7 +443,10 @@ export class ExplorationController {
         if(this.currentMode==='atlas'||!this.renderer)return;
         const rect=this.elements['ex-stage'].getBoundingClientRect();
         if(rect.width<=0||rect.height<=0)return;
-        this.renderer.setSize(rect.width,rect.height,false);this.camera.aspect=rect.width/rect.height;this.camera.updateProjectionMatrix();this.updateLabels();
+        this.renderer.setSize(rect.width,rect.height,false);this.camera.aspect=rect.width/rect.height;this.camera.updateProjectionMatrix();
+        for(const label of this.labels)label.element.hidden=false;
+        for(const label of this.labels){label.width=label.element.offsetWidth;label.height=label.element.offsetHeight;}
+        this.updateLabels();
     }
 
     render() {

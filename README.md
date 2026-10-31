@@ -1,6 +1,6 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.2.0 adds a reproducible scientific data pipeline and source-quality information to the Solar System, nearby-star and 117,735-record atlas views.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.3.0 adds a measured, bounded nearby collection: 56 retained HYG stars within 5 parsecs plus the Sun. The Solar System, original nearby highlights, scientific provenance and 117,735-record atlas remain available.
 
 ## Execution tracker
 
@@ -25,11 +25,15 @@ Star markers are exaggerated visual aids bounded to 2–10 CSS pixels, not physi
 
 Choose **Solar System** or **Nearby stars** from the view buttons. Search for an object (for example Earth, Moon, Sirius or Proxima Centauri), or select its marker or list entry. The information panel shows its stable identity, physical or catalog properties, coordinates and sources. Choose two objects under **Measure a distance** to see their straight-line separation.
 
+In Nearby stars, choose **Within 5 parsecs · 57 objects** under **Nearby collection** to explore 44 additional stars. **Highlights · 13 objects** restores the original selection. Switching collections clears selection and measurement and frames the replacement collection. Repeated names, including the two 61 Cyg records, display distinct HYG IDs in lists, search results, marker labels, details and measurement choices.
+
+The radius uses the retained HYG catalog distance field, while measurements use retained Cartesian coordinates. This is not a complete census: five source rows inside 5 parsecs are absent because the legacy renderer catalog excluded missing color values. All source quality flags and unknown uncertainty remain visible. No new astrometry or external catalog is introduced.
+
 Drag to orbit, scroll to zoom, and right-drag to pan. With the scene focused, arrow keys pan, Shift accelerates panning, plus/minus zoom, Home frames all objects, and Escape clears selection. The Full Solar System, Inner planets and Earth & Moon presets move between scales.
 
 The Solar System is a **fixed historical reference snapshot: 2000 January 1, 12:00 TDB**, from retained JPL Horizons vectors. It is not a current-position ephemeris or an orbital simulation. Positions use heliocentric ecliptic coordinates in AU; the nearby view uses retained HYG equatorial coordinates in parsecs. Measurements cannot mix those frames. Nearby catalog distance fields may differ slightly from separation calculated from retained Cartesian coordinates.
 
-Exploration markers are 9–17 CSS pixels, enlarged for visibility rather than drawn at physical radii. Solar circles indicate Sun distances of 1, 5, 10, 20 and 30 AU, not orbital paths. Earth–Moon separation in this snapshot is about 402,449 km. Sources, units, transformations, licenses and offline regeneration are documented in `data/SOURCES.md`; this bounded dataset does not complete the broader Phase 4 pipeline.
+Exploration markers are 9–17 CSS pixels, enlarged for visibility rather than drawn at physical radii. Solar circles indicate Sun distances of 1, 5, 10, 20 and 30 AU, not orbital paths. Earth–Moon separation in this snapshot is about 402,449 km. Sources, units, transformations, licenses and offline regeneration are documented in `data/SOURCES.md` and `data/pipeline/SOURCES.md`.
 
 ## Scientific catalog pipeline
 

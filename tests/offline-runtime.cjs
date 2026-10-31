@@ -255,7 +255,11 @@ exports.attach = function attach(app, session, outputDirectory) {
 
     let explorationFinished = false;
     evidence.explorationScreenshots = {};
-    const explorationPromise = win.webContents.executeJavaScript(`import('./tests/exploration-runtime.js').then(module => module.verifyExploration())`);
+    const explorationPromise = win.webContents.executeJavaScript(`(async () => {
+      const exploration=await import('./tests/exploration-runtime.js').then(module=>module.verifyExploration());
+      const nearby=await import('./tests/nearby-runtime.js').then(module=>module.verifyNearbyExpansion({nativeBridge:true}));
+      return {exploration,nearby};
+    })()`);
     explorationPromise.then(() => { explorationFinished = true; }, () => { explorationFinished = true; });
     while (!explorationFinished) {
       const request = await win.webContents.executeJavaScript('window.__explorationVerification || null');
@@ -280,7 +284,9 @@ exports.attach = function attach(app, session, outputDirectory) {
       }
       await delay(30);
     }
-    evidence.checks.exploration = await explorationPromise;
+    const explorationResults = await explorationPromise;
+    evidence.checks.exploration = explorationResults.exploration;
+    evidence.checks.nearbyExpansion = explorationResults.nearby;
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Exploration must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Exploration must use bundled assets while offline');
 
