@@ -6,7 +6,12 @@ const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'style.css'), 'utf8');
-const refs = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m => m[1]);
+// Source citations are user-activated navigation, not startup resources. Keep
+// checking every src and every non-anchor href (including styles and preloads).
+const refs = [...html.matchAll(/<([a-z][\w:-]*)\b[^>]*>/gi)].flatMap(tag =>
+  [...tag[0].matchAll(/(src|href)="([^"]+)"/g)]
+    .filter(attribute => !(tag[1].toLowerCase()==='a' && attribute[1]==='href'))
+    .map(attribute => attribute[2]));
 refs.push(...[...css.matchAll(/url\(['"]?([^'"\)]+)['"]?\)/g)].map(m => m[1]));
 for (const ref of refs) {
   assert.ok(!/^(?:https?:)?\/\//i.test(ref), `Network dependency: ${ref}`);

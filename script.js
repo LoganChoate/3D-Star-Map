@@ -8,6 +8,7 @@ import { Octree, Box3D } from './utils/SpatialIndex.js';
 import { filterStars } from './utils/StarFilters.js';
 import { buildStarIndex } from './utils/StarIdentity.js';
 import { ExplorationController } from './modules/ExplorationController.js';
+import { attachCatalogMetadata, verifyCatalogBytes, hasUnresolvedDistance } from './utils/CatalogMetadata.js';
 
 // Import external data modules
 import { getConstellationData } from './constellations.js';
@@ -18,11 +19,9 @@ let fullStarData = [];
 let activeStarData = [];
 let starOctree = null;
 let hasGarbageSphere = false;
-let garbageSphereDistance = null;
+let catalogAudit = null;
 let maxDistanceWithGarbage = 0;
 let maxDistanceWithoutGarbage = 0;
-
-const GARBAGE_SPHERE_EPSILON = 1e-3;
 
 // Module instances
 let starRenderer = null;
@@ -237,7 +236,7 @@ async function init() {
         // Start animation loop
         animate();
 
-        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer });
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, catalogAudit });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {
@@ -274,7 +273,21 @@ async function loadAndPrepareStarData() {
 
         loadingIndicator.textContent = 'Parsing star data...';
 
-        const rawData = await response.json();
+        const catalogBytes = await response.arrayBuffer();
+        const [manifestResponse,metadataResponse] = await Promise.all([
+            fetch('data/pipeline/manifest.json'),fetch('data/pipeline/runtime-metadata.json')
+        ]);
+        if(!manifestResponse.ok || !metadataResponse.ok) throw new Error('Scientific catalog metadata could not be loaded');
+        const manifest = await manifestResponse.json();
+        const metadataBytes = await metadataResponse.arrayBuffer();
+        await Promise.all([
+            verifyCatalogBytes(catalogBytes,manifest.runtimeCatalog?.sha256,'Star catalog'),
+            verifyCatalogBytes(metadataBytes,manifest.outputs?.['runtime-metadata.json']?.sha256,'Scientific metadata')
+        ]);
+        const rawData = JSON.parse(new TextDecoder().decode(catalogBytes));
+        const scientificMetadata = JSON.parse(new TextDecoder().decode(metadataBytes));
+        catalogAudit = attachCatalogMetadata(rawData,scientificMetadata,manifest);
+        document.getElementById('catalog-quality-summary').textContent = `${catalogAudit.unresolvedDistances.toLocaleString('en-US')} entries have unresolved distances and are hidden by default. HYG v4.2 · epoch/equinox J2000.0 · parsecs.`;
 
         // Validate data structure
         if (!Array.isArray(rawData)) {
@@ -326,6 +339,7 @@ async function loadAndPrepareStarData() {
                 id: star.id,
                 proper: star.proper,
                 name: star.name,
+                catalogMetadata: star.catalogMetadata,
 
                 x: Number.isFinite(numericX) ? numericX : 0,
 
@@ -355,15 +369,13 @@ async function loadAndPrepareStarData() {
 
         const maxDistance = initialData.reduce((max, star) => Math.max(max, star.dist || 0), 0);
 
-        hasGarbageSphere = maxDistance > 0 && initialData.some(star => Math.abs((star.dist || 0) - maxDistance) < GARBAGE_SPHERE_EPSILON);
-
-        garbageSphereDistance = hasGarbageSphere ? maxDistance : null;
+        hasGarbageSphere = initialData.some(hasUnresolvedDistance);
 
 
 
         const processedData = initialData.map(star => {
 
-            const isGarbage = hasGarbageSphere && Math.abs((star.dist || 0) - maxDistance) < GARBAGE_SPHERE_EPSILON;
+            const isGarbage = hasUnresolvedDistance(star);
 
             return { ...star, isGarbageSphere: isGarbage };
 
@@ -444,6 +456,11 @@ async function loadAndPrepareStarData() {
             const stepWithGarbage = Math.max(0.1, Math.ceil(maxDistanceWithGarbage / 500));
 
             const stepWithoutGarbage = Math.max(0.1, Math.ceil((maxDistanceWithoutGarbage || maxDistanceWithGarbage) / 500));
+
+            // A range input snaps to its step grid. Round the upper bound up
+            // onto that grid so the farthest retained distances stay reachable.
+            maxDistanceWithGarbage = Math.ceil(maxDistanceWithGarbage / stepWithGarbage) * stepWithGarbage;
+            maxDistanceWithoutGarbage = Math.ceil(maxDistanceWithoutGarbage / stepWithoutGarbage) * stepWithoutGarbage;
 
             distanceSlider.dataset.maxWithGarbage = String(maxDistanceWithGarbage);
 

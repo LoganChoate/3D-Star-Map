@@ -4,6 +4,7 @@ import { LineGeometry } from '../vendor/three/examples/jsm/lines/LineGeometry.js
 import { LineMaterial } from '../vendor/three/examples/jsm/lines/LineMaterial.js';
 import { buildStarIndex, requireStarId } from '../utils/StarIdentity.js';
 import { findRoute } from '../utils/Pathfinding.js';
+import { hasUnresolvedDistance } from '../utils/CatalogMetadata.js';
 
 export class RouteManager {
     constructor(starRenderer, errorHandler) {
@@ -200,6 +201,10 @@ export class RouteManager {
         if (activeRoute && star) {
             const canonical = this.starIndex.get(requireStarId(star));
             if (!canonical) throw new Error('Route start ID is not in the catalog');
+            if (hasUnresolvedDistance(canonical)) {
+                this.errorHandler?.showWarning('This catalog entry has an unresolved distance and cannot be used as a route endpoint.');
+                return false;
+            }
             this.clearRoutePath(activeRoute);
             activeRoute.startStar = canonical;
             this.updateRoutePlannerUI();
@@ -213,6 +218,10 @@ export class RouteManager {
         if (activeRoute && star) {
             const canonical = this.starIndex.get(requireStarId(star));
             if (!canonical) throw new Error('Route end ID is not in the catalog');
+            if (hasUnresolvedDistance(canonical)) {
+                this.errorHandler?.showWarning('This catalog entry has an unresolved distance and cannot be used as a route endpoint.');
+                return false;
+            }
             this.clearRoutePath(activeRoute);
             activeRoute.endStar = canonical;
             this.updateRoutePlannerUI();

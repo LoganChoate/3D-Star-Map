@@ -184,13 +184,17 @@ export async function verifyExploration() {
     check(atlas.clock.oldTime>=resumeStarted,'Returning to the atlas must discard time spent in the other view before flight resumes');
     await frame();await frame();
     check(atlas.activeControls===atlas.flyControls && atlas.flyControls.enabled,'Returning to atlas must preserve Fly mode');
-    check(atlas.camera.position.distanceTo(suspendedPosition)<1e-10 && atlas.camera.quaternion.angleTo(suspendedRotation)<1e-7,'Released keys must not cause flight drift when returning to atlas');
+    const flightDrift={position:atlas.camera.position.distanceTo(suspendedPosition),angle:atlas.camera.quaternion.angleTo(suspendedRotation),quaternionComponents:Math.max(...atlas.camera.quaternion.toArray().map((value,index)=>Math.abs(value-suspendedRotation.toArray()[index]))),quaternionNorm:atlas.camera.quaternion.length()};
+    // angleTo assumes exactly unit quaternions; accumulated floating-point
+    // norm error can report a nonzero angle for identical components. Compare
+    // the actual pose directly, while checking that its norm remains sound.
+    check(flightDrift.position<1e-10 && flightDrift.quaternionComponents<1e-12 && Math.abs(flightDrift.quaternionNorm-1)<1e-10,'Released keys must not cause flight drift when returning to atlas: '+JSON.stringify(flightDrift));
     const beforeNewFlight=atlas.camera.position.clone();
     await input([{type:'keyDown',keyCode:'W'}]);
     await input([{type:'keyUp',keyCode:'W'}]);
     check(atlas.camera.position.distanceTo(beforeNewFlight)>0,'Fresh flight input must still work after the view switch');
     if(!wasFlying)el('toggle-fly-mode-button').click();
-    checks.flightModeSwitch={heldMovementAndRotationCleared:true,returnWithoutDrift:true,pausedTimeDiscarded:true,freshInputWorks:true};
+    checks.flightModeSwitch={heldMovementAndRotationCleared:true,returnWithoutDrift:true,pausedTimeDiscarded:true,freshInputWorks:true,drift:flightDrift};
     checks.scaleHonesty={minMarkerCssPixels:Math.min(...sizes),maxMarkerCssPixels:Math.max(...sizes),atlasRestored:true,remoteAssetsRequired:false};
     return checks;
 }

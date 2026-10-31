@@ -284,6 +284,12 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Exploration must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Exploration must use bundled assets while offline');
 
+    evidence.checks.scientific = await win.webContents.executeJavaScript("import('./tests/scientific-runtime.js').then(module => module.verifyScientificPipeline())");
+    evidence.scientificScreenshot = `${stem}-scientific-quality.png`;
+    fs.writeFileSync(evidence.scientificScreenshot, (await win.webContents.capturePage()).toPNG());
+    assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Scientific metadata and quality controls must not produce application errors');
+    assert.equal(evidence.requests.length, 0, 'Scientific catalog metadata must load and work offline');
+
     probing = true;
     evidence.checks.networkProbe = await win.webContents.executeJavaScript(`(async () => {
       try { await fetch('https://example.com/galaxy-map-offline-probe', {cache: 'no-store'}); return {blocked:false}; }

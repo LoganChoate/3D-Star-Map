@@ -62,7 +62,7 @@ try {
     await test('filtering','Size is an upper limit, with inclusive distance and size edges',()=>{deep(ids(filterStars(filterData,{maxDistance:1,maxSize:3})),['sol','hyg:1']);});
     await test('filtering','Named-only uses proper-name metadata, not a catalog label heuristic',()=>{deep(ids(filterStars(filterData,{properNamesOnly:true})),['sol','hyg:1']);});
     await test('filtering','Sentinel inclusion is explicit',()=>{equal(filterStars(filterData).length,4);equal(filterStars(filterData,{includeGarbageSphere:true}).length,5);});
-    await test('filtering','Spectral filters normalize case and handle missing spectra',()=>{deep(ids(filterStars(filterData,{spectralClasses:['g']})),['sol','hyg:3']);});
+    await test('filtering','Spectral filters normalize case without classifying missing spectra as G',()=>{deep(ids(filterStars(filterData,{spectralClasses:['g']})),['sol']);ok(filterStars(filterData).includes(filterData[3]),'Missing spectrum stays available without a class filter');});
     await test('filtering','Combining filters can legitimately yield an empty geometry',()=>{deep(filterStars(filterData,{maxDistance:0,spectralClasses:['B']}),[]);});
 
     const twins=[point('hyg:10',0,0,0,'61 Cyg'),point('hyg:11',1,0,0,'61 Cyg'),point('hyg:12',2,0,0,'Sirius')];

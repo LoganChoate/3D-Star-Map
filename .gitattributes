@@ -3,3 +3,8 @@ vendor/fonts/** -text
 vendor/gsap/** -text
 data/horizons/** -text
 data/exploration-catalog.json -text
+data/pipeline/*.json -text
+data/pipeline/references/** -text
+scripts/build_scientific_catalog.py -text
+hyg_v42.csv -text
+stars.json -text

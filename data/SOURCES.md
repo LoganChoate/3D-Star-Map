@@ -31,7 +31,7 @@ Short descriptions use basic classifications and planetary order from [NASA's pl
 
 ## Nearby stars and attribution
 
-The twelve nearby entries are selected from the project's existing `stars.json`, itself exported from the retained `hyg_v42.csv`. Their stable `hyg:<id>` identities, names, positions, distances, spectral classifications, and apparent magnitudes are copied without alteration. SHA-256 digests of both local input files are embedded in the catalog. The filename identifies the retained CSV; the archived upstream README describes v4.1 and does not independently establish the version of this local file. This selection is neither a complete neighborhood census nor a ranking of the latest measured distances.
+The twelve nearby entries are selected from the project's existing `stars.json`, itself exported from the retained `hyg_v42.csv`. Their stable `hyg:<id>` identities, names, positions, distances, spectral classifications, and apparent magnitudes are copied without alteration. SHA-256 digests of both local input files are embedded in the catalog. Phase 4 independently verified this retained file as official HYG v4.2 by an exact decompressed byte match against a pinned upstream archive. See [pipeline source verification](pipeline/references/source-verification.json) and [pipeline provenance](pipeline/SOURCES.md). This selection is neither a complete neighborhood census nor a ranking of the latest measured distances.
 
 Credit: David Nash / Astronexus, [HYG Database](https://github.com/astronexus/HYG-Database), distributed under [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The subset remains under that license. [HYG's field documentation](https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md) specifies parsecs and equatorial coordinates at epoch/equinox 2000.0. The app's existing export remaps HYG `(X, Y, Z)` to `(X, Z, -Y)`; the new subset preserves that remapping. No proper-motion update or replacement measurement is performed.
 
@@ -60,3 +60,4 @@ Reference separations derived from this retained snapshot:
 | Sun–Neptune | 30.120580352138855 AU |
 
 These numbers verify the reference data and conversion behavior. They are not current distances and do not by themselves demonstrate that the application renders or launches correctly.
+

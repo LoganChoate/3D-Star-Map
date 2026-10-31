@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import { OrbitControls } from '../vendor/three/examples/jsm/controls/OrbitControls.js';
 import { measureDistance, formatDistance } from '../utils/ExplorationMath.js';
+import { catalogQualityLabel, catalogIdentifierLabel } from '../utils/CatalogMetadata.js';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const normalized = value => String(value ?? '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
@@ -205,7 +206,7 @@ export class ExplorationController {
         this.elements['ex-measure-from'].innerHTML=options;this.elements['ex-measure-to'].innerHTML=options;
         this.elements['ex-view-title'].textContent=this.currentMode==='solar'?'SOLAR SYSTEM':'THE SOLAR NEIGHBORHOOD';
         this.elements['ex-view-subtitle'].textContent=this.currentMode==='solar'?'A reference moment, to scale':'Our nearest stellar neighbors';
-        this.elements['ex-epoch'].textContent=this.currentMode==='solar'?this.catalog.solar.epochLabel:'Bundled HYG positions · A catalog snapshot, not a live sky';
+        this.elements['ex-epoch'].textContent=this.currentMode==='solar'?this.catalog.solar.epochLabel:'HYG v4.2 · epoch/equinox J2000.0 · Retained positions, not a live sky';
         this.elements['ex-scale-note'].textContent=this.currentMode==='solar'?'Positions and distances use AU. Markers are enlarged to 9–17 pixels, not physical sizes. Rings: 1, 5, 10, 20 and 30 AU from the Sun; these are distance guides, not orbits.':'Positions and distances use parsecs. Markers are enlarged to 9–17 pixels, not physical sizes. Separations are calculated from the retained coordinates.';
     }
 
@@ -260,6 +261,12 @@ export class ExplorationController {
         const radius=Number.isFinite(body.radiusKm)?`<dt>${escape(body.radiusDefinition || 'Physical radius')}</dt><dd>${new Intl.NumberFormat('en-US',{maximumFractionDigits:1}).format(body.radiusKm)} km</dd>`:'';
         const stellar=body.space==='nearby'&&body.id!=='sol'?`${body.spectralType?`<dt>Spectral type</dt><dd>${escape(body.spectralType)}</dd>`:''}${Number.isFinite(body.apparentMagnitude)?`<dt>Apparent magnitude</dt><dd>${escape(body.apparentMagnitude)}</dd>`:''}${Number.isFinite(body.distancePc)?`<dt>Catalog distance</dt><dd>${escape(body.distancePc)} pc</dd>`:''}`:'';
         panel.innerHTML=`<span class="ex-eyebrow">${escape(body.kind || 'Star')}</span><h3 id="ex-object-name" data-object-id="${escape(body.id)}">${escape(body.name)}</h3><p class="ex-description">${escape(body.description || 'Position from the bundled star catalog.')}</p><dl><dt>Catalog identity</dt><dd>${escape(body.id)}</dd>${radius}${stellar}<dt>Coordinate separation from Sun</dt><dd>${escape(distance.primary)}<small>${escape(distance.secondary)}</small></dd><dt>Reference</dt><dd>${escape(body.space==='solar'?this.catalog.solar.epochLabel:'Bundled HYG catalog positions')}</dd></dl><div class="ex-selection-actions"><button id="ex-focus-selected">Focus view</button><button id="ex-measure-selected">Measure from here</button></div><details class="ex-provenance"><summary>Coordinates & sources</summary><p>${escape(body.space==='solar'?this.catalog.solar.frame:(this.catalog.nearby.frame || 'HYG heliocentric catalog frame, rotated by the atlas renderer'))}</p><p class="ex-coordinates">${body.position.map(value=>Number(value).toPrecision(9)).join(' · ')} ${body.space==='solar'?'AU':'pc'}</p>${sources.map(source=>`<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${escape(source.label || 'Data source')} ↗</a>`).join('')}</details>`;
+        if(body.space==='nearby' && body.catalogMetadata) {
+            const quality=document.createElement('p');quality.id='ex-catalog-quality';quality.className='ex-muted';quality.textContent=catalogQualityLabel(body);
+            panel.querySelector('.ex-description').after(quality);
+            const identifiers=document.createElement('p');identifiers.id='ex-catalog-identifiers';identifiers.textContent=catalogIdentifierLabel(body);
+            panel.querySelector('.ex-provenance').append(identifiers);
+        }
         this.elements['ex-focus-selected']=panel.querySelector('#ex-focus-selected');this.elements['ex-measure-selected']=panel.querySelector('#ex-measure-selected');
         this.elements['ex-focus-selected'].addEventListener('click',()=>this.focusObject(body));
         this.elements['ex-measure-selected'].addEventListener('click',()=>this.setMeasurementEndpoint('from',body.id));

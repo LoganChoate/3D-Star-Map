@@ -45,8 +45,9 @@
         <div class="mb-2">
             <label class="flex items-center space-x-2">
                 <input type="checkbox" id="garbage-sphere-filter" name="garbage-sphere-filter" class="filter-checkbox">
-                <span>Toggle Garbage Sphere</span>
+                <span>Show unresolved-distance entries</span>
             </label>
+            <p id="catalog-quality-summary" class="text-xs">Loading catalog quality…</p>
         </div>
         <div class="mb-3 p-2 border border-cyan-800 rounded-md">
             <label for="distance-slider" class="block mb-1 text-sm font-semibold">Distance Filter (pc): <span id="distance-value" class="font-normal"></span></label>
@@ -74,6 +75,13 @@
             <p><span class="info-label">Magnitude:</span><span id="star-mag" class="info-value">N/A</span></p>
             <p><span class="info-label">Class:</span><span id="star-spect" class="info-value">N/A</span></p>
             <p><span class="info-label">Coords:</span><span id="star-coords" class="info-value">N/A</span></p>
+            <details class="catalog-provenance"><summary>Source & scientific quality</summary>
+                <p id="star-identifiers">N/A</p>
+                <p id="star-quality">N/A</p>
+                <p>HYG v4.2 · epoch/equinox J2000.0. App coordinates are [X, Z, −Y] in parsecs; no proper-motion update.</p>
+                <p id="star-equatorial">N/A</p>
+                <a href="https://codeberg.org/astronexus/hyg" target="_blank" rel="noopener noreferrer">HYG source & documentation ↗</a>
+            </details>
             <div id="route-buttons-container" class="flex gap-2 mt-2 hidden">
                 <button id="set-start-button" class="custom-button text-xs px-2 py-1 flex-grow">Set as Start</button>
                 <button id="set-end-button" class="custom-button text-xs px-2 py-1 flex-grow">Set as End</button>

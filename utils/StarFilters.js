@@ -12,7 +12,7 @@ export function filterStars(stars, {
         if (!includeGarbageSphere && star.isGarbageSphere) return false;
         if (star.dist > maxDistance || star.relativeRadiusScale > maxSize) return false;
         if (properNamesOnly && !(typeof star.proper === 'string' && star.proper.trim())) return false;
-        const spectralClass = String(star.spect || 'G').charAt(0).toUpperCase();
+        const spectralClass = String(star.spect || '').charAt(0).toUpperCase();
         if (allowedClasses.size && !allowedClasses.has(spectralClass)) return false;
         return true;
     });

@@ -147,3 +147,8 @@ body {
 .suggestion-item:hover {
     background-color: #2A2A4A;
 }
+.catalog-provenance { margin: 12px 0; padding: 10px; border: 1px solid #34536a; border-radius: 5px; font-size: 11px; line-height: 1.6; color: #b5c9d9; }
+.catalog-provenance summary { cursor: pointer; color: #8de2ca; }
+.catalog-provenance p { margin: 8px 0; overflow-wrap: anywhere; }
+.catalog-provenance a { color: #9cd9e9; }
+#catalog-quality-summary { margin: 6px 0 10px; color: #a7bacb; line-height: 1.5; }

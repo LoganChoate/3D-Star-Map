@@ -1,5 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import { StarLookup } from '../utils/StarLookup.js';
+import { appToEquatorial } from '../utils/CatalogCoordinates.js';
+import { catalogQualityLabel, catalogIdentifierLabel, hasUnresolvedDistance } from '../utils/CatalogMetadata.js';
 
 export class UIManager {
     constructor(starRenderer, routeManager, tourController, errorHandler) {
@@ -374,10 +376,13 @@ export class UIManager {
 
         const elements = {
             'star-name': this.lookup?.label(star) || star.name,
-            'star-dist': `${star.dist.toFixed(2)} pc`,
+            'star-dist': hasUnresolvedDistance(star) ? 'Unresolved (catalog placeholder)' : star.id==='sol' ? '0 pc (defined origin)' : `${star.dist.toFixed(2)} pc`,
             'star-mag': star.mag.toFixed(2),
-            'star-spect': star.spect,
-            'star-coords': `X:${star.x.toFixed(1)}, Y:${star.y.toFixed(1)}, Z:${star.z.toFixed(1)}`
+            'star-spect': star.spect || 'Not supplied',
+            'star-coords': `X:${star.x.toFixed(1)}, Y:${star.y.toFixed(1)}, Z:${star.z.toFixed(1)} pc`,
+            'star-identifiers': catalogIdentifierLabel(star),
+            'star-quality': catalogQualityLabel(star),
+            'star-equatorial': `Source axes X, Y, Z: ${appToEquatorial([star.x,star.y,star.z]).map(value=>value.toFixed(6)).join(', ')} pc`
         };
 
         Object.entries(elements).forEach(([id, value]) => {
@@ -397,7 +402,7 @@ export class UIManager {
         this.elements.routeButtonsContainer?.classList.add('hidden');
         if (this.elements.narrateButton) this.elements.narrateButton.textContent = '▶ Narrate';
         if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
-        for (const id of ['star-name', 'star-dist', 'star-mag', 'star-spect', 'star-coords']) {
+        for (const id of ['star-name', 'star-dist', 'star-mag', 'star-spect', 'star-coords','star-identifiers','star-quality','star-equatorial']) {
             const element = document.getElementById(id);
             if (element) {
                 element.textContent = 'N/A';

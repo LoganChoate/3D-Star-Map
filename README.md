@@ -1,6 +1,6 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.1.0 adds Solar System and nearby-star exploration alongside the original 117,735-record atlas.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.2.0 adds a reproducible scientific data pipeline and source-quality information to the Solar System, nearby-star and 117,735-record atlas views.
 
 ## Execution tracker
 
@@ -31,6 +31,24 @@ The Solar System is a **fixed historical reference snapshot: 2000 January 1, 12:
 
 Exploration markers are 9–17 CSS pixels, enlarged for visibility rather than drawn at physical radii. Solar circles indicate Sun distances of 1, 5, 10, 20 and 30 AU, not orbital paths. Earth–Moon separation in this snapshot is about 402,449 km. Sources, units, transformations, licenses and offline regeneration are documented in `data/SOURCES.md`; this bounded dataset does not complete the broader Phase 4 pipeline.
 
+## Scientific catalog pipeline
+
+The retained CSV is verified by exact decompressed bytes against the official HYG v4.2 archive. The scientific export preserves original source identities, cross-identifiers, coordinates, photometry and motion fields. Every retained runtime record is joined by stable ID and checked against that source. The original `stars.json` values and order remain unchanged.
+
+```powershell
+npm.cmd run data:build
+npm.cmd run data:check
+npm.cmd run test:pipeline
+```
+
+The builder uses only Python's standard library and works offline. `--output-dir <directory>` creates a separate export; `--check` regenerates all four outputs in a temporary workspace directory and compares their bytes. Outputs are `data/pipeline/records.json` (full scientific export), `runtime-metadata.json`, `quality-summary.json` and `manifest.json`. The full export stays in the source workspace; the installed app bundles the smaller runtime metadata, manifest, quality report and documentation. The manifest pins input, generator and output hashes. Byte-identical generation is verified on the recorded Windows/Python runtime; cross-platform floating-point byte identity is not claimed.
+
+Source distances at or above 100,000 pc mean missing or dubious parallax. These 9,875 entries are hidden by default; **Show unresolved-distance entries** exposes them with a warning instead of treating the placeholder as a measurement. They cannot be route endpoints. The original export excluded 1,891 rows with missing color index; the report names each exclusion. Missing spectral classes are not treated as G stars by filtering.
+
+The atlas's **Source & scientific quality** panel shows cross-identifiers, equatorial source axes, epoch/equinox J2000.0, and unknown measurement uncertainty. HYG supplies no error/covariance columns, so no error bars are invented. Some angular and Cartesian fields disagree beyond a documented decimal-precision diagnostic; both are preserved and flagged. That diagnostic is not a confidence interval or accuracy certification. Raw zero motion fields do not prove measured zero velocity, and no proper-motion propagation is applied. See `data/pipeline/SOURCES.md` and `SCHEMA.md` for the complete contract and source license.
+
+`process_hyg.py` remains the legacy exporter. Use the scientific pipeline above for current audit/export work; changing a pinned input requires reviewed regeneration and new verification.
+
 ## Verify and build
 
 ```powershell
@@ -54,7 +72,7 @@ This explicit diagnostic mode uses a fresh profile, disables session networking 
 
 `npm test` runs negative controls for assertion/process failures, actual production modules and the real pathfinding worker, bundled asset checks, and GPU shader checks. The renderer test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. Old copied/mock test implementations are preserved under `docs/history/tests`; active tests import production code. These checks cover bounded regression scenarios, not exhaustive navigation or performance validation.
 
-Version 1.1.0 adds a fifth default suite: 14 checks of the actual distance module, retained JPL vectors, astronomical unit definitions, frame isolation and curated HYG identities. The packaged diagnostic also exercises the real exploration views, all Solar object searches, native marker selection, mouse/keyboard camera controls, measurements across scales, and safe return to the original atlas. It captures actual Solar, Earth–Moon and nearby-star views.
+The default runner has six suites, including 14 exploration/data checks and 23 scientific-pipeline checks. The latter verifies repeated exports, every source join, coordinate transforms, quality rules and corruption rejection. The packaged diagnostic exercises all exploration views plus source panels, placeholder-distance handling, route rejection and complete ordinary-catalog coverage. It captures actual views and verifies that quality controls never change catalog coordinates.
 
 The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, updater 6.6.2 and builder 24.13.3. A fresh checkout uses `npm.cmd ci`; a clean dependency install has not yet been verified. Build commands explicitly use `--publish never`; no GitHub release is published by them. The installer is not code-signed.
 
