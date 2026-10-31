@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "test:integration": "node tests/integration.test.js",
     "test:launch": "electron tests/launch-smoke.cjs",
     "test:launcher": "electron tests/launcher-runtime.cjs",
+    "test:exploration": "node tests/exploration-math.cjs",
     "test:markers": "electron tests/marker-rendering.cjs",
     "test:assets": "node tests/offline-assets.cjs",
     "pack:win": "electron-builder --win --x64 --dir --publish never",
@@ -47,6 +48,8 @@
       "constellations.js",
       "AdditiveBlendShader.js",
       "style.css",
+      "exploration.css",
+      "data/**/*",
       "ui-utilities.css",
       "visual_presets.json",
       "stars.json",
@@ -55,7 +58,8 @@
       "workers/**/*",
       "vendor/**/*",
       "tests/offline-runtime.cjs",
-      "tests/interaction-runtime.js"
+      "tests/interaction-runtime.js",
+      "tests/exploration-runtime.js"
     ],
     "publish": {
       "provider": "github",

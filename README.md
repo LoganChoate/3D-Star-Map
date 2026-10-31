@@ -1,6 +1,6 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. The intended first release covers the Solar System and nearby stars; that full experience is not delivered yet.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.1.0 adds Solar System and nearby-star exploration alongside the original 117,735-record atlas.
 
 ## Execution tracker
 
@@ -21,6 +21,16 @@ Version 1.0.3 adds the dashboard's **Launch Galaxy Map** button. Its `galaxymap:
 
 Star markers are exaggerated visual aids bounded to 2–10 CSS pixels, not physical stellar radii. Catalog coordinates are unchanged. Scientific mode removes decorative animation and bloom; Cinematic adds them. The size slider filters catalog-relative stellar sizes rather than changing astronomical positions.
 
+## Explore the Solar System and nearby stars
+
+Choose **Solar System** or **Nearby stars** from the view buttons. Search for an object (for example Earth, Moon, Sirius or Proxima Centauri), or select its marker or list entry. The information panel shows its stable identity, physical or catalog properties, coordinates and sources. Choose two objects under **Measure a distance** to see their straight-line separation.
+
+Drag to orbit, scroll to zoom, and right-drag to pan. With the scene focused, arrow keys pan, Shift accelerates panning, plus/minus zoom, Home frames all objects, and Escape clears selection. The Full Solar System, Inner planets and Earth & Moon presets move between scales.
+
+The Solar System is a **fixed historical reference snapshot: 2000 January 1, 12:00 TDB**, from retained JPL Horizons vectors. It is not a current-position ephemeris or an orbital simulation. Positions use heliocentric ecliptic coordinates in AU; the nearby view uses retained HYG equatorial coordinates in parsecs. Measurements cannot mix those frames. Nearby catalog distance fields may differ slightly from separation calculated from retained Cartesian coordinates.
+
+Exploration markers are 9–17 CSS pixels, enlarged for visibility rather than drawn at physical radii. Solar circles indicate Sun distances of 1, 5, 10, 20 and 30 AU, not orbital paths. Earth–Moon separation in this snapshot is about 402,449 km. Sources, units, transformations, licenses and offline regeneration are documented in `data/SOURCES.md`; this bounded dataset does not complete the broader Phase 4 pipeline.
+
 ## Verify and build
 
 ```powershell
@@ -29,6 +39,7 @@ npm.cmd run test:assets
 npm.cmd run test:markers
 npm.cmd run test:launch
 npm.cmd run test:launcher
+npm.cmd run test:exploration
 npm.cmd run pack:win
 npm.cmd run dist:win
 ```
@@ -42,6 +53,8 @@ For an actual packaged or installed executable, use a new output folder for each
 This explicit diagnostic mode uses a fresh profile, disables session networking before loading the real application, cancels remote requests, loads the shipped updater dependency, and validates actual catalog/WebGL buffers and local assets. It exercises camera animation, case-normalized descriptions, named/distance/spectral filters, native canvas picking, duplicate-name choices, real worker/fallback routing and route buttons, then saves JSON and screenshots before exiting. It does not change system network settings. Electron's `navigator.onLine` may reflect the host adapter; observed canceled session/renderer requests are the offline proof. Full disconnection of the Windows adapter is not claimed.
 
 `npm test` runs negative controls for assertion/process failures, actual production modules and the real pathfinding worker, bundled asset checks, and GPU shader checks. The renderer test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. Old copied/mock test implementations are preserved under `docs/history/tests`; active tests import production code. These checks cover bounded regression scenarios, not exhaustive navigation or performance validation.
+
+Version 1.1.0 adds a fifth default suite: 14 checks of the actual distance module, retained JPL vectors, astronomical unit definitions, frame isolation and curated HYG identities. The packaged diagnostic also exercises the real exploration views, all Solar object searches, native marker selection, mouse/keyboard camera controls, measurements across scales, and safe return to the original atlas. It captures actual Solar, Earth–Moon and nearby-star views.
 
 The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, updater 6.6.2 and builder 24.13.3. A fresh checkout uses `npm.cmd ci`; a clean dependency install has not yet been verified. Build commands explicitly use `--publish never`; no GitHub release is published by them. The installer is not code-signed.
 

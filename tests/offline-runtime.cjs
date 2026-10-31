@@ -40,7 +40,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     console.log(JSON.stringify({ status: evidence.status, evidence: `${stem}.json`, screenshot: evidence.screenshot, error: evidence.error }));
     app.exit(error ? 1 : 0);
   };
-  timeout = setTimeout(() => finish(new Error('Packaged offline verification did not finish within 90 seconds')), 90000);
+  timeout = setTimeout(() => finish(new Error('Packaged offline verification did not finish within 120 seconds')), 120000);
 
   // Electron uses only the most recently registered callback. This harness owns
   // the deny-and-record callback in verification mode; normal --offline has its
@@ -252,6 +252,37 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.equal(evidence.requests.length, 0, 'Interaction checks must remain offline');
     evidence.interactionScreenshot = `${stem}-interactions.png`;
     fs.writeFileSync(evidence.interactionScreenshot, (await win.webContents.capturePage()).toPNG());
+
+    let explorationFinished = false;
+    evidence.explorationScreenshots = {};
+    const explorationPromise = win.webContents.executeJavaScript(`import('./tests/exploration-runtime.js').then(module => module.verifyExploration())`);
+    explorationPromise.then(() => { explorationFinished = true; }, () => { explorationFinished = true; });
+    while (!explorationFinished) {
+      const request = await win.webContents.executeJavaScript('window.__explorationVerification || null');
+      if (request) {
+        if (request.kind === 'input') {
+          for (const input of request.events) {
+            win.webContents.sendInputEvent(input);
+            await delay(30);
+          }
+        } else if (request.kind === 'resize') {
+          assert.ok(Number.isInteger(request.width) && request.width>=400 && request.width<=4000);
+          assert.ok(Number.isInteger(request.height) && request.height>=400 && request.height<=4000);
+          win.setContentSize(request.width,request.height);
+          await delay(100);
+        } else if (request.kind === 'screenshot') {
+          assert.match(request.name, /^[a-z-]+$/);
+          const file = `${stem}-${request.name}.png`;
+          fs.writeFileSync(file, (await win.webContents.capturePage()).toPNG());
+          evidence.explorationScreenshots[request.name] = file;
+        } else throw new Error('Unexpected exploration verification request');
+        await win.webContents.executeJavaScript('window.__explorationVerification = null');
+      }
+      await delay(30);
+    }
+    evidence.checks.exploration = await explorationPromise;
+    assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Exploration must not produce application errors');
+    assert.equal(evidence.requests.length, 0, 'Exploration must use bundled assets while offline');
 
     probing = true;
     evidence.checks.networkProbe = await win.webContents.executeJavaScript(`(async () => {

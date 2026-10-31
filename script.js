@@ -7,6 +7,7 @@ import { UIManager } from './modules/UIManager.js';
 import { Octree, Box3D } from './utils/SpatialIndex.js';
 import { filterStars } from './utils/StarFilters.js';
 import { buildStarIndex } from './utils/StarIdentity.js';
+import { ExplorationController } from './modules/ExplorationController.js';
 
 // Import external data modules
 import { getConstellationData } from './constellations.js';
@@ -28,6 +29,7 @@ let starRenderer = null;
 let routeManager = null;
 let tourController = null;
 let uiManager = null;
+let explorer = null;
 
 // DEBUG: Expose to window
 window.starRenderer = null;
@@ -205,10 +207,37 @@ async function init() {
         // Build spectral legend
         buildSpectralLegend();
 
+        explorer = new ExplorationController({
+            mount: document.getElementById('exploration-root'),
+            onModeChange: mode => {
+                if (mode !== 'atlas') {
+                    if (tourController.isActive()) tourController.stop();
+                    routeManager.stopFollowRoute();
+                    window.gsap?.killTweensOf(starRenderer.camera.position);
+                    window.gsap?.killTweensOf(starRenderer.controls.target);
+                    window.speechSynthesis?.cancel();
+                    // Disabled FlyControls ignore key releases, so discard held
+                    // input before another view takes over the keyboard.
+                    const flight = starRenderer.flyControls;
+                    for (const key of Object.keys(flight.moveState)) flight.moveState[key] = 0;
+                    flight.status = 0;
+                    flight.movementSpeedMultiplier = 1;
+                    flight.updateMovementVector();
+                    flight.updateRotationVector();
+                } else {
+                    // The atlas render loop pauses while exploration is open.
+                    starRenderer.clock.getDelta();
+                }
+                starRenderer.activeControls.enabled = mode === 'atlas';
+                if (mode === 'atlas') requestAnimationFrame(() => starRenderer.onWindowResize());
+            }
+        });
+        await explorer.initialize(fullStarData);
+
         // Start animation loop
         animate();
 
-        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController });
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {
@@ -720,7 +749,7 @@ function getRGBfromCI(ci) {
 function animate() {
     requestAnimationFrame(animate);
 
-    if (starRenderer) {
+    if (starRenderer && (!explorer || explorer.currentMode === 'atlas')) {
         starRenderer.render();
     }
 }

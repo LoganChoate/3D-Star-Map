@@ -27,6 +27,7 @@ async function main() {
     const suites = [
         {name:'Assertion and process failure controls',script:path.join(__dirname,'runner-regression.cjs')},
         {name:'Production modules and real worker',command:electron,script:path.join(__dirname,'production-modules.cjs')},
+        {name:'Exploration catalog and distance mathematics',script:path.join(__dirname,'exploration-math.cjs')},
         {name:'Bundled assets',script:path.join(__dirname,'offline-assets.cjs')},
         {name:'Production shader GPU pixels',command:electron,script:path.join(__dirname,'marker-rendering.cjs')}
     ];
