@@ -1,189 +1,45 @@
-#!/usr/bin/env node
-
-// Test runner that executes all test suites
-const { spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-
-const testFiles = [
-    'pathfinding.test.js',
-    'octree.test.js', 
-    'filtering.test.js',
-    'integration.test.js'
-];
-
-class TestSuiteRunner {
-    constructor() {
-        this.totalTests = 0;
-        this.totalPassed = 0;
-        this.totalFailed = 0;
-        this.totalDuration = 0;
-        this.results = [];
-        this.startTime = Date.now();
-    }
-
-    async runAllTests() {
-        console.log('🚀 3D Star Map Explorer - Test Suite');
-        console.log('=' .repeat(50));
-        console.log(`Running ${testFiles.length} test suites...\n`);
-
-        for (const testFile of testFiles) {
-            const testPath = path.join(__dirname, testFile);
-            
-            if (!fs.existsSync(testPath)) {
-                console.log(`❌ Test file not found: ${testFile}`);
-                continue;
-            }
-
-            console.log(`📋 Running ${testFile}...`);
-            const result = await this.runSingleTest(testPath);
-            this.results.push({ file: testFile, ...result });
-            
-            this.totalTests += result.total || 0;
-            this.totalPassed += result.passed || 0;
-            this.totalFailed += result.failed || 0;
-            this.totalDuration += result.duration || 0;
-            
-            console.log('');
-        }
-
-        this.printSummary();
-    }
-
-    runSingleTest(testPath) {
-        return new Promise((resolve) => {
-            const child = spawn('node', [testPath], {
-                stdio: ['pipe', 'pipe', 'pipe'],
-                cwd: path.dirname(testPath)
-            });
-
-            let stdout = '';
-            let stderr = '';
-
-            child.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-
-            child.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-
-            child.on('close', (code) => {
-                // Parse test results from output
-                const result = this.parseTestOutput(stdout, stderr, code);
-                
-                // Print condensed results
-                if (result.failed === 0) {
-                    console.log(`✅ ${result.passed}/${result.total} tests passed (${result.duration}ms)`);
-                } else {
-                    console.log(`❌ ${result.passed}/${result.total} tests passed, ${result.failed} failed (${result.duration}ms)`);
-                    if (result.failures.length > 0) {
-                        console.log('   Failures:');
-                        result.failures.forEach(failure => {
-                            console.log(`   - ${failure}`);
-                        });
-                    }
-                }
-
-                resolve(result);
-            });
-
-            child.on('error', (error) => {
-                console.log(`❌ Error running ${path.basename(testPath)}: ${error.message}`);
-                resolve({ total: 0, passed: 0, failed: 1, duration: 0, failures: [error.message] });
-            });
-        });
-    }
-
-    parseTestOutput(stdout, stderr, exitCode) {
-        const result = {
-            total: 0,
-            passed: 0,
-            failed: 0,
-            duration: 0,
-            failures: [],
-            success: exitCode === 0
-        };
-
-        try {
-            // Extract test summary from output
-            const totalMatch = stdout.match(/Total: (\d+)/);
-            const passedMatch = stdout.match(/Passed: (\d+)/);
-            const failedMatch = stdout.match(/Failed: (\d+)/);
-            const durationMatch = stdout.match(/Duration: (\d+)ms/);
-
-            if (totalMatch) result.total = parseInt(totalMatch[1]);
-            if (passedMatch) result.passed = parseInt(passedMatch[1]);
-            if (failedMatch) result.failed = parseInt(failedMatch[1]);
-            if (durationMatch) result.duration = parseInt(durationMatch[1]);
-
-            // Extract failure messages
-            const lines = stdout.split('\n');
-            let inFailureSection = false;
-            
-            for (const line of lines) {
-                if (line.includes('❌')) {
-                    const failureMatch = line.match(/❌\s+(.+)/);
-                    if (failureMatch) {
-                        result.failures.push(failureMatch[1]);
-                    }
-                }
-            }
-
-            // If we couldn't parse the output, but exit code indicates failure
-            if (result.total === 0 && !result.success) {
-                result.failed = 1;
-                result.failures.push('Test suite failed to run properly');
-            }
-
-        } catch (error) {
-            console.warn('Failed to parse test output:', error.message);
-            result.failed = 1;
-            result.failures.push('Failed to parse test results');
-        }
-
-        return result;
-    }
-
-    printSummary() {
-        const overallDuration = Date.now() - this.startTime;
-        
-        console.log('\n' + '='.repeat(60));
-        console.log('📊 Overall Test Summary');
-        console.log('='.repeat(60));
-        
-        console.log(`Test Suites: ${this.results.length}`);
-        console.log(`Total Tests: ${this.totalTests}`);
-        console.log(`✅ Passed: ${this.totalPassed}`);
-        console.log(`❌ Failed: ${this.totalFailed}`);
-        console.log(`⏱️  Total Duration: ${overallDuration}ms`);
-        
-        console.log('\nSuite Breakdown:');
-        this.results.forEach(result => {
-            const status = result.failed === 0 ? '✅' : '❌';
-            console.log(`  ${status} ${result.file}: ${result.passed}/${result.total} (${result.duration}ms)`);
-        });
-
-        if (this.totalFailed === 0) {
-            console.log('\n🎉 All tests passed!');
-            console.log('✨ Code quality checks complete - ready for production!');
-        } else {
-            console.log(`\n💥 ${this.totalFailed} test(s) failed across all suites.`);
-            console.log('🔧 Please fix failing tests before proceeding.');
-        }
-
-        // Set exit code based on test results
-        process.exit(this.totalFailed > 0 ? 1 : 0);
-    }
-}
-
-// Run the test suite
-if (require.main === module) {
-    const runner = new TestSuiteRunner();
-    runner.runAllTests().catch(error => {
-        console.error('Test runner failed:', error);
-        process.exit(1);
+// Exit status is authoritative; pass text cannot hide failed/missing processes.
+const {spawn} = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+function runSuite(suite, {timeoutMs = 90000} = {}) {
+    return new Promise(resolve => {
+        if (!suite.script || !fs.existsSync(suite.script)) return resolve({name:suite.name,status:'failed',error:'Required suite is missing',exitCode:null});
+        let output = '', errors = '', finished = false, timer;
+        const finish = result => { if (finished) return; finished = true; clearTimeout(timer); resolve({name:suite.name,...result,output,stderr:errors}); };
+        const env = {...process.env}; delete env.ELECTRON_RUN_AS_NODE;
+        const child = spawn(suite.command || process.execPath, [suite.script, ...(suite.args || [])], {cwd:root, env, windowsHide:true, stdio:['ignore','pipe','pipe']});
+        timer = setTimeout(() => { child.kill(); finish({status:'failed',exitCode:null,error:'Suite timed out'}); }, timeoutMs);
+        child.stdout.on('data', value => { output += value; });
+        child.stderr.on('data', value => { errors += value; });
+        child.once('error', error => finish({status:'failed',exitCode:null,error:error.message}));
+        child.once('close', (code, signal) => finish({status:code === 0 && !signal ? 'passed':'failed',exitCode:code,signal}));
     });
 }
-
-module.exports = TestSuiteRunner;
+async function runSuites(suites, options = {}) {
+    const results = [];
+    for (const suite of suites) results.push(await runSuite(suite,options));
+    return {status:results.length && results.every(r=>r.status==='passed') ? 'passed':'failed',suites:results};
+}
+async function main() {
+    const electron = require('electron');
+    const suites = [
+        {name:'Assertion and process failure controls',script:path.join(__dirname,'runner-regression.cjs')},
+        {name:'Production modules and real worker',command:electron,script:path.join(__dirname,'production-modules.cjs')},
+        {name:'Bundled assets',script:path.join(__dirname,'offline-assets.cjs')},
+        {name:'Production shader GPU pixels',command:electron,script:path.join(__dirname,'marker-rendering.cjs')}
+    ];
+    const result = await runSuites(suites);
+    const output = path.join(root,'.runtime','test-suite-results.json');
+    fs.mkdirSync(path.dirname(output),{recursive:true});
+    fs.writeFileSync(output,JSON.stringify(result,null,2));
+    for (const suite of result.suites) console.log(`${suite.status.toUpperCase()}: ${suite.name}${suite.error ? ': '+suite.error : ''}`);
+    console.log(JSON.stringify({status:result.status,suites:result.suites.length,evidence:output}));
+    if (result.status !== 'passed') {
+        for (const suite of result.suites.filter(s=>s.status==='failed')) console.error(suite.output, suite.stderr);
+        process.exitCode = 1;
+    }
+}
+module.exports = {runSuite,runSuites};
+if (require.main === module) main().catch(error => {console.error(error);process.exitCode=1;});

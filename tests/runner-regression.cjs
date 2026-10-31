@@ -1,0 +1,27 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const {TestRunner} = require('./test-runner.js');
+const {runSuite,runSuites} = require('./run-all-tests.js');
+(async () => {
+    const runner = new TestRunner();
+    assert.throws(()=>runner.assertThrows(()=>{}), /Missing expected exception/);
+    runner.assertThrows(()=>{throw Error('expected');});
+    assert.throws(()=>runner.assertDeepEqual({x:undefined},{}));
+    runner.test('deliberate failed assertion',()=>runner.assertEqual(1,2));
+    const result = await runner.run({setExitCode:false,quiet:true});
+    assert.equal(result.status,'failed'); assert.equal(result.failed,1);
+    assert.equal((await new TestRunner().run({setExitCode:false,quiet:true})).status,'failed');
+    const dir = path.resolve(__dirname,'../.runtime/runner-negative-controls');
+    fs.mkdirSync(dir,{recursive:true});
+    const bad = path.join(dir,'false-pass.cjs');
+    fs.writeFileSync(bad,"console.log('Total: 5\\nPassed: 5\\nFailed: 0'); process.exit(7);\n");
+    const failed = await runSuite({name:'false pass',script:bad});
+    assert.equal(failed.status,'failed'); assert.equal(failed.exitCode,7);
+    assert.equal((await runSuite({name:'missing',script:path.join(dir,'missing.cjs')})).status,'failed');
+    assert.equal((await runSuite({name:'bad executable',command:path.join(dir,'missing.exe'),script:bad})).status,'failed');
+    const hung = path.join(dir,'hang.cjs'); fs.writeFileSync(hung,'setInterval(()=>{},1000);');
+    assert.equal((await runSuite({name:'timeout',script:hung},{timeoutMs:100})).error,'Suite timed out');
+    assert.equal((await runSuites([])).status,'failed');
+    console.log(JSON.stringify({status:'passed',checks:9,scope:'Negative controls for real assertions and subprocess failure propagation'}));
+})().catch(error=>{console.error(error);process.exitCode=1;});

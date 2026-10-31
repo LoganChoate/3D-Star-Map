@@ -22,6 +22,7 @@ Star markers are exaggerated visual aids bounded to 2–10 CSS pixels, not physi
 ## Verify and build
 
 ```powershell
+npm.cmd test
 npm.cmd run test:assets
 npm.cmd run test:markers
 npm.cmd run test:launch
@@ -35,9 +36,9 @@ For an actual packaged or installed executable, use a new output folder for each
 & '.\dist\win-unpacked\3D Star Map Explorer.exe' '--verify-offline=C:\path\to\fresh-evidence-folder'
 ```
 
-This explicit diagnostic mode uses a fresh profile, disables session networking before loading the real application, cancels remote requests, loads the shipped updater dependency, validates actual catalog/WebGL buffers and local assets, tests camera animation, and saves JSON plus a screenshot before exiting. It does not change system network settings. Electron's `navigator.onLine` may reflect the host adapter; observed canceled session/renderer requests are the offline proof. Full disconnection of the Windows adapter is not claimed.
+This explicit diagnostic mode uses a fresh profile, disables session networking before loading the real application, cancels remote requests, loads the shipped updater dependency, and validates actual catalog/WebGL buffers and local assets. It exercises camera animation, case-normalized descriptions, named/distance/spectral filters, native canvas picking, duplicate-name choices, real worker/fallback routing and route buttons, then saves JSON and screenshots before exiting. It does not change system network settings. Electron's `navigator.onLine` may reflect the host adapter; observed canceled session/renderer requests are the offline proof. Full disconnection of the Windows adapter is not claimed.
 
-The renderer GPU test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. The older `npm test` suite still contains copied implementations and a faulty assertion helper; its pass counts are not release acceptance.
+`npm test` runs negative controls for assertion/process failures, actual production modules and the real pathfinding worker, bundled asset checks, and GPU shader checks. The renderer test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. Old copied/mock test implementations are preserved under `docs/history/tests`; active tests import production code. These checks cover bounded regression scenarios, not exhaustive navigation or performance validation.
 
 The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, updater 6.6.2 and builder 24.13.3. A fresh checkout uses `npm.cmd ci`; a clean dependency install has not yet been verified. Build commands explicitly use `--publish never`; no GitHub release is published by them. The installer is not code-signed.
 
@@ -45,7 +46,7 @@ The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, u
 
 Phase 1 baseline was `cf47a6782a31449bd55cb656cc59802c33f9e914`; original Desktop and live GitHub main matched `9027f9e193832ec7af76b921f4c652da06d39635`. The Desktop source remains untouched. Recovery bundles and the source manifest are in the parent workspace's `evidence/` folder. Phase 2 evidence is in `evidence/phase2/`, including the old installed-program backup.
 
-Version 1.0.1 repairs star sizing/composition/preset data, bundles offline assets, includes runtime updater dependencies and handles update failures without interrupting startup. Description lookup, stale filtered selection, name-based route identity, legacy assertion reliability and broader navigation/scientific validation remain open. Narration may depend on the user's installed speech voices and is outside offline acceptance.
+Version 1.0.2 adds source-backed catalog IDs, ambiguity-safe lookup, current filtered selection and picking, proper-name filtering, and ID-based worker/fallback routing. Description lookup handles case and spacing; ambiguous display names require a choice. Catalog values and order are preserved; `sol` identifies the Sun and `hyg:<source ID>` identifies HYG rows. The catalog migration utility verifies its source match before adding IDs. Broader navigation and scientific validation remain future phases. Narration may depend on the user's installed speech voices and is outside offline acceptance. Current completion evidence is in `evidence/phase2-completion/` in the parent workspace.
 
 ## Source layout
 

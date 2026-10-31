@@ -11,7 +11,8 @@ exports.attach = function attach(app, session, outputDirectory) {
   const stem = path.join(output, `offline-${runId}`);
   const evidence = {
     runId,
-    scope: 'Actual packaged executable startup, bundled assets, bounded default markers and camera animation with network unavailable',
+    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking and routing with network unavailable',
+    appVersion: app.getVersion(),
     isPackaged: app.isPackaged,
     executable: process.execPath,
     resources: process.resourcesPath,
@@ -39,7 +40,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     console.log(JSON.stringify({ status: evidence.status, evidence: `${stem}.json`, screenshot: evidence.screenshot, error: evidence.error }));
     app.exit(error ? 1 : 0);
   };
-  timeout = setTimeout(() => finish(new Error('Packaged offline application did not initialize within 60 seconds')), 60000);
+  timeout = setTimeout(() => finish(new Error('Packaged offline verification did not finish within 90 seconds')), 90000);
 
   // Electron uses only the most recently registered callback. This harness owns
   // the deny-and-record callback in verification mode; normal --offline has its
@@ -231,6 +232,26 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.ok(evidence.checks.cameraAnimation.destinationError < 0.01);
     assert.equal(evidence.checks.cameraAnimation.controlsEnabled, true);
     assert.equal(evidence.requests.length, 0, 'Offline camera interaction must not fetch remote assets');
+
+    let interactionsFinished = false;
+    const interactionsPromise = win.webContents.executeJavaScript(`import('./tests/interaction-runtime.js').then(module => module.verifyInteractions())`);
+    interactionsPromise.then(() => { interactionsFinished = true; }, () => { interactionsFinished = true; });
+    while (!interactionsFinished) {
+      const pointer = await win.webContents.executeJavaScript('window.__verificationPointer || null');
+      if (pointer) {
+        win.webContents.sendInputEvent({ type: 'mouseMove', ...pointer });
+        win.webContents.sendInputEvent({ type: 'mouseDown', ...pointer, button: 'left', clickCount: 1 });
+        win.webContents.sendInputEvent({ type: 'mouseUp', ...pointer, button: 'left', clickCount: 1 });
+        await new Promise(resolve => setTimeout(resolve, 30));
+        await win.webContents.executeJavaScript('window.__verificationPointer = null');
+      }
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+    evidence.checks.interactions = await interactionsPromise;
+    assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Actual interaction checks must not produce application errors');
+    assert.equal(evidence.requests.length, 0, 'Interaction checks must remain offline');
+    evidence.interactionScreenshot = `${stem}-interactions.png`;
+    fs.writeFileSync(evidence.interactionScreenshot, (await win.webContents.capturePage()).toPNG());
 
     probing = true;
     evidence.checks.networkProbe = await win.webContents.executeJavaScript(`(async () => {

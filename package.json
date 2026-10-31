@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -45,7 +45,8 @@
       "utils/**/*",
       "workers/**/*",
       "vendor/**/*",
-      "tests/offline-runtime.cjs"
+      "tests/offline-runtime.cjs",
+      "tests/interaction-runtime.js"
     ],
     "publish": {
       "provider": "github",

@@ -4,6 +4,9 @@ import { StarRenderer } from './modules/StarRenderer.js';
 import { RouteManager } from './modules/RouteManager.js';
 import { TourController } from './modules/TourController.js';
 import { UIManager } from './modules/UIManager.js';
+import { Octree, Box3D } from './utils/SpatialIndex.js';
+import { filterStars } from './utils/StarFilters.js';
+import { buildStarIndex } from './utils/StarIdentity.js';
 
 // Import external data modules
 import { getConstellationData } from './constellations.js';
@@ -144,134 +147,6 @@ const BASE_STAR_RADIUS = 1.0;
 const GLOBAL_VISUAL_SCALE = 0.5;
 const spectralClasses = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
 
-// Octree implementation for spatial queries
-class Octree {
-    constructor(boundary, capacity = 10) {
-        this.boundary = boundary;
-        this.capacity = capacity;
-        this.points = [];
-        this.divided = false;
-    }
-
-    insert(point) {
-        if (!this.boundary.contains(point)) {
-            return false;
-        }
-
-        if (this.points.length < this.capacity) {
-            this.points.push(point);
-            return true;
-        }
-
-        if (!this.divided) {
-            this.subdivide();
-        }
-
-        return (
-            this.northeast.insert(point) ||
-            this.northwest.insert(point) ||
-            this.southeast.insert(point) ||
-            this.southwest.insert(point) ||
-            this.topNortheast.insert(point) ||
-            this.topNorthwest.insert(point) ||
-            this.topSoutheast.insert(point) ||
-            this.topSouthwest.insert(point)
-        );
-    }
-
-    subdivide() {
-        const x = this.boundary.x;
-        const y = this.boundary.y;
-        const z = this.boundary.z;
-        const w = this.boundary.w / 2;
-        const h = this.boundary.h / 2;
-        const d = this.boundary.d / 2;
-
-        this.northeast = new Octree(new Box3D(x + w, y - h, z - d, w, h, d), this.capacity);
-        this.northwest = new Octree(new Box3D(x - w, y - h, z - d, w, h, d), this.capacity);
-        this.southeast = new Octree(new Box3D(x + w, y + h, z - d, w, h, d), this.capacity);
-        this.southwest = new Octree(new Box3D(x - w, y + h, z - d, w, h, d), this.capacity);
-        this.topNortheast = new Octree(new Box3D(x + w, y - h, z + d, w, h, d), this.capacity);
-        this.topNorthwest = new Octree(new Box3D(x - w, y - h, z + d, w, h, d), this.capacity);
-        this.topSoutheast = new Octree(new Box3D(x + w, y + h, z + d, w, h, d), this.capacity);
-        this.topSouthwest = new Octree(new Box3D(x - w, y + h, z + d, w, h, d), this.capacity);
-
-        this.divided = true;
-    }
-
-    query(center, radius, found = []) {
-        const range = new Sphere3D(center.x, center.y, center.z, radius);
-
-        if (!this.boundary.intersects(range)) {
-            return found;
-        }
-
-        for (const point of this.points) {
-            if (range.contains(point)) {
-                found.push(point);
-            }
-        }
-
-        if (this.divided) {
-            this.northeast.query(center, radius, found);
-            this.northwest.query(center, radius, found);
-            this.southeast.query(center, radius, found);
-            this.southwest.query(center, radius, found);
-            this.topNortheast.query(center, radius, found);
-            this.topNorthwest.query(center, radius, found);
-            this.topSoutheast.query(center, radius, found);
-            this.topSouthwest.query(center, radius, found);
-        }
-
-        return found;
-    }
-}
-
-class Box3D {
-    constructor(x, y, z, w, h, d) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-        this.h = h;
-        this.d = d;
-    }
-
-    contains(point) {
-        return (
-            point.x >= this.x - this.w &&
-            point.x <= this.x + this.w &&
-            point.y >= this.y - this.h &&
-            point.y <= this.y + this.h &&
-            point.z >= this.z - this.d &&
-            point.z <= this.z + this.d
-        );
-    }
-
-    intersects(sphere) {
-        const dx = Math.max(0, Math.max(this.x - this.w - sphere.x, sphere.x - (this.x + this.w)));
-        const dy = Math.max(0, Math.max(this.y - this.h - sphere.y, sphere.y - (this.y + this.h)));
-        const dz = Math.max(0, Math.max(this.z - this.d - sphere.z, sphere.z - (this.z + this.d)));
-        return (dx * dx + dy * dy + dz * dz) <= (sphere.radius * sphere.radius);
-    }
-}
-
-class Sphere3D {
-    constructor(x, y, z, radius) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.radius = radius;
-    }
-
-    contains(point) {
-        const dx = this.x - point.x;
-        const dy = this.y - point.y;
-        const dz = this.z - point.z;
-        return (dx * dx + dy * dy + dz * dz) <= (this.radius * this.radius);
-    }
-}
-
 // Main initialization function
 async function init() {
     try {
@@ -333,6 +208,7 @@ async function init() {
         // Start animation loop
         animate();
 
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {
@@ -389,6 +265,7 @@ async function loadAndPrepareStarData() {
             throw new Error(`Star data missing required fields: ${missingFields.join(', ')}`);
         }
 
+        buildStarIndex(rawData); // Reject missing or duplicate catalog identities before rendering.
         loadingIndicator.textContent = 'Processing star data...';
 
 
@@ -417,6 +294,8 @@ async function loadAndPrepareStarData() {
 
             return {
 
+                id: star.id,
+                proper: star.proper,
                 name: star.name,
 
                 x: Number.isFinite(numericX) ? numericX : 0,
@@ -491,7 +370,9 @@ async function loadAndPrepareStarData() {
 
         starOctree = new Octree(sceneBounds);
 
-        fullStarData.forEach(star => starOctree.insert(star));
+        fullStarData.forEach(star => {
+            if (!starOctree.insert(star)) throw new Error(`Could not index star ${star.id}`);
+        });
 
         console.log("Octree built successfully.");
 
@@ -642,7 +523,10 @@ function calculateSceneBounds(starData) {
     const height = (bounds.maxY - bounds.minY) / 2;
     const depth = (bounds.maxZ - bounds.minZ) / 2;
 
-    return new Box3D(centerX, centerY, centerZ, width, height, depth);
+    // Center +/- half-width can round inward at catalog extrema. Pad only the
+    // spatial index boundary (never star coordinates) so every record is kept.
+    const padding = Math.max(1, ...Object.values(bounds).map(Math.abs)) * Number.EPSILON * 8;
+    return new Box3D(centerX, centerY, centerZ, width + padding, height + padding, depth + padding);
 }
 
 function setupCustomEventListeners() {
@@ -711,20 +595,14 @@ function applyFilters() {
         .map(cb => cb.value)
         .filter(Boolean);
 
-    activeStarData = fullStarData.filter(star => {
-        if (!includeGarbageSphere && star.isGarbageSphere) return false;
-        if (star.dist > maxDistance) return false;
-        if (star.relativeRadiusScale > maxSize) return false;
-
-        if (checkedSpectralClasses.length > 0) {
-            const spectralClass = star.spect ? star.spect[0] : 'G';
-            if (!checkedSpectralClasses.includes(spectralClass)) return false;
-        }
-
-        return true;
+    activeStarData = filterStars(fullStarData, {
+        includeGarbageSphere, maxDistance, maxSize,
+        spectralClasses: checkedSpectralClasses,
+        properNamesOnly: !!document.getElementById('proper-name-filter')?.checked
     });
 
     starRenderer.createStarGeometry(activeStarData);
+    uiManager.setActiveStarData(activeStarData);
     uiManager.updateUI();
 
     console.log(`Filtered to ${activeStarData.length} stars`);
