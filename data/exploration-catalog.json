@@ -1,0 +1,609 @@
+{
+  "schemaVersion": 1,
+  "constants": {
+    "auKm": 149597870.7,
+    "auPerParsec": 206264.80624709636,
+    "lightYearKm": 9460730472580.799,
+    "lightYearsPerParsec": 3.2615637771674337,
+    "lightYearConvention": "Distance light travels in vacuum in one Julian year of 365.25 days; c = 299792.458 km/s; day = 86400 seconds."
+  },
+  "solar": {
+    "epochLabel": "2000 Jan 1, 12:00 TDB · historical reference snapshot, not current positions",
+    "epochJD": 2451545.0,
+    "timeScale": "TDB",
+    "frame": "Heliocentric ecliptic J2000.0 (ICRF X-axis; IAU 1976 obliquity)",
+    "units": "AU",
+    "positionType": "Geometric body-center positions; no light-time or aberration corrections",
+    "positionNote": "Sun is the exact origin by definition. All other centers are copied from the retained JPL output at the stated epoch. No orbital animation or extrapolation is applied.",
+    "sources": [
+      {
+        "label": "JPL Horizons API documentation",
+        "url": "https://ssd-api.jpl.nasa.gov/doc/horizons.html"
+      },
+      {
+        "label": "JPL physical parameters",
+        "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+      }
+    ],
+    "objects": [
+      {
+        "id": "sol",
+        "name": "Sun",
+        "kind": "star",
+        "parentId": null,
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "radiusKm": 695700,
+        "radiusDefinition": "Nominal solar radius",
+        "description": "The Sun is the Solar System's star. Its center defines the origin of this view.",
+        "horizonsTarget": "10",
+        "rawFile": "data/horizons/sun.txt",
+        "rawSha256": "0aaea58c039acc9b54c37be7da30d15b06bd2bf512f71094a6c1d1c8afb363a1",
+        "ephemerisSource": "Heliocentric origin",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%2710%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27NO%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://www.iau.org/common/Uploaded%20files/IAUGA2015-Resolution-B3-recommended-nominal-conversion.pdf"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/sun/facts/"
+          }
+        ]
+      },
+      {
+        "id": "solar:mercury",
+        "name": "Mercury",
+        "kind": "terrestrial planet",
+        "parentId": "sol",
+        "position": [
+          -0.1300936053754522,
+          -0.4472876181353563,
+          -0.02459830695805179
+        ],
+        "radiusKm": 2439.4,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Mercury is the innermost planet. Its small orbit makes it a useful first stop when comparing planetary distances.",
+        "horizonsTarget": "199",
+        "rawFile": "data/horizons/mercury.txt",
+        "rawSha256": "7f2309a4cf83a9cc18f2e65733057882742f4a57e1e5b17db01ceb73e9131d05",
+        "ephemerisSource": "DE441",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27199%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:venus",
+        "name": "Venus",
+        "kind": "terrestrial planet",
+        "parentId": "sol",
+        "position": [
+          -0.718302296345389,
+          -0.03265430819980606,
+          0.04101418202684621
+        ],
+        "radiusKm": 6051.8,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Venus is the second planet from the Sun. Compare its position with Earth in this historical reference snapshot.",
+        "horizonsTarget": "299",
+        "rawFile": "data/horizons/venus.txt",
+        "rawSha256": "eebc11f7ac89e162cc2250d39b04cc0878001eb95fdbfd6b4d320d363e1a5540",
+        "ephemerisSource": "DE441",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27299%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:earth",
+        "name": "Earth",
+        "kind": "terrestrial planet",
+        "parentId": "sol",
+        "position": [
+          -0.1771350992727098,
+          0.9672416867665306,
+          -4.085281582511366e-06
+        ],
+        "radiusKm": 6371.0084,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Earth is the third planet from the Sun. The separate Earth–Moon view reveals the distance to its natural satellite.",
+        "horizonsTarget": "399",
+        "rawFile": "data/horizons/earth.txt",
+        "rawSha256": "941951772caa767dd23583d5a1281b6a2ddebebbbb9409dd77aa3eb58c20fa7d",
+        "ephemerisSource": "DE441",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27399%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:moon",
+        "name": "Moon",
+        "kind": "natural satellite",
+        "parentId": "solar:earth",
+        "position": [
+          -0.1790843809223965,
+          0.9654035607264573,
+          0.0002383726922995396
+        ],
+        "radiusKm": 1737.4,
+        "radiusDefinition": "Mean radius",
+        "description": "The Moon is Earth's natural satellite. Its displayed position is heliocentric; subtract Earth's position to measure their separation.",
+        "horizonsTarget": "301",
+        "rawFile": "data/horizons/moon.txt",
+        "rawSha256": "0f837b9b88bd288e582a34a1a49d72501b7c9082b2e1c1fc3e1dba5699389d0d",
+        "ephemerisSource": "DE441",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27301%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/sats/phys_par/"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/moon/facts/"
+          }
+        ]
+      },
+      {
+        "id": "solar:mars",
+        "name": "Mars",
+        "kind": "terrestrial planet",
+        "parentId": "sol",
+        "position": [
+          1.390715921746351,
+          -0.01341631815101244,
+          -0.03446766277581799
+        ],
+        "radiusKm": 3389.5,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Mars is the fourth planet from the Sun and the outermost terrestrial planet.",
+        "horizonsTarget": "499",
+        "rawFile": "data/horizons/mars.txt",
+        "rawSha256": "bbfe183baa29a9a31bc3936d46565d69fc46ed0dcf76c770727fee9bd4cab7d0",
+        "ephemerisSource": "mar099",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27499%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:jupiter",
+        "name": "Jupiter",
+        "kind": "gas giant",
+        "parentId": "sol",
+        "position": [
+          4.001177435589426,
+          2.938575782470499,
+          -0.101785283451815
+        ],
+        "radiusKm": 69911,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Jupiter is the largest planet. Its physical radius is listed here, while its on-screen marker is enlarged for visibility.",
+        "horizonsTarget": "599",
+        "rawFile": "data/horizons/jupiter.txt",
+        "rawSha256": "f96da3cd209f969ba33761060252263092bf11dd51fcfd12437eb06ab61c36d6",
+        "ephemerisSource": "jup365_merged",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27599%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:saturn",
+        "name": "Saturn",
+        "kind": "gas giant",
+        "parentId": "sol",
+        "position": [
+          6.406410428378656,
+          6.569988452110556,
+          -0.3690759730763678
+        ],
+        "radiusKm": 58232,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Saturn is a gas giant known for its rings. Its marker identifies its center; the marker does not represent its physical diameter or rings.",
+        "horizonsTarget": "699",
+        "rawFile": "data/horizons/saturn.txt",
+        "rawSha256": "4f765fb3dc584c6d2700a47ad55b137ad022577912bfaf898a925942798d80b4",
+        "ephemerisSource": "sat441l",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27699%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:uranus",
+        "name": "Uranus",
+        "kind": "ice giant",
+        "parentId": "sol",
+        "position": [
+          14.43185527592405,
+          -13.73432340215935,
+          -0.2381417673271042
+        ],
+        "radiusKm": 25362,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Uranus is an ice giant in the outer Solar System. The overview preserves its true reference distance from the Sun.",
+        "horizonsTarget": "799",
+        "rawFile": "data/horizons/uranus.txt",
+        "rawSha256": "d34af736d3f0fd3faa9b87fcae26e1b98dbdca71858ebbed75013307d47638d9",
+        "ephemerisSource": "ura184_merged",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27799%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      },
+      {
+        "id": "solar:neptune",
+        "name": "Neptune",
+        "kind": "ice giant",
+        "parentId": "sol",
+        "position": [
+          16.81204760586415,
+          -24.99176325272639,
+          0.1272225117089998
+        ],
+        "radiusKm": 24622,
+        "radiusDefinition": "Mean volumetric radius",
+        "description": "Neptune is the outermost of the eight planets. Compare its distance with the inner planets to see the scale of the Solar System.",
+        "horizonsTarget": "899",
+        "rawFile": "data/horizons/neptune.txt",
+        "rawSha256": "7fb2bc0fa483b60c3ccbc9b90c442e0b57e252e9fb96b10593d9072fc0c61231",
+        "ephemerisSource": "nep098_merged",
+        "sources": [
+          {
+            "label": "JPL Horizons reference query",
+            "url": "https://ssd.jpl.nasa.gov/api/horizons.api?format=text&COMMAND=%27899%27&OBJ_DATA=%27YES%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&TLIST_TYPE=%27JD%27&TIME_TYPE=%27TDB%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&OUT_UNITS=%27AU-D%27&VEC_TABLE=%272%27&VEC_CORR=%27NONE%27&CSV_FORMAT=%27YES%27"
+          },
+          {
+            "label": "Physical radius",
+            "url": "https://ssd.jpl.nasa.gov/planets/phys_par.html"
+          },
+          {
+            "label": "NASA overview",
+            "url": "https://science.nasa.gov/solar-system/planets/"
+          }
+        ]
+      }
+    ]
+  },
+  "nearby": {
+    "epochLabel": "HYG catalog epoch/equinox 2000.0; no proper-motion propagation",
+    "frame": "Retained HYG equatorial J2000 Cartesian coordinates remapped for the app: [X, Z, -Y]",
+    "units": "pc",
+    "catalog": "Retained stars.json derived from local hyg_v42.csv",
+    "catalogSha256": "787aeb853ef0df1911b2953bee5fcf8eeb5c5e7f91e4c97d6774a309767a7786",
+    "sourceCsvSha256": "b2983a8d934e4f031cdb67bdd6c3437f8c5143cd6606a9573a9a9ac4b6375fd2",
+    "selectionNote": "Twelve recognizable nearby entries retained from the existing catalog. This selection is not a complete census or a ranking of current best distances.",
+    "sources": [
+      {
+        "label": "HYG catalog documentation",
+        "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+      }
+    ],
+    "objects": [
+      {
+        "id": "hyg:70666",
+        "name": "Proxima Centauri",
+        "kind": "star",
+        "position": [
+          -0.472264,
+          -1.151219,
+          0.361451
+        ],
+        "distancePc": 1.2959,
+        "spectralType": "M5Ve",
+        "apparentMagnitude": 11.01,
+        "description": "The retained HYG catalog lists Proxima Centauri at 1.2959 parsecs, with spectral type M5Ve and apparent visual magnitude 11.01. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:71453",
+        "name": "Toliman",
+        "kind": "star",
+        "position": [
+          -0.495181,
+          -1.156674,
+          0.413973
+        ],
+        "distancePc": 1.3248,
+        "spectralType": "K1V",
+        "apparentMagnitude": 1.35,
+        "description": "The retained HYG catalog lists Toliman at 1.3248 parsecs, with spectral type K1V and apparent visual magnitude 1.35. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:71456",
+        "name": "Rigil Kentaurus",
+        "kind": "star",
+        "position": [
+          -0.495203,
+          -1.156625,
+          0.414084
+        ],
+        "distancePc": 1.3248,
+        "spectralType": "G2V",
+        "apparentMagnitude": -0.01,
+        "description": "The retained HYG catalog lists Rigil Kentaurus at 1.3248 parsecs, with spectral type G2V and apparent visual magnitude -0.01. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:87665",
+        "name": "Barnard's Star",
+        "kind": "star",
+        "position": [
+          -0.017373,
+          0.149123,
+          1.816613
+        ],
+        "distancePc": 1.8238,
+        "spectralType": "sdM4",
+        "apparentMagnitude": 9.54,
+        "description": "The retained HYG catalog lists Barnard's Star at 1.8238 parsecs, with spectral type sdM4 and apparent visual magnitude 9.54. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:118720",
+        "name": "Wolf 359",
+        "kind": "star",
+        "position": [
+          -2.282811,
+          0.292057,
+          -0.649334
+        ],
+        "distancePc": 2.3906,
+        "spectralType": "M6",
+        "apparentMagnitude": 13.45,
+        "description": "The retained HYG catalog lists Wolf 359 at 2.3906 parsecs, with spectral type M6 and apparent visual magnitude 13.45. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:53879",
+        "name": "Lalande 21185",
+        "kind": "star",
+        "position": [
+          -1.998,
+          1.495504,
+          -0.504305
+        ],
+        "distancePc": 2.5469,
+        "spectralType": "M2V",
+        "apparentMagnitude": 7.49,
+        "description": "The retained HYG catalog lists Lalande 21185 at 2.5469 parsecs, with spectral type M2V and apparent visual magnitude 7.49. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:32263",
+        "name": "Sirius",
+        "kind": "star",
+        "position": [
+          -0.494323,
+          -0.758485,
+          -2.476731
+        ],
+        "distancePc": 2.6371,
+        "spectralType": "A0m...",
+        "apparentMagnitude": -1.44,
+        "description": "The retained HYG catalog lists Sirius at 2.6371 parsecs, with spectral type A0m... and apparent visual magnitude -1.44. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:92115",
+        "name": "Ross 154",
+        "kind": "star",
+        "position": [
+          0.585883,
+          -1.200123,
+          2.652454
+        ],
+        "distancePc": 2.9698,
+        "spectralType": "M3.5Ve",
+        "apparentMagnitude": 10.37,
+        "description": "The retained HYG catalog lists Ross 154 at 2.9698 parsecs, with spectral type M3.5Ve and apparent visual magnitude 10.37. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:16496",
+        "name": "Ran",
+        "kind": "star",
+        "position": [
+          1.89897,
+          -0.528523,
+          -2.541426
+        ],
+        "distancePc": 3.2161,
+        "spectralType": "K2V",
+        "apparentMagnitude": 3.72,
+        "description": "The retained HYG catalog lists Ran at 3.2161 parsecs, with spectral type K2V and apparent visual magnitude 3.72. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:57375",
+        "name": "Ross 128",
+        "kind": "star",
+        "position": [
+          -3.349892,
+          0.047111,
+          -0.179372
+        ],
+        "distancePc": 3.3553,
+        "spectralType": "M4.5V",
+        "apparentMagnitude": 11.12,
+        "description": "The retained HYG catalog lists Ross 128 at 3.3553 parsecs, with spectral type M4.5V and apparent visual magnitude 11.12. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:37173",
+        "name": "Procyon",
+        "kind": "star",
+        "position": [
+          -1.469312,
+          0.320024,
+          -3.17617
+        ],
+        "distancePc": 3.5142,
+        "spectralType": "F5IV-V",
+        "apparentMagnitude": 0.4,
+        "description": "The retained HYG catalog lists Procyon at 3.5142 parsecs, with spectral type F5IV-V and apparent visual magnitude 0.4. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      },
+      {
+        "id": "hyg:8087",
+        "name": "Tau Cet",
+        "kind": "star",
+        "position": [
+          3.154083,
+          -1.00226,
+          -1.539508
+        ],
+        "distancePc": 3.6502,
+        "spectralType": "G8V",
+        "apparentMagnitude": 3.49,
+        "description": "The retained HYG catalog lists Tau Cet at 3.6502 parsecs, with spectral type G8V and apparent visual magnitude 3.49. This is a curated catalog entry, not a new measurement or a current-position prediction.",
+        "sources": [
+          {
+            "label": "HYG catalog documentation and license",
+            "url": "https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md"
+          }
+        ]
+      }
+    ]
+  },
+  "displayNotice": "Positions and computed separations use real units. Object markers are enlarged for visibility and do not show physical diameters. Solar and stellar views use different coordinate frames; cross-frame distance measurements require an explicit transformation."
+}

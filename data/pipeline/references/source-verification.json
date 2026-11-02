@@ -1,0 +1,96 @@
+{
+  "status": "verified",
+  "verificationDate": "2026-10-31",
+  "release": "HYG v4.2",
+  "retainedFilename": "hyg_v42.csv",
+  "upstreamRepository": "https://codeberg.org/astronexus/hyg",
+  "upstreamPath": "data/hyg/OLDER/hyg_v42.csv.gz",
+  "upstreamFileCommit": "f3b7a9f0a756a55a0d1ddba5507f4750ab7a0bfa",
+  "downloadUrl": "https://codeberg.org/astronexus/hyg/media/commit/f3b7a9f0a756a55a0d1ddba5507f4750ab7a0bfa/data/hyg/OLDER/hyg_v42.csv.gz",
+  "license": "CC-BY-SA-4.0",
+  "attribution": "David Nash / Astronexus and contributors, HYG Database",
+  "comparison": {
+    "archiveSha256": "5ca9431ff364c8002a4a3efa91b2b9296746aea1543374db4cb6b4fab049d601",
+    "archiveSize": 13636976,
+    "decompressedSha256": "b2983a8d934e4f031cdb67bdd6c3437f8c5143cd6606a9573a9a9ac4b6375fd2",
+    "localSha256": "b2983a8d934e4f031cdb67bdd6c3437f8c5143cd6606a9573a9a9ac4b6375fd2",
+    "decompressedBytes": 33932800,
+    "byteMatch": true,
+    "newlineNormalizedMatch": true
+  },
+  "method": "Downloaded pinned official archive; verified gzip digest and size against official Git LFS pointer; gzip-decompressed and compared every byte with retained hyg_v42.csv. No local source replacement.",
+  "rawSourceRows": 119626,
+  "sourceColumns": [
+    "id",
+    "hip",
+    "hd",
+    "hr",
+    "gl",
+    "bf",
+    "proper",
+    "ra",
+    "dec",
+    "dist",
+    "pmra",
+    "pmdec",
+    "rv",
+    "mag",
+    "absmag",
+    "spect",
+    "ci",
+    "x",
+    "y",
+    "z",
+    "vx",
+    "vy",
+    "vz",
+    "rarad",
+    "decrad",
+    "pmrarad",
+    "pmdecrad",
+    "bayer",
+    "flam",
+    "con",
+    "comp",
+    "comp_primary",
+    "base",
+    "lum",
+    "var",
+    "var_min",
+    "var_max"
+  ],
+  "inputUncertaintyColumnsPresent": false,
+  "documentationCommit": "53e3df311869e813ace5f1ad2ec4ce909f13256c",
+  "references": [
+    {
+      "file": "hyg-current-readme.md",
+      "url": "https://codeberg.org/astronexus/hyg/raw/commit/53e3df311869e813ace5f1ad2ec4ce909f13256c/README.md",
+      "sha256": "5ee12f04e4f0bd7abf3b50559e1d62a6ab447e19d2b50fcb0dca4e614c5e40fc"
+    },
+    {
+      "file": "hyg-fields.md",
+      "url": "https://codeberg.org/astronexus/hyg/raw/commit/53e3df311869e813ace5f1ad2ec4ce909f13256c/data/hyg/README.md",
+      "sha256": "bb0196ad0791b5cec1cc59b16100c64ff80afb829c770284ca99c999916f4039"
+    },
+    {
+      "file": "hyg-version-history.md",
+      "url": "https://codeberg.org/astronexus/hyg/raw/commit/53e3df311869e813ace5f1ad2ec4ce909f13256c/data/hyg/version-info.md",
+      "sha256": "380a4d4f53acc1dc134b9596cfe01603fddb3b5570b16f0381098ac2b9021f85"
+    },
+    {
+      "file": "hyg-v4-field-documentation.md",
+      "url": "https://raw.githubusercontent.com/astronexus/HYG-Database/main/hyg/README.md",
+      "sha256": "81f765951e60131e49ccc91376815791e130ad1db46047eb1384d3ba6bcb5af4"
+    },
+    {
+      "file": "hyg-archive-readme.md",
+      "url": "https://raw.githubusercontent.com/astronexus/HYG-Database/main/README.md",
+      "sha256": "80982fcefb899a3d55fab15e84483ce78fb1e2499906a95fc59c4e517844606e"
+    },
+    {
+      "file": "hyg-v42-lfs-pointer.txt",
+      "url": "https://codeberg.org/astronexus/hyg/raw/commit/f3b7a9f0a756a55a0d1ddba5507f4750ab7a0bfa/data/hyg/OLDER/hyg_v42.csv.gz",
+      "sha256": "62f2ff6161e052be10eaddad95849233b5b37987e8a8057b715ecbac7ffe835a"
+    }
+  ]
+}

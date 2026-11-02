@@ -4,6 +4,12 @@ import { StarRenderer } from './modules/StarRenderer.js';
 import { RouteManager } from './modules/RouteManager.js';
 import { TourController } from './modules/TourController.js';
 import { UIManager } from './modules/UIManager.js';
+import { Octree, Box3D } from './utils/SpatialIndex.js';
+import { filterStars } from './utils/StarFilters.js';
+import { buildStarIndex } from './utils/StarIdentity.js';
+import { ExplorationController } from './modules/ExplorationController.js';
+import { MoonAssetTrial } from './modules/MoonAssetTrial.js';
+import { attachCatalogMetadata, verifyCatalogBytes, hasUnresolvedDistance } from './utils/CatalogMetadata.js';
 
 // Import external data modules
 import { getConstellationData } from './constellations.js';
@@ -14,17 +20,17 @@ let fullStarData = [];
 let activeStarData = [];
 let starOctree = null;
 let hasGarbageSphere = false;
-let garbageSphereDistance = null;
+let catalogAudit = null;
 let maxDistanceWithGarbage = 0;
 let maxDistanceWithoutGarbage = 0;
-
-const GARBAGE_SPHERE_EPSILON = 1e-3;
 
 // Module instances
 let starRenderer = null;
 let routeManager = null;
 let tourController = null;
 let uiManager = null;
+let explorer = null;
+let moonTrial = null;
 
 // DEBUG: Expose to window
 window.starRenderer = null;
@@ -144,134 +150,6 @@ const BASE_STAR_RADIUS = 1.0;
 const GLOBAL_VISUAL_SCALE = 0.5;
 const spectralClasses = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
 
-// Octree implementation for spatial queries
-class Octree {
-    constructor(boundary, capacity = 10) {
-        this.boundary = boundary;
-        this.capacity = capacity;
-        this.points = [];
-        this.divided = false;
-    }
-
-    insert(point) {
-        if (!this.boundary.contains(point)) {
-            return false;
-        }
-
-        if (this.points.length < this.capacity) {
-            this.points.push(point);
-            return true;
-        }
-
-        if (!this.divided) {
-            this.subdivide();
-        }
-
-        return (
-            this.northeast.insert(point) ||
-            this.northwest.insert(point) ||
-            this.southeast.insert(point) ||
-            this.southwest.insert(point) ||
-            this.topNortheast.insert(point) ||
-            this.topNorthwest.insert(point) ||
-            this.topSoutheast.insert(point) ||
-            this.topSouthwest.insert(point)
-        );
-    }
-
-    subdivide() {
-        const x = this.boundary.x;
-        const y = this.boundary.y;
-        const z = this.boundary.z;
-        const w = this.boundary.w / 2;
-        const h = this.boundary.h / 2;
-        const d = this.boundary.d / 2;
-
-        this.northeast = new Octree(new Box3D(x + w, y - h, z - d, w, h, d), this.capacity);
-        this.northwest = new Octree(new Box3D(x - w, y - h, z - d, w, h, d), this.capacity);
-        this.southeast = new Octree(new Box3D(x + w, y + h, z - d, w, h, d), this.capacity);
-        this.southwest = new Octree(new Box3D(x - w, y + h, z - d, w, h, d), this.capacity);
-        this.topNortheast = new Octree(new Box3D(x + w, y - h, z + d, w, h, d), this.capacity);
-        this.topNorthwest = new Octree(new Box3D(x - w, y - h, z + d, w, h, d), this.capacity);
-        this.topSoutheast = new Octree(new Box3D(x + w, y + h, z + d, w, h, d), this.capacity);
-        this.topSouthwest = new Octree(new Box3D(x - w, y + h, z + d, w, h, d), this.capacity);
-
-        this.divided = true;
-    }
-
-    query(center, radius, found = []) {
-        const range = new Sphere3D(center.x, center.y, center.z, radius);
-
-        if (!this.boundary.intersects(range)) {
-            return found;
-        }
-
-        for (const point of this.points) {
-            if (range.contains(point)) {
-                found.push(point);
-            }
-        }
-
-        if (this.divided) {
-            this.northeast.query(center, radius, found);
-            this.northwest.query(center, radius, found);
-            this.southeast.query(center, radius, found);
-            this.southwest.query(center, radius, found);
-            this.topNortheast.query(center, radius, found);
-            this.topNorthwest.query(center, radius, found);
-            this.topSoutheast.query(center, radius, found);
-            this.topSouthwest.query(center, radius, found);
-        }
-
-        return found;
-    }
-}
-
-class Box3D {
-    constructor(x, y, z, w, h, d) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-        this.h = h;
-        this.d = d;
-    }
-
-    contains(point) {
-        return (
-            point.x >= this.x - this.w &&
-            point.x <= this.x + this.w &&
-            point.y >= this.y - this.h &&
-            point.y <= this.y + this.h &&
-            point.z >= this.z - this.d &&
-            point.z <= this.z + this.d
-        );
-    }
-
-    intersects(sphere) {
-        const dx = Math.max(0, Math.max(this.x - this.w - sphere.x, sphere.x - (this.x + this.w)));
-        const dy = Math.max(0, Math.max(this.y - this.h - sphere.y, sphere.y - (this.y + this.h)));
-        const dz = Math.max(0, Math.max(this.z - this.d - sphere.z, sphere.z - (this.z + this.d)));
-        return (dx * dx + dy * dy + dz * dz) <= (sphere.radius * sphere.radius);
-    }
-}
-
-class Sphere3D {
-    constructor(x, y, z, radius) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.radius = radius;
-    }
-
-    contains(point) {
-        const dx = this.x - point.x;
-        const dy = this.y - point.y;
-        const dz = this.z - point.z;
-        return (dx * dx + dy * dy + dz * dz) <= (this.radius * this.radius);
-    }
-}
-
 // Main initialization function
 async function init() {
     try {
@@ -330,9 +208,50 @@ async function init() {
         // Build spectral legend
         buildSpectralLegend();
 
+        moonTrial = new MoonAssetTrial({
+            onOpen: () => {
+                explorer.suspended = true;
+                explorer.controls.enabled = false;
+                window.speechSynthesis?.cancel();
+            },
+            onClose: () => {
+                explorer.suspended = false;
+                explorer.controls.enabled = explorer.currentMode !== 'atlas';
+                explorer.resize();
+            }
+        });
+        explorer = new ExplorationController({
+            mount: document.getElementById('exploration-root'),
+            onInspectBody: body => moonTrial.open(body),
+            onModeChange: mode => {
+                if (mode !== 'atlas') {
+                    if (tourController.isActive()) tourController.stop();
+                    routeManager.stopFollowRoute();
+                    window.gsap?.killTweensOf(starRenderer.camera.position);
+                    window.gsap?.killTweensOf(starRenderer.controls.target);
+                    window.speechSynthesis?.cancel();
+                    // Disabled FlyControls ignore key releases, so discard held
+                    // input before another view takes over the keyboard.
+                    const flight = starRenderer.flyControls;
+                    for (const key of Object.keys(flight.moveState)) flight.moveState[key] = 0;
+                    flight.status = 0;
+                    flight.movementSpeedMultiplier = 1;
+                    flight.updateMovementVector();
+                    flight.updateRotationVector();
+                } else {
+                    // The atlas render loop pauses while exploration is open.
+                    starRenderer.clock.getDelta();
+                }
+                starRenderer.activeControls.enabled = mode === 'atlas';
+                if (mode === 'atlas') requestAnimationFrame(() => starRenderer.onWindowResize());
+            }
+        });
+        await explorer.initialize(fullStarData);
+
         // Start animation loop
         animate();
 
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, moonTrial, catalogAudit });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {
@@ -369,7 +288,21 @@ async function loadAndPrepareStarData() {
 
         loadingIndicator.textContent = 'Parsing star data...';
 
-        const rawData = await response.json();
+        const catalogBytes = await response.arrayBuffer();
+        const [manifestResponse,metadataResponse] = await Promise.all([
+            fetch('data/pipeline/manifest.json'),fetch('data/pipeline/runtime-metadata.json')
+        ]);
+        if(!manifestResponse.ok || !metadataResponse.ok) throw new Error('Scientific catalog metadata could not be loaded');
+        const manifest = await manifestResponse.json();
+        const metadataBytes = await metadataResponse.arrayBuffer();
+        await Promise.all([
+            verifyCatalogBytes(catalogBytes,manifest.runtimeCatalog?.sha256,'Star catalog'),
+            verifyCatalogBytes(metadataBytes,manifest.outputs?.['runtime-metadata.json']?.sha256,'Scientific metadata')
+        ]);
+        const rawData = JSON.parse(new TextDecoder().decode(catalogBytes));
+        const scientificMetadata = JSON.parse(new TextDecoder().decode(metadataBytes));
+        catalogAudit = attachCatalogMetadata(rawData,scientificMetadata,manifest);
+        document.getElementById('catalog-quality-summary').textContent = `${catalogAudit.unresolvedDistances.toLocaleString('en-US')} entries have unresolved distances and are hidden by default. HYG v4.2 · epoch/equinox J2000.0 · parsecs.`;
 
         // Validate data structure
         if (!Array.isArray(rawData)) {
@@ -389,6 +322,7 @@ async function loadAndPrepareStarData() {
             throw new Error(`Star data missing required fields: ${missingFields.join(', ')}`);
         }
 
+        buildStarIndex(rawData); // Reject missing or duplicate catalog identities before rendering.
         loadingIndicator.textContent = 'Processing star data...';
 
 
@@ -417,7 +351,10 @@ async function loadAndPrepareStarData() {
 
             return {
 
+                id: star.id,
+                proper: star.proper,
                 name: star.name,
+                catalogMetadata: star.catalogMetadata,
 
                 x: Number.isFinite(numericX) ? numericX : 0,
 
@@ -447,15 +384,13 @@ async function loadAndPrepareStarData() {
 
         const maxDistance = initialData.reduce((max, star) => Math.max(max, star.dist || 0), 0);
 
-        hasGarbageSphere = maxDistance > 0 && initialData.some(star => Math.abs((star.dist || 0) - maxDistance) < GARBAGE_SPHERE_EPSILON);
-
-        garbageSphereDistance = hasGarbageSphere ? maxDistance : null;
+        hasGarbageSphere = initialData.some(hasUnresolvedDistance);
 
 
 
         const processedData = initialData.map(star => {
 
-            const isGarbage = hasGarbageSphere && Math.abs((star.dist || 0) - maxDistance) < GARBAGE_SPHERE_EPSILON;
+            const isGarbage = hasUnresolvedDistance(star);
 
             return { ...star, isGarbageSphere: isGarbage };
 
@@ -491,7 +426,9 @@ async function loadAndPrepareStarData() {
 
         starOctree = new Octree(sceneBounds);
 
-        fullStarData.forEach(star => starOctree.insert(star));
+        fullStarData.forEach(star => {
+            if (!starOctree.insert(star)) throw new Error(`Could not index star ${star.id}`);
+        });
 
         console.log("Octree built successfully.");
 
@@ -534,6 +471,11 @@ async function loadAndPrepareStarData() {
             const stepWithGarbage = Math.max(0.1, Math.ceil(maxDistanceWithGarbage / 500));
 
             const stepWithoutGarbage = Math.max(0.1, Math.ceil((maxDistanceWithoutGarbage || maxDistanceWithGarbage) / 500));
+
+            // A range input snaps to its step grid. Round the upper bound up
+            // onto that grid so the farthest retained distances stay reachable.
+            maxDistanceWithGarbage = Math.ceil(maxDistanceWithGarbage / stepWithGarbage) * stepWithGarbage;
+            maxDistanceWithoutGarbage = Math.ceil(maxDistanceWithoutGarbage / stepWithoutGarbage) * stepWithoutGarbage;
 
             distanceSlider.dataset.maxWithGarbage = String(maxDistanceWithGarbage);
 
@@ -642,7 +584,10 @@ function calculateSceneBounds(starData) {
     const height = (bounds.maxY - bounds.minY) / 2;
     const depth = (bounds.maxZ - bounds.minZ) / 2;
 
-    return new Box3D(centerX, centerY, centerZ, width, height, depth);
+    // Center +/- half-width can round inward at catalog extrema. Pad only the
+    // spatial index boundary (never star coordinates) so every record is kept.
+    const padding = Math.max(1, ...Object.values(bounds).map(Math.abs)) * Number.EPSILON * 8;
+    return new Box3D(centerX, centerY, centerZ, width + padding, height + padding, depth + padding);
 }
 
 function setupCustomEventListeners() {
@@ -711,20 +656,14 @@ function applyFilters() {
         .map(cb => cb.value)
         .filter(Boolean);
 
-    activeStarData = fullStarData.filter(star => {
-        if (!includeGarbageSphere && star.isGarbageSphere) return false;
-        if (star.dist > maxDistance) return false;
-        if (star.relativeRadiusScale > maxSize) return false;
-
-        if (checkedSpectralClasses.length > 0) {
-            const spectralClass = star.spect ? star.spect[0] : 'G';
-            if (!checkedSpectralClasses.includes(spectralClass)) return false;
-        }
-
-        return true;
+    activeStarData = filterStars(fullStarData, {
+        includeGarbageSphere, maxDistance, maxSize,
+        spectralClasses: checkedSpectralClasses,
+        properNamesOnly: !!document.getElementById('proper-name-filter')?.checked
     });
 
     starRenderer.createStarGeometry(activeStarData);
+    uiManager.setActiveStarData(activeStarData);
     uiManager.updateUI();
 
     console.log(`Filtered to ${activeStarData.length} stars`);
@@ -747,21 +686,19 @@ function applyVisualPreset() {
     const selectedPreset = visualPresetSelect.value;
     if (!selectedPreset) return;
 
-    // Load and apply visual preset
-    fetch('visual_presets.json')
-        .then(response => response.json())
-        .then(presets => {
-            const preset = presets.presets[selectedPreset];
-            if (preset) {
-                // Apply the preset values to the UI and renderer
-                console.log(`Applied visual preset: ${selectedPreset}`);
-            } else {
-                console.warn('Visual preset not found, disabling preset blend');
-            }
-        })
-        .catch(error => {
-            console.warn('Could not load visual presets:', error);
-        });
+    if (!starRenderer.setVisualPreset(selectedPreset)) return;
+    // Scientific removes decorative bloom, twinkle and pulse; both modes keep
+    // the same catalog coordinates and bounded visual marker diameters.
+    const bloomToggle = document.getElementById('bloom-toggle');
+    const bloomStrength = document.getElementById('bloom-strength');
+    const bloomStrengthValue = document.getElementById('bloom-strength-value');
+    if (bloomToggle) bloomToggle.checked = selectedPreset === 'cinematic';
+    if (bloomStrength && selectedPreset === 'cinematic') {
+        bloomStrength.value = Math.max(0.6, Number(bloomStrength.value) || 0.6);
+        if (bloomStrengthValue) bloomStrengthValue.textContent = Number(bloomStrength.value).toFixed(2);
+    }
+    updateBloomSettings();
+    console.log(`Applied visual preset: ${selectedPreset}`);
 }
 
 function buildSpectralLegend() {
@@ -844,7 +781,7 @@ function getRGBfromCI(ci) {
 function animate() {
     requestAnimationFrame(animate);
 
-    if (starRenderer) {
+    if (starRenderer && (!explorer || explorer.currentMode === 'atlas')) {
         starRenderer.render();
     }
 }

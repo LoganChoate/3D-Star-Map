@@ -1,165 +1,103 @@
-# 3D Star Map Explorer
+# Galaxy Map / 3D Star Map Explorer
 
-An interactive, high-performance 3D map of the local stellar neighborhood. Explore 117,000+ stars rendered with Three.js, filter by astrophysical properties, view constellations, take cinematic tours, and plan interstellar routes with A* pathfinding — all wrapped in a desktop app via Electron for offline use.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.3.1 adds a bounded NASA-sourced Moon surface study. It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
 
-## ✨ Highlights
-- Ultra-fast rendering of 117k+ stars using `THREE.InstancedMesh`
-- Data-driven appearance: color by stellar color index (CI), size by absolute magnitude
-- Smooth camera system with Orbit and Fly modes, smart framing and animations (GSAP)
-- Powerful filters: distance, size, spectral class, named stars, and garbage sphere toggle
-- Constellation viewer with live line drawing
-- Search with autocomplete, informative selection panel, and speech narration with karaoke highlighting
-- Route Planner: A* pathfinding with Octree-accelerated neighbors, multi-route support, animated lines, min jump finder, and follow-route mode
-- “Stellar Tour” idle mode: cinematic flights to random stars, narration, and gentle orbit pauses
-- Electron packaging with optional auto-updates; vendored Three.js for reliable offline usage
+## Execution tracker
 
-## 🖼️ Screenshots
-Coming soon. (Consider adding images under `docs/` and embedding here.)
+The [Galaxy Map Execution Control dashboard](https://galaxy-map-execution.loganvchoategmail-com.chatgpt.site) is the sole active roadmap, acceptance checklist and evidence index. Historical plans remain unchanged in `docs/history/`, Git history, and `script.js.backup`.
 
-## 🚀 Quick Start
+## Run on Windows
 
-Prerequisites:
-- Node.js 18+ and npm
-- Python 3.9+ (for data prep utilities)
+From this folder:
 
-Install dependencies:
-
-```bash
-npm install
+```powershell
+npm.cmd start
+npm.cmd start -- --offline
 ```
 
-Run the desktop app (Electron):
+The offline option disables update checks and blocks remote HTTP/WebSocket requests for the app. Catalog, interface styles, fonts, Three.js and GSAP are bundled locally. Normal launches also use these local assets; optional update failures are logged without preventing exploration, and updates are never downloaded automatically.
 
-```bash
-npm start
+Version 1.0.3 adds the dashboard's **Launch Galaxy Map** button. Its `galaxymap://launch` link opens the installed Windows app; another click brings the existing window forward. The installer registers this launch-only link and removes its registration on uninstall. Browsers may ask permission before opening a desktop app. The link requires installation on the computer where the dashboard is being viewed.
+
+Star markers are exaggerated visual aids bounded to 2–10 CSS pixels, not physical stellar radii. Catalog coordinates are unchanged. Scientific mode removes decorative animation and bloom; Cinematic adds them. The size slider filters catalog-relative stellar sizes rather than changing astronomical positions.
+
+## Explore the Solar System and nearby stars
+
+Choose **Solar System** or **Nearby stars** from the view buttons. Search for an object (for example Earth, Moon, Sirius or Proxima Centauri), or select its marker or list entry. The information panel shows its stable identity, physical or catalog properties, coordinates and sources. Choose two objects under **Measure a distance** to see their straight-line separation.
+
+In Nearby stars, choose **Within 5 parsecs · 57 objects** under **Nearby collection** to explore 44 additional stars. **Highlights · 13 objects** restores the original selection. Switching collections clears selection and measurement and frames the replacement collection. Repeated names, including the two 61 Cyg records, display distinct HYG IDs in lists, search results, marker labels, details and measurement choices.
+
+The radius uses the retained HYG catalog distance field, while measurements use retained Cartesian coordinates. This is not a complete census: five source rows inside 5 parsecs are absent because the legacy renderer catalog excluded missing color values. All source quality flags and unknown uncertainty remain visible. No new astrometry or external catalog is introduced.
+
+Drag to orbit, scroll to zoom, and right-drag to pan. With the scene focused, arrow keys pan, Shift accelerates panning, plus/minus zoom, Home frames all objects, and Escape clears selection. The Full Solar System, Inner planets and Earth & Moon presets move between scales.
+
+The Solar System is a **fixed historical reference snapshot: 2000 January 1, 12:00 TDB**, from retained JPL Horizons vectors. It is not a current-position ephemeris or an orbital simulation. Positions use heliocentric ecliptic coordinates in AU; the nearby view uses retained HYG equatorial coordinates in parsecs. Measurements cannot mix those frames. Nearby catalog distance fields may differ slightly from separation calculated from retained Cartesian coordinates.
+
+Exploration markers are 9–17 CSS pixels, enlarged for visibility rather than drawn at physical radii. Solar circles indicate Sun distances of 1, 5, 10, 20 and 30 AU, not orbital paths. Earth–Moon separation in this snapshot is about 402,449 km. Sources, units, transformations, licenses and offline regeneration are documented in `data/SOURCES.md` and `data/pipeline/SOURCES.md`.
+
+## Inspect the Moon surface
+
+In **Solar System**, select **Moon**, then **Explore Moon surface**. Drag to orbit, scroll or use plus/minus to zoom, and use the inspection light or light sweep to examine the terrain. The turntable moves the camera. **Return to map** restores the selected body and map camera.
+
+The surface uses NASA CGI Moon Kit color and LOLA heights at 1× vertical scale. Color is processed and filled at the poles; lighting is illustrative inspection lighting, not a current lunar phase. The app uses bounded derivatives of retained full-resolution sources. Fine normal-map detail changes shading but does not add silhouettes or small-ridge shadows. Source information remains visible in the view. The editable Blender workflow, dimensions and reproduction commands are documented in [docs/moon-asset-workflow.md](docs/moon-asset-workflow.md).
+
+This is Phase 6 Step 2's Moon proof. The later Sun/Earth comparisons, animated stellar and atmospheric effects, close-up narration and broad performance acceptance remain subject to their separate review checkpoints.
+
+## Scientific catalog pipeline
+
+The retained CSV is verified by exact decompressed bytes against the official HYG v4.2 archive. The scientific export preserves original source identities, cross-identifiers, coordinates, photometry and motion fields. Every retained runtime record is joined by stable ID and checked against that source. The original `stars.json` values and order remain unchanged.
+
+```powershell
+npm.cmd run data:build
+npm.cmd run data:check
+npm.cmd run test:pipeline
 ```
 
-Alternative: run in a browser with a local static server (required for ES Modules):
+The builder uses only Python's standard library and works offline. `--output-dir <directory>` creates a separate export; `--check` regenerates all four outputs in a temporary workspace directory and compares their bytes. Outputs are `data/pipeline/records.json` (full scientific export), `runtime-metadata.json`, `quality-summary.json` and `manifest.json`. The full export stays in the source workspace; the installed app bundles the smaller runtime metadata, manifest, quality report and documentation. The manifest pins input, generator and output hashes. Byte-identical generation is verified on the recorded Windows/Python runtime; cross-platform floating-point byte identity is not claimed.
 
-```bash
-npx serve .  # or: npx http-server -c-1 .
-# Then open the printed URL in your browser
+Source distances at or above 100,000 pc mean missing or dubious parallax. These 9,875 entries are hidden by default; **Show unresolved-distance entries** exposes them with a warning instead of treating the placeholder as a measurement. They cannot be route endpoints. The original export excluded 1,891 rows with missing color index; the report names each exclusion. Missing spectral classes are not treated as G stars by filtering.
+
+The atlas's **Source & scientific quality** panel shows cross-identifiers, equatorial source axes, epoch/equinox J2000.0, and unknown measurement uncertainty. HYG supplies no error/covariance columns, so no error bars are invented. Some angular and Cartesian fields disagree beyond a documented decimal-precision diagnostic; both are preserved and flagged. That diagnostic is not a confidence interval or accuracy certification. Raw zero motion fields do not prove measured zero velocity, and no proper-motion propagation is applied. See `data/pipeline/SOURCES.md` and `SCHEMA.md` for the complete contract and source license.
+
+`process_hyg.py` remains the legacy exporter. Use the scientific pipeline above for current audit/export work; changing a pinned input requires reviewed regeneration and new verification.
+
+## Verify and build
+
+```powershell
+npm.cmd test
+npm.cmd run test:assets
+npm.cmd run test:markers
+npm.cmd run test:launch
+npm.cmd run test:launcher
+npm.cmd run test:exploration
+npm.cmd run pack:win
+npm.cmd run dist:win
 ```
 
-Notes:
-- This repo vendors Three.js under `vendor/three/` and updates the import map in `index.html` for offline stability.
-- The app expects `stars.json` in the project root. A default dataset is included; see Data Pipeline below to regenerate from HYG.
+For an actual packaged or installed executable, use a new output folder for each check:
 
-## 🧠 How It Works (Architecture)
-- `index.html` — UI layout, Tailwind CSS, and import map
-- `script.js` — Core app: scene setup, data loading, filters, search, selection, constellation drawing, camera & tour logic, route planning (Octree + A*)
-- `constellations.js` — Constellation definitions for line drawing
-- `star_details.js` — Optional descriptions for named stars (narration uses this)
-- `main.js` — Electron bootstrap and auto-updater hook
-- `vendor/three/` — Local Three.js module and add-ons
-- `process_hyg.py` — Convert HYG CSV to `stars.json` (coordinate remap, name selection, inject Sol)
-- `data_preparer.py` — Populate `star_details.js` placeholders for named stars
-- `analyzer.py` — Print dataset stats (e.g., “garbage sphere” size)
-
-## 🎮 Controls & UI
-
-Navigation modes:
-- Orbit Mode (default):
-  - Left-drag: rotate; Right-drag: pan; Mouse wheel: zoom
-  - Button toggles between Orbit and Fly
-- Fly Mode:
-  - Keys: W/A/S/D to move; R/F (or Q/E) up/down/roll depending on OS keyboard; drag mouse to look
-  - Speed/roll are tuned for comfortable navigation
-
-Panels & features:
-- Search & View:
-  - Star search with autocomplete; Constellation dropdown to frame and draw lines
-  - Clear button hides suggestions
-- Filters:
-  - Named stars, Garbage Sphere toggle, distance slider, star size slider, spectral class checkboxes
-  - Star count display shows visible/total
-- Selection Info:
-  - Name, distance, magnitude, class, coordinates
-  - Details + “Narrate” button if a description exists for the selected star
-- Modes:
-  - Reset View — frames the entire dataset
-  - Snap to Sol — frames our Sun
-  - Fly — toggles camera mode
-  - Tour — starts/stops the Stellar Tour
-  - Route — toggles the Route Planner panel
-
-Route Planner:
-1) Enter planner, select a star in the scene, then click “Set as Start”
-2) Select another star, click “Set as End”
-3) Set Max Jump (pc) and Calculate Route
-4) Use Go to Start/Next Jump/Go to End, or Follow Route for an automated tour
-5) “Find Min. Jump” runs a binary search to suggest the smallest viable jump range
-6) Up to 3 routes can be created; use the route buttons to switch active route
-
-Stellar Tour:
-- Cinematic flights to random visible stars (based on filters)
-- Will narrate if the selected star has details; highlights words and auto-scrolls
-- Pauses and orbits before proceeding
-
-## 🗃️ Data Pipeline (HYG → stars.json)
-1) Download `hyg_v42.csv` from the Astronexus HYG Database and place it in the project root:
-   - `https://github.com/astronexus/HYG-Database`
-2) Generate `stars.json`:
-
-```bash
-python process_hyg.py
+```powershell
+& '.\dist\win-unpacked\3D Star Map Explorer.exe' '--verify-offline=C:\path\to\fresh-evidence-folder'
 ```
 
-What it does:
-- Selects a best-available human-readable `name` for each star (proper/bayer/flam/Gl/hip/hd)
-- Drops rows with missing numeric fields, removes HYG’s Sol, then injects a canonical Sol
-- Remaps axes into a right-handed, Y-up space compatible with the current visualization
+This explicit diagnostic mode uses a fresh profile, disables session networking before loading the real application, cancels remote requests, loads the shipped updater dependency, and validates actual catalog/WebGL buffers and local assets. It exercises camera animation, case-normalized descriptions, named/distance/spectral filters, native canvas picking, duplicate-name choices, real worker/fallback routing and route buttons, then saves JSON and screenshots before exiting. It does not change system network settings. Electron's `navigator.onLine` may reflect the host adapter; observed canceled session/renderer requests are the offline proof. Full disconnection of the Windows adapter is not claimed.
 
-Optional: populate `star_details.js` with placeholders for all named stars:
+`npm test` runs negative controls for assertion/process failures, actual production modules and the real pathfinding worker, bundled asset checks, and GPU shader checks. The renderer test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. Old copied/mock test implementations are preserved under `docs/history/tests`; active tests import production code. These checks cover bounded regression scenarios, not exhaustive navigation or performance validation.
 
-```bash
-python data_preparer.py         # Adds placeholders for any missing entries
-python data_preparer.py --force # Rebuild from scratch
-```
+The default runner has seven suites, including 14 exploration/data checks and 23 scientific-pipeline checks. The latter verifies repeated exports, every source join, coordinate transforms, quality rules and corruption rejection. The packaged diagnostic exercises all exploration views plus source panels, placeholder-distance handling, route rejection and complete ordinary-catalog coverage. It captures actual views and verifies that quality controls never change catalog coordinates.
 
-Analyze current dataset:
+The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, updater 6.6.2 and builder 24.13.3. A fresh checkout uses `npm.cmd ci`; a clean dependency install has not yet been verified. Build commands explicitly use `--publish never`; no GitHub release is published by them. The installer is not code-signed.
 
-```bash
-python analyzer.py
-```
+## Recovery and limits
 
-## 🏗️ Packaging (Electron)
+Phase 1 baseline was `cf47a6782a31449bd55cb656cc59802c33f9e914`; original Desktop and live GitHub main matched `9027f9e193832ec7af76b921f4c652da06d39635`. The Desktop source remains untouched. Recovery bundles and the source manifest are in the parent workspace's `evidence/` folder. Phase 2 evidence is in `evidence/phase2/`, including the old installed-program backup.
 
-Build installers:
+Version 1.0.2 adds source-backed catalog IDs, ambiguity-safe lookup, current filtered selection and picking, proper-name filtering, and ID-based worker/fallback routing. Description lookup handles case and spacing; ambiguous display names require a choice. Catalog values and order are preserved; `sol` identifies the Sun and `hyg:<source ID>` identifies HYG rows. The catalog migration utility verifies its source match before adding IDs. Broader navigation and scientific validation remain future phases. Narration may depend on the user's installed speech voices and is outside offline acceptance. Current completion evidence is in `evidence/phase2-completion/` in the parent workspace.
 
-```bash
-npm run dist
-```
+## Source layout
 
-Notes:
-- Auto-updater is configured but requires real GitHub settings in `package.json`:
-  - `build.publish.owner` and `build.publish.repo`
-  - Provide `GH_TOKEN` env var when building to upload Releases
-- Icons: fields exist in `package.json` but are commented/trimmed until icons are added under `build/`:
-  - `build/galaxy_map_icon.ico`, `.icns`, `.png`
-- Three.js is vendored for offline stability. If you change versions, update the files under `vendor/three/` and the `index.html` import map.
-
-## 🧭 Roadmap
-
-See `ROADMAP.md` for detailed, milestone-driven plans:
-- Exoplanets & Deep-Sky Objects (data sources, prep scripts, rendering, UI, milestones)
-- Proper Motion Time Slider (physics/data, rendering, UI, performance)
-- WebXR (VR/AR) Support (controller selection, in-world panels, performance)
-
-## 🧰 Troubleshooting
-- “Cannot load module” when opening `index.html` directly: use Electron (`npm start`) or a static server (`npx serve .`), since ES Modules require http(s).
-- Route line thickness looks thin: WebGL ignores `linewidth` on many platforms. Consider switching to `Line2`.
-- Speech narration doesn’t highlight words: `onboundary` events are engine-dependent. Narration still works, but karaoke highlighting may not.
-- Performance hiccups on pathfinding: reduce max jump or visible stars; large searches can be heavy. Future work may offload A* to a Web Worker.
-
-## 📜 License
-ISC — see `package.json` (or add a `LICENSE` file if desired).
-
-## 🙏 Acknowledgments
-- HYG Database — Astronexus
-- Three.js — 3D rendering
-- GSAP — animation
-- Tailwind CSS — UI styling
-- Electron — desktop packaging
-
-
+- `main.js`: Electron startup, optional updates and explicit offline mode.
+- `index.html`, `script.js`, `modules/`, `workers/`, `utils/`, `vendor/`: shared visualization core and bundled assets.
+- `stars.json`, `hyg_v42.csv`, Python utilities: existing catalog and preparation inputs.
+- `vendor/OFFLINE-ASSETS.md`: upstream sources and licensing; `vendor/offline-assets.json`: integrity hashes.
+- `tests/offline-runtime.cjs`: real packaged/installed application verification.

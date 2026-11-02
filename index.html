@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive 3D Star Map</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ui-utilities.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="exploration.css">
+    <link rel="stylesheet" href="moon-trial.css">
 </head>
 <body>
     <div class="title-bar">
@@ -46,8 +46,9 @@
         <div class="mb-2">
             <label class="flex items-center space-x-2">
                 <input type="checkbox" id="garbage-sphere-filter" name="garbage-sphere-filter" class="filter-checkbox">
-                <span>Toggle Garbage Sphere</span>
+                <span>Show unresolved-distance entries</span>
             </label>
+            <p id="catalog-quality-summary" class="text-xs">Loading catalog quality…</p>
         </div>
         <div class="mb-3 p-2 border border-cyan-800 rounded-md">
             <label for="distance-slider" class="block mb-1 text-sm font-semibold">Distance Filter (pc): <span id="distance-value" class="font-normal"></span></label>
@@ -56,6 +57,7 @@
         <div class="mb-3 p-2 border border-cyan-800 rounded-md">
             <label for="size-slider" class="block mb-1 text-sm font-semibold">Star Size Filter (Relative): <span id="size-value" class="font-normal"></span></label>
             <input type="range" id="size-slider" class="w-full">
+            <p class="text-xs">Markers are enlarged for visibility, not shown at physical stellar size.</p>
         </div>
         <div class="filter-grid">
             <label class="flex items-center space-x-2"><input type="checkbox" class="filter-checkbox" name="spectral-O" value="O"><span>O</span></label>
@@ -74,6 +76,13 @@
             <p><span class="info-label">Magnitude:</span><span id="star-mag" class="info-value">N/A</span></p>
             <p><span class="info-label">Class:</span><span id="star-spect" class="info-value">N/A</span></p>
             <p><span class="info-label">Coords:</span><span id="star-coords" class="info-value">N/A</span></p>
+            <details class="catalog-provenance"><summary>Source & scientific quality</summary>
+                <p id="star-identifiers">N/A</p>
+                <p id="star-quality">N/A</p>
+                <p>HYG v4.2 · epoch/equinox J2000.0. App coordinates are [X, Z, −Y] in parsecs; no proper-motion update.</p>
+                <p id="star-equatorial">N/A</p>
+                <a href="https://codeberg.org/astronexus/hyg" target="_blank" rel="noopener noreferrer">HYG source & documentation ↗</a>
+            </details>
             <div id="route-buttons-container" class="flex gap-2 mt-2 hidden">
                 <button id="set-start-button" class="custom-button text-xs px-2 py-1 flex-grow">Set as Start</button>
                 <button id="set-end-button" class="custom-button text-xs px-2 py-1 flex-grow">Set as End</button>
@@ -165,7 +174,9 @@
         <div id="star-count-display" class="text-cyan-300 text-sm font-semibold"></div>
     </div>    
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <div id="exploration-root"></div>
+
+    <script src="vendor/gsap/gsap-3.12.5.min.js"></script>
     <script type="importmap">
         {
             "imports": {

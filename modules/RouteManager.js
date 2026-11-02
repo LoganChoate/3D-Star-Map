@@ -2,27 +2,9 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import { Line2 } from '../vendor/three/examples/jsm/lines/Line2.js';
 import { LineGeometry } from '../vendor/three/examples/jsm/lines/LineGeometry.js';
 import { LineMaterial } from '../vendor/three/examples/jsm/lines/LineMaterial.js';
-import { PathfindingPriorityQueue } from '../utils/BinaryHeap.js';
-
-// Legacy PriorityQueue for fallback compatibility
-class PriorityQueue {
-    constructor() {
-        this.elements = [];
-    }
-
-    enqueue(element, priority) {
-        this.elements.push({ element, priority });
-        this.elements.sort((a, b) => a.priority - b.priority);
-    }
-
-    dequeue() {
-        return this.elements.shift()?.element;
-    }
-
-    isEmpty() {
-        return this.elements.length === 0;
-    }
-}
+import { buildStarIndex, requireStarId } from '../utils/StarIdentity.js';
+import { findRoute } from '../utils/Pathfinding.js';
+import { hasUnresolvedDistance } from '../utils/CatalogMetadata.js';
 
 export class RouteManager {
     constructor(starRenderer, errorHandler) {
@@ -49,6 +31,8 @@ export class RouteManager {
         // Data references (will be set externally)
         this.fullStarData = null;
         this.starOctree = null;
+        this.starIndex = new Map();
+        this.dataVersion = 0;
         
         // Arrow texture cache
         this.arrowTexture = null;
@@ -56,6 +40,7 @@ export class RouteManager {
         // Web Worker for pathfinding
         this.pathfindingWorker = null;
         this.workerMessageId = 0;
+        this.workerDataMessageId = null;
         this.pendingRequests = new Map();
         this.workerInitialized = false;
         
@@ -72,7 +57,11 @@ export class RouteManager {
     }
 
     setData(fullStarData, starOctree) {
+        const index = buildStarIndex(fullStarData);
+        if (this.fullStarData) this.clearAllRoutes();
         this.fullStarData = fullStarData;
+        this.starIndex = index;
+        this.dataVersion++;
         this.starOctree = starOctree;
         
         // Send data to worker if available
@@ -83,19 +72,15 @@ export class RouteManager {
 
     initializeWorker() {
         try {
-            this.pathfindingWorker = new Worker('./workers/pathfinding-worker.js');
+            this.pathfindingWorker = new Worker(new URL('../workers/pathfinding-worker.js', import.meta.url), { type: 'module' });
             
             this.pathfindingWorker.onmessage = (event) => {
                 this.handleWorkerMessage(event.data);
             };
             
-            this.pathfindingWorker.onerror = (error) => {
-                console.warn('Pathfinding worker error:', error);
-                this.errorHandler?.showWarning('Pathfinding worker unavailable, using fallback mode');
-                this.pathfindingWorker = null;
-            };
+            this.pathfindingWorker.onerror = error => this.disableWorker(error);
             
-            // Mark as initialized once we receive confirmation
+            // Messages are ordered: setData is queued before any route request.
             this.workerInitialized = true;
             console.log('Pathfinding worker initialized successfully');
             
@@ -103,6 +88,20 @@ export class RouteManager {
             console.warn('Failed to initialize pathfinding worker:', error);
             this.pathfindingWorker = null;
         }
+    }
+
+    disableWorker(error) {
+        console.warn('Pathfinding worker unavailable:', error);
+        this.errorHandler?.showWarning('Pathfinding worker unavailable, using fallback mode');
+        this.pendingRequests.forEach(request => {
+            clearTimeout(request.timer);
+            request.reject(error instanceof Error ? error : new Error('Pathfinding worker failed'));
+        });
+        this.pendingRequests.clear();
+        this.pathfindingWorker?.terminate();
+        this.pathfindingWorker = null;
+        this.workerInitialized = false;
+        this.workerDataMessageId = null;
     }
 
     sendDataToWorker() {
@@ -122,22 +121,28 @@ export class RouteManager {
                 capacity: this.starOctree.capacity
             };
             
+            this.workerDataMessageId = this.getNextMessageId();
             this.pathfindingWorker.postMessage({
                 type: 'setData',
                 data: {
                     starData: this.fullStarData,
                     octreeData: octreeData
                 },
-                id: this.getNextMessageId()
+                id: this.workerDataMessageId
             });
             
         } catch (error) {
-            console.warn('Failed to send data to pathfinding worker:', error);
+            this.disableWorker(error);
         }
     }
 
     handleWorkerMessage(message) {
         const { type, id, data, error } = message;
+        if (id === this.workerDataMessageId) {
+            if (type === 'error') this.disableWorker(new Error(`Pathfinding catalog rejected: ${error?.message || 'unknown error'}`));
+            else if (type === 'result') this.workerDataMessageId = null;
+            return;
+        }
         
         if (type === 'progress') {
             this.handlePathfindingProgress(data);
@@ -148,12 +153,24 @@ export class RouteManager {
         if (!request) return;
         
         this.pendingRequests.delete(id);
-        
+        clearTimeout(request.timer);
+        if (request.dataVersion !== this.dataVersion) {
+            request.reject(new Error('Catalog changed during route calculation'));
+            return;
+        }
         if (type === 'error') {
             console.warn('Worker pathfinding error:', error);
             request.reject(new Error(error.message || 'Worker pathfinding failed'));
         } else if (type === 'result') {
-            request.resolve(data);
+            try {
+                if (data?.success === false) throw new Error(data.error || 'Worker pathfinding failed');
+                const result = data?.path ? { ...data, path: data.path.map(star => {
+                    const canonical = this.starIndex.get(requireStarId(star));
+                    if (!canonical) throw new Error('Worker returned unknown star ID');
+                    return canonical;
+                }) } : data;
+                request.resolve(result);
+            } catch (error) { request.reject(error); }
         }
     }
 
@@ -182,7 +199,14 @@ export class RouteManager {
     setRouteStart(star) {
         const activeRoute = this.getActiveRoute();
         if (activeRoute && star) {
-            activeRoute.startStar = star;
+            const canonical = this.starIndex.get(requireStarId(star));
+            if (!canonical) throw new Error('Route start ID is not in the catalog');
+            if (hasUnresolvedDistance(canonical)) {
+                this.errorHandler?.showWarning('This catalog entry has an unresolved distance and cannot be used as a route endpoint.');
+                return false;
+            }
+            this.clearRoutePath(activeRoute);
+            activeRoute.startStar = canonical;
             this.updateRoutePlannerUI();
             return true;
         }
@@ -192,7 +216,14 @@ export class RouteManager {
     setRouteEnd(star) {
         const activeRoute = this.getActiveRoute();
         if (activeRoute && star) {
-            activeRoute.endStar = star;
+            const canonical = this.starIndex.get(requireStarId(star));
+            if (!canonical) throw new Error('Route end ID is not in the catalog');
+            if (hasUnresolvedDistance(canonical)) {
+                this.errorHandler?.showWarning('This catalog entry has an unresolved distance and cannot be used as a route endpoint.');
+                return false;
+            }
+            this.clearRoutePath(activeRoute);
+            activeRoute.endStar = canonical;
             this.updateRoutePlannerUI();
             return true;
         }
@@ -206,15 +237,20 @@ export class RouteManager {
             return null;
         }
 
-        if (!maxJump || maxJump <= 0) {
+        if (!Number.isFinite(maxJump) || maxJump <= 0) {
             this.errorHandler.showError("Please specify a valid maximum jump distance.");
             return null;
         }
 
+        const startStar = activeRoute.startStar;
+        const endStar = activeRoute.endStar;
+        const version = this.dataVersion;
+        const revision = activeRoute.revision = (activeRoute.revision || 0) + 1;
         console.log(`Calculating route from ${activeRoute.startStar.name} to ${activeRoute.endStar.name} with max jump of ${maxJump} pc.`);
         
         // Start visual feedback
         this.startSearchBubbleAnimation(activeRoute.startStar, activeRoute.endStar, maxJump);
+        const searchBubble = this.searchBubble;
         
         try {
             const startTime = performance.now();
@@ -223,24 +259,28 @@ export class RouteManager {
             // Try Web Worker first, fallback to main thread if unavailable
             if (this.pathfindingWorker && this.workerInitialized) {
                 try {
-                    result = await this.calculateRouteWithWorker(activeRoute.startStar, activeRoute.endStar, maxJump);
+                    result = await this.calculateRouteWithWorker(startStar, endStar, maxJump);
                     this.performanceMetrics.workerCalculations++;
                     this.performanceMetrics.averageWorkerTime = 
                         (this.performanceMetrics.averageWorkerTime + (performance.now() - startTime)) / 2;
                 } catch (error) {
                     console.warn('Worker pathfinding failed, using fallback:', error);
-                    result = this.findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+                    result = this.findPathAStar(startStar, endStar, maxJump);
                     this.performanceMetrics.fallbackCalculations++;
                 }
             } else {
-                result = this.findPathAStar(activeRoute.startStar, activeRoute.endStar, maxJump);
+                result = this.findPathAStar(startStar, endStar, maxJump);
                 this.performanceMetrics.fallbackCalculations++;
                 this.performanceMetrics.averageFallbackTime = 
                     (this.performanceMetrics.averageFallbackTime + (performance.now() - startTime)) / 2;
             }
             
             this.performanceMetrics.totalCalculations++;
-            
+            if (version !== this.dataVersion || revision !== activeRoute.revision ||
+                activeRoute.startStar?.id !== startStar.id || activeRoute.endStar?.id !== endStar.id) {
+                this.errorHandler?.showWarning('Route endpoints changed; discarded the earlier calculation.');
+                return null;
+            }
             if (result && result.path) {
                 activeRoute.calculatedRoute = result.path;
                 
@@ -260,7 +300,7 @@ export class RouteManager {
                 return null;
             }
         } finally {
-            this.stopSearchBubbleAnimation();
+            if (this.searchBubble === searchBubble) this.stopSearchBubbleAnimation();
         }
     }
 
@@ -268,9 +308,11 @@ export class RouteManager {
         return new Promise((resolve, reject) => {
             const messageId = this.getNextMessageId();
             
-            this.pendingRequests.set(messageId, { resolve, reject });
-            
-            this.pathfindingWorker.postMessage({
+            if (!this.pathfindingWorker) return reject(new Error('Pathfinding worker unavailable'));
+            const request = { resolve, reject, dataVersion: this.dataVersion, timer: null };
+            this.pendingRequests.set(messageId, request);
+            // A synchronous structured-clone/posting failure must not leak a request.
+            try { this.pathfindingWorker.postMessage({
                 type: 'findPath',
                 data: {
                     startNode: startStar,
@@ -282,10 +324,14 @@ export class RouteManager {
                     }
                 },
                 id: messageId
-            });
+            }); } catch (error) {
+                this.pendingRequests.delete(messageId);
+                reject(error);
+                return;
+            }
             
             // Set timeout to prevent hanging
-            setTimeout(() => {
+            request.timer = setTimeout(() => {
                 if (this.pendingRequests.has(messageId)) {
                     this.pendingRequests.delete(messageId);
                     reject(new Error('Worker pathfinding timeout'));
@@ -300,9 +346,19 @@ export class RouteManager {
             return null;
         }
 
+        // The UI applies this asynchronous result to its current route. Preserve
+        // that context so an edited/switched route cannot receive an old range.
+        const route = this.getActiveRoute();
+        const version = this.dataVersion;
+        const revision = route?.revision;
+        const startId = route?.startStar?.id;
+        const endId = route?.endStar?.id;
+        const isCurrent = () => version === this.dataVersion && this.getActiveRoute() === route &&
+            route?.revision === revision && route?.startStar?.id === startId && route?.endStar?.id === endId;
         console.log(`Finding minimum jump range from ${startStar.name} to ${endStar.name}`);
         
         this.startSearchBubbleAnimation(startStar, endStar, 1);
+        const searchBubble = this.searchBubble;
         
         try {
             let minJump = 1;
@@ -313,6 +369,10 @@ export class RouteManager {
                 const testJump = (minJump + maxJump) / 2;
                 
                 await new Promise(resolve => setTimeout(resolve, 50)); // Visual feedback
+                if (!isCurrent()) {
+                    this.errorHandler?.showWarning('Route endpoints changed; discarded the earlier jump range.');
+                    return null;
+                }
                 
                 const result = this.findPathAStar(startStar, endStar, testJump);
                 
@@ -334,147 +394,15 @@ export class RouteManager {
                 return null;
             }
         } finally {
-            this.stopSearchBubbleAnimation();
+            if (this.searchBubble === searchBubble) this.stopSearchBubbleAnimation();
         }
     }
 
     findPathAStar(startNode, endNode, maxJump) {
         try {
-            // Validate inputs
-            if (!startNode || !endNode) {
-                throw new Error('Start and end nodes are required for pathfinding');
-            }
-
-            if (!startNode.name || !endNode.name) {
-                throw new Error('Invalid node data: missing name property');
-            }
-
-            if (typeof maxJump !== 'number' || maxJump <= 0) {
-                throw new Error('Maximum jump distance must be a positive number');
-            }
-
-            if (!this.fullStarData || this.fullStarData.length === 0) {
-                throw new Error('No star data available for pathfinding');
-            }
-
-            if (!this.starOctree) {
-                throw new Error('Spatial index (Octree) not initialized');
-            }
-
-            // Performance timeout for large searches
-            const startTime = Date.now();
-            const MAX_EXECUTION_TIME = 10000; // 10 seconds
-
-            const openSet = new PathfindingPriorityQueue();
-            const cameFrom = new Map();
-            const gScore = new Map();
-            const fScore = new Map();
-
-            const nodeMap = new Map(this.fullStarData.map(node => [node.name, node]));
-            
-            // Verify start and end nodes exist in the dataset
-            if (!nodeMap.has(startNode.name)) {
-                throw new Error(`Start node "${startNode.name}" not found in star data`);
-            }
-            if (!nodeMap.has(endNode.name)) {
-                throw new Error(`End node "${endNode.name}" not found in star data`);
-            }
-            
-            this.fullStarData.forEach(node => {
-                gScore.set(node.name, Infinity);
-                fScore.set(node.name, Infinity);
-            });
-
-            gScore.set(startNode.name, 0);
-            fScore.set(startNode.name, this.heuristic(startNode, endNode));
-            openSet.enqueue(startNode, fScore.get(startNode.name));
-
-            let iterations = 0;
-            const MAX_ITERATIONS = 50000; // Prevent infinite loops
-
-            while (!openSet.isEmpty()) {
-                // Check for timeout and iteration limits
-                iterations++;
-                if (iterations > MAX_ITERATIONS) {
-                    throw new Error('Pathfinding exceeded maximum iterations limit');
-                }
-
-                if (Date.now() - startTime > MAX_EXECUTION_TIME) {
-                    throw new Error('Pathfinding timed out - try reducing search area or max jump distance');
-                }
-
-                const current = openSet.dequeue();
-                if (!current) break; // Safety check
-
-                if (current.name === endNode.name) {
-                    // Path found, reconstruct it
-                    const totalPath = [current];
-                    let temp = current;
-                    while (cameFrom.has(temp.name)) {
-                        temp = cameFrom.get(temp.name);
-                        totalPath.unshift(temp);
-                    }
-                    console.log(`A* pathfinding completed in ${iterations} iterations, ${Date.now() - startTime}ms`);
-                    return { path: totalPath, stranded: false };
-                }
-
-                // Use the Octree to find neighbors efficiently
-                let neighbors;
-                try {
-                    neighbors = this.starOctree.query(current, maxJump).filter(n => n.name !== current.name);
-                } catch (octreeError) {
-                    throw new Error(`Octree query failed: ${octreeError.message}`);
-                }
-
-                for (const neighbor of neighbors) {
-                    if (!neighbor || !neighbor.name) continue; // Skip invalid neighbors
-
-                    const tentativeGScore = gScore.get(current.name) + this.distance(current, neighbor);
-                    if (tentativeGScore < gScore.get(neighbor.name)) {
-                        cameFrom.set(neighbor.name, current);
-                        gScore.set(neighbor.name, tentativeGScore);
-                        fScore.set(neighbor.name, tentativeGScore + this.heuristic(neighbor, endNode));
-                        openSet.enqueue(neighbor, fScore.get(neighbor.name));
-                    }
-                }
-            }
-
-            // --- Handle stranded case: No complete path found ---
-            // Find the node we reached that is closest to the end destination.
-            let closestNode = startNode;
-            let minHeuristic = this.heuristic(startNode, endNode);
-
-            for (const [nodeName, score] of gScore.entries()) {
-                if (score !== Infinity) { // If the node was reached
-                    const reachableNode = nodeMap.get(nodeName);
-                    if (reachableNode) {
-                        const h = this.heuristic(reachableNode, endNode);
-                        if (h < minHeuristic) {
-                            minHeuristic = h;
-                            closestNode = reachableNode;
-                        }
-                    }
-                }
-            }
-
-            // Reconstruct the path to this "closest" node.
-            const partialPath = [closestNode];
-            let temp = closestNode;
-            while (cameFrom.has(temp.name)) {
-                temp = cameFrom.get(temp.name);
-                partialPath.unshift(temp);
-            }
-
-            console.log(`A* pathfinding completed (stranded) in ${iterations} iterations, ${Date.now() - startTime}ms`);
-            
-            // If the path is just the start node, we couldn't go anywhere.
-            return partialPath.length > 1 ? { path: partialPath, stranded: true } : null;
-            
+            return findRoute(this.fullStarData, this.starOctree, startNode, endNode, maxJump, {}, this.starIndex);
         } catch (error) {
-            this.errorHandler.showError(
-                `Route calculation failed: ${error.message}`,
-                error
-            );
+            this.errorHandler?.showError(`Route calculation failed: ${error.message}`, error);
             return null;
         }
     }
@@ -711,11 +639,24 @@ export class RouteManager {
         this.routePlanner.isFollowingRoute = false;
     }
 
+    clearRoutePath(route) {
+        route.revision = (route.revision || 0) + 1;
+        route.calculatedRoute = null;
+        this.drawRouteLine(route);
+        this.stopFollowRoute();
+        this.stopSearchBubbleAnimation();
+    }
+
     clearRoute(routeIndex = null) {
         const index = routeIndex !== null ? routeIndex : this.routePlanner.activeRouteIndex;
         const route = this.routePlanner.routes[index];
         
         if (route) {
+            route.revision = (route.revision || 0) + 1;
+            if (index === this.routePlanner.activeRouteIndex) {
+                this.stopFollowRoute();
+                this.stopSearchBubbleAnimation();
+            }
             // Clear route line
             if (route.routeLine) {
                 this.starRenderer.scene.remove(route.routeLine);
@@ -973,6 +914,7 @@ export class RouteManager {
         if (this.pathfindingWorker) {
             // Cancel any pending requests
             this.pendingRequests.forEach((request, id) => {
+                clearTimeout(request.timer);
                 request.reject(new Error('RouteManager disposed'));
             });
             this.pendingRequests.clear();

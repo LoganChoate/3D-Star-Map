@@ -78,11 +78,12 @@ def process_star_data():
     # This is important for the JavaScript side to handle missing names gracefully.
     df_remapped['proper'] = df_remapped['proper'].where(pd.notna(df_remapped['proper']), None)
     df_remapped['spect'] = df_remapped['spect'].where(pd.notna(df_remapped['spect']), None)
-    output_data = df_remapped[['name', 'proper', 'dist', 'mag', 'spect', 'ci', 'x', 'y', 'z']].to_dict(orient='records')
+    df_remapped['id'] = df_remapped['id'].map(lambda source_id: f'hyg:{int(source_id)}')
+    output_data = df_remapped[['name', 'proper', 'dist', 'mag', 'spect', 'ci', 'x', 'y', 'z', 'id']].to_dict(orient='records')
 
     # 5. Add our own Sun to the data, as it's not in the HYG database in this format.
     sun_data = {
-        "name": "Sol", "proper": "Sol", "dist": 0.0000048481, "mag": -26.74, "ci": 0.656,
+        "id": "sol", "name": "Sol", "proper": "Sol", "dist": 0.0000048481, "mag": -26.74, "ci": 0.656,
         "x": 0, "y": 0, "z": 0, "spect": "G2V"
     }
     output_data.insert(0, sun_data)

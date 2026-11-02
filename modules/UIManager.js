@@ -1,4 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
+import { StarLookup } from '../utils/StarLookup.js';
+import { appToEquatorial } from '../utils/CatalogCoordinates.js';
+import { catalogQualityLabel, catalogIdentifierLabel, hasUnresolvedDistance } from '../utils/CatalogMetadata.js';
 
 export class UIManager {
     constructor(starRenderer, routeManager, tourController, errorHandler) {
@@ -20,6 +23,8 @@ export class UIManager {
         this.fullStarData = null;
         this.activeStarData = null;
         this.starDetails = null;
+        this.lookup = null;
+        this.activeStarIds = new Set();
         
         // UI state
         this.selectedStar = null;
@@ -146,6 +151,12 @@ export class UIManager {
         // Search and filters
         if (this.elements.searchInput) {
             this.elements.searchInput.addEventListener('input', this.handleAutocomplete.bind(this));
+            this.elements.searchInput.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.searchByName(this.elements.searchInput.value);
+                }
+            });
         }
         if (document.getElementById('clear-search-button')) {
             document.getElementById('clear-search-button').addEventListener('click', this.clearSearch.bind(this));
@@ -244,8 +255,22 @@ export class UIManager {
 
     setData(fullStarData, activeStarData, starDetails) {
         this.fullStarData = fullStarData;
-        this.activeStarData = activeStarData;
         this.starDetails = starDetails;
+        this.lookup = new StarLookup(fullStarData, starDetails);
+        this.setActiveStarData(activeStarData);
+    }
+
+    setActiveStarData(activeStarData) {
+        // Keep the exact same ordering as the newly built Points geometry.
+        this.activeStarData = activeStarData || [];
+        this.activeStarIds = new Set(this.activeStarData.map(star => star.id));
+        this.tourController?.setActiveStarData(this.activeStarData);
+        if (this.selectedStar && !this.activeStarIds.has(this.selectedStar.id)) {
+            this.deselectStar();
+        } else if (this.selectedStar) {
+            this.selectedStar = this.lookup?.byId.get(this.selectedStar.id) || this.selectedStar;
+        }
+        this.updateUI();
     }
 
     // Event handlers
@@ -269,9 +294,14 @@ export class UIManager {
             return;
         }
 
-        // Handle star selection
-        this.mouse.x = (event.clientX / this.elements.canvas.clientWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / this.elements.canvas.clientHeight) * 2 + 1;
+        // Pointer coordinates are relative to the canvas, including its title
+        // bar offset and any responsive layout changes.
+        if (event.button !== undefined && event.button !== 0) return;
+        const rect = this.elements.canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height || event.clientX < rect.left || event.clientX > rect.right ||
+            event.clientY < rect.top || event.clientY > rect.bottom) return;
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.starRenderer.camera);
 
@@ -296,10 +326,19 @@ export class UIManager {
     }
 
     selectStar(star, options = {}) {
-        if (!star) return;
+        if (!star) return false;
+        star = this.lookup?.byId.get(star.id);
+        if (!star) return false;
+        if (!this.activeStarIds.has(star.id)) {
+            this.deselectStar();
+            this.showSearchMessage(`${this.lookup.label(star)} is hidden by the current filters. Adjust the filters to select it.`);
+            return false;
+        }
 
         const { focusCamera = false, suppressEvent = false, eventSource = 'UIManager' } = options;
         this.selectedStar = star;
+        if (this.routeManager?.routePlanner) this.routeManager.routePlanner.currentSelection = star;
+        this.showSearchMessage('');
         this.starRenderer.updateSelectionHighlight(star);
         this.updateInfoPanel(star);
         this.updateUI();
@@ -313,12 +352,14 @@ export class UIManager {
                 detail: { type: 'selected', star: star, source: eventSource }
             }));
         }
+        return true;
     }
 
     deselectStar(options = {}) {
         const { suppressEvent = false, eventSource = 'UIManager' } = options;
 
         this.selectedStar = null;
+        if (this.routeManager?.routePlanner) this.routeManager.routePlanner.currentSelection = null;
         this.starRenderer.updateSelectionHighlight(null);
         this.hideInfoPanel();
         this.updateUI();
@@ -334,22 +375,40 @@ export class UIManager {
         if (!star) return;
 
         const elements = {
-            'star-name': star.name,
-            'star-dist': `${star.dist.toFixed(2)} pc`,
+            'star-name': this.lookup?.label(star) || star.name,
+            'star-dist': hasUnresolvedDistance(star) ? 'Unresolved (catalog placeholder)' : star.id==='sol' ? '0 pc (defined origin)' : `${star.dist.toFixed(2)} pc`,
             'star-mag': star.mag.toFixed(2),
-            'star-spect': star.spect,
-            'star-coords': `X:${star.x.toFixed(1)}, Y:${star.y.toFixed(1)}, Z:${star.z.toFixed(1)}`
+            'star-spect': star.spect || 'Not supplied',
+            'star-coords': `X:${star.x.toFixed(1)}, Y:${star.y.toFixed(1)}, Z:${star.z.toFixed(1)} pc`,
+            'star-identifiers': catalogIdentifierLabel(star),
+            'star-quality': catalogQualityLabel(star),
+            'star-equatorial': `Source axes X, Y, Z: ${appToEquatorial([star.x,star.y,star.z]).map(value=>value.toFixed(6)).join(', ')} pc`
         };
 
         Object.entries(elements).forEach(([id, value]) => {
             const element = document.getElementById(id);
-            if (element) element.textContent = value;
+            if (element) {
+                element.textContent = value;
+                if (id === 'star-name') element.dataset.starId = star.id;
+            }
         });
 
         this.showHeroStar(star);
     }
 
     hideInfoPanel() {
+        this.originalNarrationText = '';
+        if (this.elements.starDescription) this.elements.starDescription.textContent = '';
+        this.elements.routeButtonsContainer?.classList.add('hidden');
+        if (this.elements.narrateButton) this.elements.narrateButton.textContent = '▶ Narrate';
+        if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+        for (const id of ['star-name', 'star-dist', 'star-mag', 'star-spect', 'star-coords','star-identifiers','star-quality','star-equatorial']) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = 'N/A';
+                if (id === 'star-name') delete element.dataset.starId;
+            }
+        }
         if (this.elements.starDescriptionContainer) {
             this.elements.starDescriptionContainer.classList.add('hidden');
         }
@@ -357,92 +416,88 @@ export class UIManager {
 
     showHeroStar(star) {
         // Handle route planner buttons
-        if (this.routeManager.isActive()) {
+        if (this.routeManager?.isActive()) {
             this.elements.routeButtonsContainer?.classList.remove('hidden');
         } else {
             this.elements.routeButtonsContainer?.classList.add('hidden');
         }
 
-        // Handle star description
-        if (this.starDetails && star) {
-            const starKey = star.name;
-            if (this.starDetails[starKey]) {
-                this.originalNarrationText = this.starDetails[starKey].description;
-                if (this.elements.starDescription) {
-                    this.elements.starDescription.textContent = this.originalNarrationText;
-                }
-                this.elements.starDescriptionContainer?.classList.remove('hidden');
-            } else {
-                this.originalNarrationText = '';
-                if (this.elements.starDescription) {
-                    this.elements.starDescription.textContent = this.originalNarrationText;
-                }
-                this.elements.starDescriptionContainer?.classList.add('hidden');
-            }
+        const description = this.lookup?.describe(star)?.description || '';
+        this.originalNarrationText = description;
+        if (this.elements.starDescription) this.elements.starDescription.textContent = description;
+        this.elements.starDescriptionContainer?.classList.toggle('hidden', !description);
+    }
+
+    showSearchMessage(message) {
+        const element = document.getElementById('search-not-found');
+        if (element) {
+            element.textContent = message;
+            element.style.display = message ? 'block' : 'none';
         }
+    }
+
+    renderSearchMatches(matches) {
+        const container = this.elements.autocompleteContainer;
+        if (!container) return;
+        container.replaceChildren();
+        for (const star of matches) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'suggestion-item';
+            button.style.display = 'block';
+            button.style.width = '100%';
+            button.style.textAlign = 'left';
+            button.dataset.starId = star.id;
+            const hidden = !this.activeStarIds.has(star.id);
+            button.textContent = this.lookup.label(star) + (hidden ? ' · hidden by filters' : '');
+            button.onclick = () => {
+                this.elements.searchInput.value = star.name;
+                container.classList.add('hidden');
+                this.autocompleteVisible = false;
+                this.searchById(star.id);
+            };
+            container.appendChild(button);
+        }
+        this.autocompleteVisible = matches.length > 0;
+        container.classList.toggle('hidden', !this.autocompleteVisible);
     }
 
     handleAutocomplete() {
-        const value = this.elements.searchInput.value.toLowerCase();
-        this.elements.autocompleteContainer.innerHTML = '';
-        
-        if (value.length === 0) {
-            this.elements.autocompleteContainer.classList.add('hidden');
-            this.autocompleteVisible = false;
-            return;
-        }
+        this.showSearchMessage('');
+        this.renderSearchMatches(this.lookup?.search(this.elements.searchInput.value) || []);
+    }
 
-        if (this.fullStarData) {
-            const matches = this.fullStarData
-                .filter(star => star.name.toLowerCase().includes(value))
-                .slice(0, 10);
-
-            if (matches.length > 0) {
-                matches.forEach(star => {
-                    const div = document.createElement('div');
-                    div.textContent = star.name;
-                    div.className = 'suggestion-item';
-                    div.onclick = () => {
-                        this.elements.searchInput.value = star.name;
-                        this.elements.autocompleteContainer.classList.add('hidden');
-                        this.autocompleteVisible = false;
-                        this.searchByName(star.name);
-                    };
-                    this.elements.autocompleteContainer.appendChild(div);
-                });
-                this.elements.autocompleteContainer.classList.remove('hidden');
-                this.autocompleteVisible = true;
-            } else {
-                this.elements.autocompleteContainer.classList.add('hidden');
-                this.autocompleteVisible = false;
-            }
+    searchById(id) {
+        const star = this.lookup?.byId.get(id);
+        if (!star) {
+            this.deselectStar();
+            this.showSearchMessage('Star not found.');
+            return false;
         }
+        return this.selectStar(star, { focusCamera: true });
     }
 
     searchByName(name) {
-        if (!this.fullStarData) return;
-
-        const star = this.fullStarData.find(s => s.name.toLowerCase() === name.toLowerCase());
-        if (star) {
-            this.selectStar(star, { focusCamera: true });
-            
-            // Hide "not found" message if visible
-            const notFoundMsg = document.getElementById('search-not-found');
-            if (notFoundMsg) notFoundMsg.style.display = 'none';
-        } else {
-            const notFoundMsg = document.getElementById('search-not-found');
-            if (notFoundMsg) notFoundMsg.style.display = 'block';
+        const matches = this.lookup?.find(name) || [];
+        if (matches.length === 1) {
+            this.renderSearchMatches([]);
+            return this.searchById(matches[0].id);
         }
+        this.deselectStar();
+        if (matches.length > 1) {
+            this.renderSearchMatches(matches);
+            this.showSearchMessage('Multiple catalog objects share this name. Choose an entry by its catalog ID.');
+        } else {
+            this.renderSearchMatches([]);
+            this.showSearchMessage('Star not found.');
+        }
+        return false;
     }
 
     clearSearch() {
-        if (this.elements.searchInput) {
-            this.elements.searchInput.value = '';
-        }
-        if (this.elements.autocompleteContainer) {
-            this.elements.autocompleteContainer.classList.add('hidden');
-        }
-        this.autocompleteVisible = false;
+        if (this.elements.searchInput) this.elements.searchInput.value = '';
+        this.renderSearchMatches([]);
+        this.showSearchMessage('');
     }
 
     handleNarration() {
@@ -563,7 +618,7 @@ export class UIManager {
     snapToSol() {
         if (!this.fullStarData) return;
         
-        const sol = this.fullStarData.find(star => star.name === 'Sol');
+        const sol = this.lookup?.byId.get('sol');
         if (sol) {
             this.selectStar(sol, { focusCamera: true });
         }
@@ -781,10 +836,10 @@ export class UIManager {
         
         // Update route UI elements
         if (this.elements.routeStartStar && activeRoute) {
-            this.elements.routeStartStar.textContent = activeRoute.startStar ? activeRoute.startStar.name : 'Not set';
+            this.elements.routeStartStar.textContent = activeRoute.startStar ? this.lookup.label(activeRoute.startStar) : 'Not set';
         }
         if (this.elements.routeEndStar && activeRoute) {
-            this.elements.routeEndStar.textContent = activeRoute.endStar ? activeRoute.endStar.name : 'Not set';
+            this.elements.routeEndStar.textContent = activeRoute.endStar ? this.lookup.label(activeRoute.endStar) : 'Not set';
         }
         if (this.elements.routeProgressDisplay) {
             this.elements.routeProgressDisplay.textContent = `Jump ${currentJumpIndex + 1}`;

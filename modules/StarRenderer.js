@@ -39,6 +39,7 @@ export class StarRenderer {
         // Materials and shaders
         this.starShaderMaterial = null;
         this.useStarShader = true;
+        this.visualMode = 'cinematic';
 
         // Visual state
         this.selectionHighlight = null;
@@ -48,6 +49,9 @@ export class StarRenderer {
         this.SOL_ABSOLUTE_MAGNITUDE = 4.83;
         this.BASE_STAR_RADIUS = 1.0;
         this.GLOBAL_VISUAL_SCALE = 0.5;
+        // Screen-space markers are exaggerated visual aids, not stellar radii.
+        this.MIN_MARKER_PIXELS = 2;
+        this.MAX_MARKER_PIXELS = 10;
 
         // Clock for animations
         this.clock = new THREE.Clock();
@@ -155,8 +159,10 @@ export class StarRenderer {
             this.composer.addPass(this.renderPass);
 
             // Star composer (for star-only bloom)
-            this.starRenderTarget = new THREE.WebGLRenderTarget(this.renderer.domElement.width, this.renderer.domElement.height);
-            this.starComposer = new EffectComposer(this.renderer, this.starRenderTarget);
+            // Let EffectComposer apply the renderer's pixel ratio once.
+            this.starComposer = new EffectComposer(this.renderer);
+            this.starRenderTarget = this.starComposer.renderTarget1;
+            this.starComposer.renderToScreen = false;
             this.starRenderPass = new RenderPass(this.starScene, this.camera);
             this.starComposer.addPass(this.starRenderPass);
 
@@ -164,7 +170,7 @@ export class StarRenderer {
             this.starComposer.addPass(this.starBloomPass);
 
             // Blend pass to combine normal scene + bloomed stars
-            this.blendPass = new ShaderPass(AdditiveBlendShader);
+            this.blendPass = new ShaderPass(AdditiveBlendShader, 'tBase');
 
             // Use readBuffer.texture which is the standard way to get the composer's output
             const baseTexture = this.composer?.readBuffer?.texture || null;
@@ -215,11 +221,13 @@ export class StarRenderer {
         if (this.starsMesh) {
             this.scene.remove(this.starsMesh);
             this.starsMesh.geometry.dispose();
+            this.starsMesh.material.dispose();
             this.starsMesh = null;
         }
         if (this.starsBloomMesh) {
             this.starScene.remove(this.starsBloomMesh);
             this.starsBloomMesh.geometry.dispose();
+            this.starsBloomMesh.material.dispose();
             this.starsBloomMesh = null;
         }
 
@@ -243,7 +251,7 @@ export class StarRenderer {
             colors[i * 3 + 1] = color.g;
             colors[i * 3 + 2] = color.b;
 
-            const radiusScale = star.relativeRadiusScale || 1;
+            const radiusScale = Number.isFinite(star.relativeRadiusScale) ? Math.max(0.1, star.relativeRadiusScale) : 1;
             sizes[i] = Math.max(0.1, radiusScale * this.GLOBAL_VISUAL_SCALE);
 
             // Get visual parameters for this star
@@ -269,10 +277,11 @@ export class StarRenderer {
             this.starShaderMaterial :
             new THREE.PointsMaterial({
                 size: 2,
-                sizeAttenuation: true,
+                sizeAttenuation: false,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.8,
+                depthWrite: false
             });
 
         // Create main star mesh
@@ -292,7 +301,10 @@ export class StarRenderer {
         return new THREE.ShaderMaterial({
             uniforms: {
                 time: { value: 0.0 },
-                pointTexture: { value: null }
+                animationStrength: { value: this.visualMode === 'scientific' ? 0 : 1 },
+                pixelRatio: { value: this.renderer.getPixelRatio() },
+                minPointSize: { value: this.MIN_MARKER_PIXELS },
+                maxPointSize: { value: this.MAX_MARKER_PIXELS }
             },
             vertexShader: `
                 attribute float size;
@@ -300,6 +312,10 @@ export class StarRenderer {
                 varying vec3 vColor;
                 varying vec4 vStarParams;
                 uniform float time;
+                uniform float animationStrength;
+                uniform float pixelRatio;
+                uniform float minPointSize;
+                uniform float maxPointSize;
                 
                 void main() {
                     vColor = color;
@@ -308,10 +324,13 @@ export class StarRenderer {
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                     
                     // Apply pulsing effect
-                    float pulse = 1.0 + starParams.z * sin(time * 2.0 + position.x * 10.0) * 0.3;
+                    float pulse = 1.0 + animationStrength * starParams.z * sin(time * 2.0 + position.x * 10.0) * 0.3;
                     
-                    // Increase attenuation factor to make stars visible
-                    gl_PointSize = size * pulse * (5000.0 / -mvPosition.z);
+                    // Bound apparent marker diameter in CSS pixels, even when
+                    // approaching a bright star or crossing its camera plane.
+                    float depth = max(0.1, -mvPosition.z);
+                    float diameter = clamp(size * pulse * (150.0 / depth), minPointSize, maxPointSize);
+                    gl_PointSize = diameter * pixelRatio;
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
@@ -319,6 +338,7 @@ export class StarRenderer {
                 varying vec3 vColor;
                 varying vec4 vStarParams;
                 uniform float time;
+                uniform float animationStrength;
                 
                 void main() {
                     // Create circular star shape
@@ -328,7 +348,7 @@ export class StarRenderer {
                     if (dist > 0.5) discard;
                     
                     // Apply twinkling effect
-                    float twinkle = 1.0 + vStarParams.y * sin(time * 5.0 + gl_FragCoord.x * 0.1) * 0.4;
+                    float twinkle = 1.0 + animationStrength * vStarParams.y * sin(time * 5.0 + gl_FragCoord.x * 0.1) * 0.4;
                     
                     // Apply halo effect
                     float halo = 1.0 - smoothstep(0.0, 0.5, dist);
@@ -341,8 +361,20 @@ export class StarRenderer {
                 }
             `,
             transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
             vertexColors: true
         });
+    }
+
+    setVisualPreset(mode) {
+        if (mode !== 'scientific' && mode !== 'cinematic') return false;
+        this.visualMode = mode;
+        if (this.starBloomPass) {
+            this.starBloomPass.enabled = mode === 'cinematic';
+            if (mode === 'cinematic') this.starBloomPass.strength = Math.max(0.6, this.starBloomPass.strength);
+        }
+        return true;
     }
 
     getStarVisualParams(star) {
@@ -352,12 +384,15 @@ export class StarRenderer {
 
         const defaultParams = { twinkle: 0.02, pulse: 0.8, halo: 0.35 };
 
-        // Use cached presets if available
-        if (this.visualPresets && this.visualPresets.grid) {
-            return this.visualPresets.grid[spectral]?.[lumClass] || defaultParams;
-        }
-
-        return defaultParams;
+        // The bundled grid uses tw/pf/h; normalize it before filling GPU
+        // attributes. Missing or non-finite fields must never become NaN.
+        const preset = this.visualPresets?.grid?.[spectral]?.[lumClass] || defaultParams;
+        const finite = (value, fallback) => Number.isFinite(value) ? value : fallback;
+        return {
+            twinkle: finite(preset.twinkle ?? preset.tw, defaultParams.twinkle),
+            pulse: finite(preset.pulse ?? preset.pf, defaultParams.pulse),
+            halo: finite(preset.halo ?? preset.h, defaultParams.halo)
+        };
     }
 
     updateSelectionHighlight(star) {
@@ -539,8 +574,13 @@ export class StarRenderer {
         }
 
         // Update shader time
-        if (this.starShaderMaterial && this.starShaderMaterial.uniforms.time) {
-            this.starShaderMaterial.uniforms.time.value = this.clock.getElapsedTime();
+        const elapsed = this.clock.getElapsedTime();
+        for (const mesh of [this.starsMesh, this.starsBloomMesh]) {
+            if (mesh?.material.uniforms?.time) {
+                mesh.material.uniforms.time.value = elapsed;
+                mesh.material.uniforms.pixelRatio.value = this.renderer.getPixelRatio();
+                mesh.material.uniforms.animationStrength.value = this.visualMode === 'scientific' ? 0 : 1;
+            }
         }
 
         // Update selection highlight to face camera
@@ -549,9 +589,10 @@ export class StarRenderer {
         }
 
         // Render with or without post-processing
-        if (this.composer && this.starComposer) {
-            this.composer.render();
+        if (this.composer && this.starComposer && this.starBloomPass?.enabled) {
             this.starComposer.render();
+            this.blendPass.uniforms.tAdd.value = this.starComposer.readBuffer.texture;
+            this.composer.render();
         } else {
             this.renderer.render(this.scene, this.camera);
         }

@@ -1,3 +1,4 @@
+import { requireStarId } from './StarIdentity.js';
 // High-performance binary heap implementation for priority queues
 // Optimized for A* pathfinding and other performance-critical operations
 
@@ -193,39 +194,51 @@ export class PathfindingPriorityQueue extends BinaryHeap {
     }
 
     enqueue(node, fScore) {
+        const id = requireStarId(node);
+        if (!Number.isFinite(fScore)) throw new Error('Path priority must be finite');
+        if (this.nodeMap.has(id)) {
+            if (fScore < this.nodeMap.get(id).fScore) this.updateNodePriority(node, fScore);
+            return;
+        }
         const item = {
             node,
             fScore,
             priority: fScore // Alias for compatibility
         };
         
-        this.nodeMap.set(node.name, item);
+        this.nodeMap.set(id, item);
         this.insert(item);
     }
 
     dequeue() {
         const item = this.extractMin();
         if (item) {
-            this.nodeMap.delete(item.node.name);
+            this.nodeMap.delete(item.node.id);
             return item.node;
         }
         return null;
     }
 
     hasNode(node) {
-        return this.nodeMap.has(node.name);
+        return this.nodeMap.has(requireStarId(node));
     }
 
     updateNodePriority(node, newFScore) {
-        const item = this.nodeMap.get(node.name);
+        if (!Number.isFinite(newFScore)) throw new Error('Path priority must be finite');
+        const item = this.nodeMap.get(requireStarId(node));
         if (item) {
-            return this.updatePriority(item, newFScore);
+            const index = this.findElementIndex(item);
+            const previous = item.fScore;
+            item.fScore = item.priority = newFScore;
+            if (newFScore < previous) this.bubbleUp(index);
+            else if (newFScore > previous) this.bubbleDown(index);
+            return true;
         }
         return false;
     }
 
     getNodePriority(node) {
-        const item = this.nodeMap.get(node.name);
+        const item = this.nodeMap.get(requireStarId(node));
         return item ? item.fScore : null;
     }
 
@@ -239,7 +252,7 @@ export class PathfindingPriorityQueue extends BinaryHeap {
         return {
             ...this.getStats(),
             nodesInQueue: this.nodeMap.size,
-            peekNode: this.peek()?.node?.name || null,
+            peekNode: this.peek()?.node?.id || null,
             averageFScore: this.calculateAverageFScore()
         };
     }

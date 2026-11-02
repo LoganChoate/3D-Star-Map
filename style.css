@@ -1,3 +1,17 @@
+@font-face {
+    font-family: 'Inter';
+    src: url('./vendor/fonts/Inter-Variable.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('./vendor/fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
@@ -27,6 +41,8 @@ body {
     border: 1px solid rgba(100, 100, 255, 0.5);
     box-shadow: 0 0 15px rgba(100, 100, 255, 0.3);
     max-width: 320px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     font-size: 0.875rem;
     backdrop-filter: blur(5px);
 }
@@ -131,3 +147,8 @@ body {
 .suggestion-item:hover {
     background-color: #2A2A4A;
 }
+.catalog-provenance { margin: 12px 0; padding: 10px; border: 1px solid #34536a; border-radius: 5px; font-size: 11px; line-height: 1.6; color: #b5c9d9; }
+.catalog-provenance summary { cursor: pointer; color: #8de2ca; }
+.catalog-provenance p { margin: 8px 0; overflow-wrap: anywhere; }
+.catalog-provenance a { color: #9cd9e9; }
+#catalog-quality-summary { margin: 6px 0 10px; color: #a7bacb; line-height: 1.5; }

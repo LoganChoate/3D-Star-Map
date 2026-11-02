@@ -1,3 +1,5 @@
+import { StarLookup } from '../utils/StarLookup.js';
+
 export class TourController {
     constructor(starRenderer, errorHandler) {
         this.starRenderer = starRenderer;
@@ -16,6 +18,8 @@ export class TourController {
         // Data references (will be set externally)
         this.fullStarData = null;
         this.starDetails = null;
+        this.lookup = null;
+        this.activeStarData = null;
         
         // Narration state
         this.originalNarrationText = '';
@@ -29,6 +33,15 @@ export class TourController {
     setData(fullStarData, starDetails) {
         this.fullStarData = fullStarData;
         this.starDetails = starDetails;
+        this.lookup = new StarLookup(fullStarData, starDetails);
+        if (!this.activeStarData) this.activeStarData = fullStarData;
+    }
+
+    setActiveStarData(stars) {
+        this.activeStarData = stars;
+        if (this.stellarTour.currentStar && !stars.some(star => star.id === this.stellarTour.currentStar.id)) {
+            this.interrupt();
+        }
     }
 
     setUIElements(starDescription, starDescriptionContainer) {
@@ -128,17 +141,17 @@ export class TourController {
         if (!this.stellarTour.active || !this.fullStarData) return;
 
         // Filter out already visited stars and get stars with descriptions
-        const availableStars = this.fullStarData.filter(star => {
-            const hasDescription = this.starDetails && this.starDetails[star.name];
-            const notVisited = !this.stellarTour.visitedStars.includes(star.name);
+        const availableStars = (this.activeStarData || []).filter(star => {
+            const hasDescription = this.lookup?.describe(star)?.description;
+            const notVisited = !this.stellarTour.visitedStars.includes(star.id);
             return hasDescription && notVisited;
         });
 
         if (availableStars.length === 0) {
             // Reset visited stars if we've seen them all
             this.stellarTour.visitedStars = [];
-            const starsWithDescriptions = this.fullStarData.filter(star => 
-                this.starDetails && this.starDetails[star.name]
+            const starsWithDescriptions = (this.activeStarData || []).filter(star =>
+                this.lookup?.describe(star)?.description
             );
             
             if (starsWithDescriptions.length === 0) {
@@ -155,7 +168,7 @@ export class TourController {
         const selectedStar = availableStars[randomIndex];
         
         this.stellarTour.currentStar = selectedStar;
-        this.stellarTour.visitedStars.push(selectedStar.name);
+        this.stellarTour.visitedStars.push(selectedStar.id);
         
         console.log(`Tour: traveling to ${selectedStar.name}`);
         
@@ -206,8 +219,7 @@ export class TourController {
     handleTourNarration() {
         if (!this.stellarTour.currentStar || !this.starDetails) return false;
 
-        const starKey = this.stellarTour.currentStar.name;
-        const starInfo = this.starDetails[starKey];
+        const starInfo = this.lookup?.describe(this.stellarTour.currentStar);
         
         if (!starInfo || !starInfo.description) return false;
 

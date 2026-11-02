@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "builtAtUtc": "2026-11-02T04:49:20.302925+00:00",
+  "status": "asset_generated_and_structurally_verified",
+  "body": {
+    "id": "solar:moon",
+    "name": "Moon",
+    "meanRadiusKm": 1737.4
+  },
+  "asset": {
+    "url": "moon.glb",
+    "bytes": 62164852,
+    "sha256": "7cbb33ce6ac69b09528e1e2bc42e24c5c89cbf04c5a90410198ede69ad41c46c",
+    "meshes": 1,
+    "materials": 1,
+    "embeddedImages": 2,
+    "exportedVertices": 131839,
+    "minRadiusUnits": 0.9950286746025085,
+    "maxRadiusUnits": 1.0055116415023804,
+    "triangles": 261120,
+    "boundsMin": [
+      -1.0012035369873047,
+      -1.000885248184204,
+      -1.0022029876708984
+    ],
+    "boundsMax": [
+      0.9980601668357849,
+      1.0001155138015747,
+      0.9995868802070618
+    ],
+    "extensionsUsed": [],
+    "externalImages": 0,
+    "geometryAndTexturesPresent": true
+  },
+  "geometry": {
+    "radiusUnits": 1,
+    "reliefScale": 1,
+    "elevationUnit": "km",
+    "orientation": "+Y north; +Z longitude 0 near side; +X east at longitude 90 degrees",
+    "units": "Normalized inspection coordinates. 1 radius unit corresponds to 1737.4 km.",
+    "vertices": 130562,
+    "triangles": 261120,
+    "boundaryEdges": 0,
+    "nonManifoldEdges": 0,
+    "volume": 4.186749034058068,
+    "referenceSphereVolume": 4.1887902047863905,
+    "surfaceArea": 12.597393154921816,
+    "boundsMin": [
+      -1.0012035369873047,
+      -1.000885248184204,
+      -1.0022029876708984
+    ],
+    "boundsMax": [
+      0.9980601668357849,
+      1.0001155138015747,
+      0.9995868802070618
+    ],
+    "minRadiusUnits": 0.9950287064049178,
+    "maxRadiusUnits": 1.0055116845231151,
+    "minSampledElevationKm": -8.637125492095803,
+    "maxSampledElevationKm": 9.576000690460216,
+    "boundsCoordinateFrame": "glTF: north +Y, longitude zero +Z",
+    "meshSpacingKmAtEquator": 21.321105766980104,
+    "meshLatitudeSpacingKm": 21.321105766980104
+  },
+  "textures": {
+    "color": {
+      "file": "moon-color-8192-runtime-srgb8.png",
+      "bytes": 39571563,
+      "sha256": "48312b07662031eb9b0abc25de40397cc06f0502b454f4e2d0c2d8fd8ba8aab6",
+      "width": 8192,
+      "height": 4096,
+      "colorSpace": "sRGB",
+      "workingBufferIsFloat": false,
+      "sourceDimensions": [
+        27360,
+        13680
+      ],
+      "encodedBitDepth": 8,
+      "pngColorType": 2,
+      "runtimePackaging": "8-bit sRGB PNG embedded in moon.glb; the separate 16-bit authoring derivative is retained in moon.blend.",
+      "authoringBitDepth": 16,
+      "quantization": {
+        "comparedPixels": 33554432,
+        "comparisonSpace": "sRGB encoded channels versus the analytic sRGB transfer of the authoring scene-linear buffer.",
+        "maximumChannelError": 0.001967191696166992,
+        "meanAbsoluteChannelError": 0.0009794272679570781,
+        "rootMeanSquareChannelError": 0.0011314963675844486,
+        "maximumAllowedChannelError": 0.00393156862745098,
+        "passed": true
+      },
+      "sampleSpacingKmAtEquator": 1.3325691104362565
+    },
+    "colorAuthoringDerivative": {
+      "file": "moon-color-8192.png",
+      "bytes": 157153436,
+      "sha256": "863e3cc407f25ec034340fe416768776000c7c5b22e75fe43e632ef1e72d955d",
+      "width": 8192,
+      "height": 4096,
+      "colorSpace": "sRGB",
+      "workingBufferIsFloat": true,
+      "sourceDimensions": [
+        27360,
+        13680
+      ],
+      "encodedBitDepth": 16,
+      "pngColorType": 2,
+      "runtimePackaging": "16-bit authoring derivative packed in moon.blend; the runtime uses a separately verified 8-bit sRGB copy.",
+      "sampleSpacingKmAtEquator": 1.3325691104362565
+    },
+    "normal": {
+      "file": "moon-normal-4096.png",
+      "bytes": 13129493,
+      "sha256": "3ba67497f9a4e4b848377e07603bf4aafb5410154c5768efe1839daddec6e26e",
+      "width": 4096,
+      "height": 2048,
+      "colorSpace": "Non-Color",
+      "workingBufferIsFloat": false,
+      "encodedBitDepth": 8,
+      "pngColorType": 2,
+      "runtimePackaging": "Embedded in moon.glb; derivative file retained with the Blender project.",
+      "method": "Spherical derivatives of NASA height in km, projected into the actual displaced mesh tangent basis; no relief exaggeration.",
+      "normalStrength": 1,
+      "minimumTangentZ": -0.03717728539642719,
+      "finite": true,
+      "pixelCount": 8388608,
+      "sampleSpacingKmAtEquator": 2.665138220872513
+    },
+    "heightSourceDerivative": {
+      "file": "moon-height-km-4096.exr",
+      "bytes": 100696913,
+      "sha256": "c1233e018a237deb539fd649f63535e62f090b473c5a52043035ed9a125cadc8",
+      "width": 4096,
+      "height": 2048,
+      "colorSpace": "Non-Color",
+      "workingBufferIsFloat": true,
+      "sourceDimensions": [
+        23040,
+        11520
+      ],
+      "runtimePackaging": "Authoring project only; packed in moon.blend, not a separate runtime dependency."
+    }
+  },
+  "heightSource": {
+    "width": 23040,
+    "height": 11520,
+    "minKm": -9.114500045776367,
+    "maxKm": 10.757000923156738,
+    "meanKm": -0.5194114019855713,
+    "unit": "km",
+    "referenceRadiusKm": 1737.4,
+    "finite": true,
+    "southPoleMeanKm": 1.1960204777450094,
+    "northPoleMeanKm": -0.012800933731834144
+  },
+  "sources": [
+    {
+      "label": "NASA CGI Moon Kit: full-resolution 2025 color",
+      "file": "lroc_color_16bit_srgb.tif",
+      "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_16bit_srgb.tif",
+      "bytes": 2618490100,
+      "sha256": "4be1ed002f72c2a96ab245af64cf8a84c560d5498a2a7e7e3b568d38e2833752",
+      "credit": "NASA's Scientific Visualization Studio",
+      "processing": "Observation-derived color adjusted for appearance, with polar fill; not raw scientific color."
+    },
+    {
+      "label": "NASA CGI Moon Kit: full-resolution float elevation",
+      "file": "ldem_64.tif",
+      "url": "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_64.tif",
+      "bytes": 1061775722,
+      "sha256": "af55ea2ed9173d1744b98ac4205501bd0bb0dcfc6ac49a11473a411dc64afd90",
+      "credit": "NASA's Scientific Visualization Studio / LRO LOLA",
+      "processing": "Float elevation in kilometers relative to a 1737.4 km sphere."
+    }
+  ],
+  "lighting": "Inspection sunlight and free camera; not current ephemeris, lunar phase or a physical rotation simulation.",
+  "appearance": "NASA observation-derived color with aesthetic processing and polar fill; height-derived geometry and normals at physical scale.",
+  "sourceMasterScope": "Highest-resolution global color and float height products supplied by the selected NASA CGI Moon Kit; separately archived higher-resolution global DEM variants and finer regional/mission products are deferred.",
+  "limitations": [
+    "Runtime geometry and textures are bounded derivatives of the retained full-resolution masters.",
+    "Runtime color uses 8-bit sRGB encoding; the 16-bit Blender authoring color and original NASA TIFF remain intact.",
+    "Normals add shading detail below the mesh spacing, not silhouettes or self-shadowing; full source masters are retained for finer future derivatives.",
+    "The single geometric poles use the mean of the nearest source latitude row.",
+    "The rough diffuse Principled material approximates lunar appearance; it is not a validated lunar photometric or Hapke model.",
+    "No new orbit, rotation state or time-dependent illumination data is implied."
+  ],
+  "authoring": {
+    "blenderVersion": "4.4.3",
+    "sourceProject": "asset-projects/moon/moon.blend",
+    "script": "scripts/build_moon_asset.py",
+    "scriptSha256": "1dfebab05bec65dd9f28035c47f9c34b36291d77f1613e3ec819a1c110a60dfc",
+    "communitySkill": "mattjamo/bpy_skill at 3be7e5fafb9aca1e308c9f7152c5a01887ae3ef8; headless authoring and verification guidance"
+  },
+  "previews": [
+    {
+      "file": "moon-blender-nearside.png",
+      "sha256": "8478c4d996e6d65d2cc77ea35df2fe2b7827bda066a0fdd672e13f085020c51d",
+      "width": 1280,
+      "height": 900,
+      "foregroundCoverage": 0.3785972222222222,
+      "foregroundBBoxBottomUp": [
+        260,
+        72,
+        1009,
+        829
+      ],
+      "rgbMin": 0.003921568859368563,
+      "rgbMax": 0.9568628072738647,
+      "framing": "passed",
+      "pixelStatisticsSpace": "Normalized encoded sRGB from the saved 8-bit PNG."
+    },
+    {
+      "file": "moon-blender-farside.png",
+      "sha256": "42e5c99620ffb3d7c2afd5aeadbf879ce52e4cd8f687e00408a4416b4c1f9cbf",
+      "width": 1280,
+      "height": 900,
+      "foregroundCoverage": 0.37926909722222224,
+      "foregroundBBoxBottomUp": [
+        260,
+        74,
+        1010,
+        829
+      ],
+      "rgbMin": 0.003921568859368563,
+      "rgbMax": 0.9686275124549866,
+      "framing": "passed",
+      "pixelStatisticsSpace": "Normalized encoded sRGB from the saved 8-bit PNG."
+    }
+  ],
+  "buildSeconds": 74.54599999997299
+}
