@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "recordedAtUtc": "2026-11-02T19:12:38.801Z",
+  "version": "1.3.1",
+  "phase": 6,
+  "step": 2,
+  "reviewGate": "Awaiting user visual feedback before Step 3.",
+  "asset": {
+    "url": "moon.glb",
+    "bytes": 62164852,
+    "sha256": "7cbb33ce6ac69b09528e1e2bc42e24c5c89cbf04c5a90410198ede69ad41c46c",
+    "meshes": 1,
+    "materials": 1,
+    "embeddedImages": 2,
+    "exportedVertices": 131839,
+    "minRadiusUnits": 0.9950286746025085,
+    "maxRadiusUnits": 1.0055116415023804,
+    "triangles": 261120,
+    "boundsMin": [
+      -1.0012035369873047,
+      -1.000885248184204,
+      -1.0022029876708984
+    ],
+    "boundsMax": [
+      0.9980601668357849,
+      1.0001155138015747,
+      0.9995868802070618
+    ],
+    "extensionsUsed": [],
+    "externalImages": 0,
+    "geometryAndTexturesPresent": true
+  },
+  "regressionSuites": 7,
+  "offline": {
+    "packaged": "passed",
+    "installed": "passed",
+    "remoteRequests": 0,
+    "limitation": "Electron application-session networking is blocked; the host adapter stays connected."
+  },
+  "packagedSourceFilesMatched": 91,
+  "payloadSha256": "23d2b7216fa874afddc6ee1fcb607fda01205d540c62b838ea0464d15f81fbd7",
+  "scientificAudit": {
+    "status": "passed",
+    "verticesUvChecked": 131839,
+    "heightLocationsChecked": 433,
+    "maximumHeightErrorMeters": 0.10206699371373418,
+    "meaning": "Arithmetic source-to-export agreement, not observational accuracy."
+  },
+  "limitations": [
+    "Single workstation proof; broad performance and minimum-hardware acceptance remain later steps.",
+    "8K runtime color and 4K normal are working derivatives; full NASA masters remain local.",
+    "Physical mesh relief is not exaggerated. Detail normals do not add silhouette geometry or small-ridge self-shadowing.",
+    "Inspection lighting and camera animation are demonstrations, not a live lunar phase or orbital simulation.",
+    "Sun, Earth, stellar animation, narration and scientific/artistic mode comparison remain later work.",
+    "Unsigned local Windows build; no public binary release was published."
+  ]
+}

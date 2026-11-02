@@ -10,9 +10,11 @@ const COLORS = {sol:'#ffd58a','solar:mercury':'#c8bcb0','solar:venus':'#edcd8d',
 
 /** Local, fixed-epoch exploration with separate, explicit coordinate spaces. */
 export class ExplorationController {
-    constructor({ mount = document.getElementById('exploration-root'), onModeChange = () => {} } = {}) {
+    constructor({ mount = document.getElementById('exploration-root'), onModeChange = () => {}, onInspectBody = null } = {}) {
         this.mount = mount;
         this.onModeChange = onModeChange;
+        this.onInspectBody = onInspectBody;
+        this.suspended = false;
         this.currentMode = 'atlas';
         this.nearbyCollection = 'highlights';
         this.selectedObject = null;
@@ -303,6 +305,12 @@ export class ExplorationController {
         const stellar=body.space==='nearby'&&body.id!=='sol'?`${body.spectralType?`<dt>Spectral type</dt><dd>${escape(body.spectralType)}</dd>`:''}${Number.isFinite(body.apparentMagnitude)?`<dt>Apparent magnitude</dt><dd>${escape(body.apparentMagnitude)}</dd>`:''}${Number.isFinite(body.distancePc)?`<dt>Catalog distance</dt><dd>${escape(body.distancePc)} pc</dd>`:''}`:'';
         panel.innerHTML=`<span class="ex-eyebrow">${escape(body.kind || 'Star')}</span><h3 id="ex-object-name" data-object-id="${escape(body.id)}">${escape(body.name)}</h3><p class="ex-description">${escape(body.description || 'Position from the bundled star catalog.')}</p><dl><dt>Catalog identity</dt><dd>${escape(body.id)}</dd>${radius}${stellar}<dt>Coordinate separation from Sun</dt><dd>${escape(distance.primary)}<small>${escape(distance.secondary)}</small></dd><dt>Reference</dt><dd>${escape(body.space==='solar'?this.catalog.solar.epochLabel:'Bundled HYG catalog positions')}</dd></dl><div class="ex-selection-actions"><button id="ex-focus-selected">Focus view</button><button id="ex-measure-selected">Measure from here</button></div><details class="ex-provenance"><summary>Coordinates & sources</summary><p>${escape(body.space==='solar'?this.catalog.solar.frame:(this.catalog.nearby.frame || 'HYG heliocentric catalog frame, rotated by the atlas renderer'))}</p><p class="ex-coordinates">${body.position.map(value=>Number(value).toPrecision(9)).join(' · ')} ${body.space==='solar'?'AU':'pc'}</p>${sources.map(source=>`<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${escape(source.label || 'Data source')} ↗</a>`).join('')}</details>`;
         panel.querySelector('#ex-object-name').textContent=nearbyDisplayLabel(body);
+        if(body.id==='solar:moon' && this.onInspectBody) {
+            const inspect=document.createElement('button');
+            inspect.id='ex-inspect-moon';inspect.textContent='Explore Moon surface';
+            inspect.addEventListener('click',()=>this.onInspectBody(body));
+            panel.querySelector('.ex-selection-actions').append(inspect);
+        }
         if(body.space==='nearby' && body.catalogMetadata) {
             const quality=document.createElement('p');quality.id='ex-catalog-quality';quality.className='ex-muted';quality.textContent=catalogQualityLabel(body);
             panel.querySelector('.ex-description').after(quality);
@@ -452,7 +460,7 @@ export class ExplorationController {
     render() {
         if(this.disposed)return;
         this.frame=requestAnimationFrame(()=>this.render());
-        if(this.currentMode==='atlas')return;
+        if(this.currentMode==='atlas'||this.suspended)return;
         this.controls.update();this.updateClipping();this.updateLabels();this.renderer.render(this.scene,this.camera);
     }
 

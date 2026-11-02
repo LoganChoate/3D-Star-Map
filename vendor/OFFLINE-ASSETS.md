@@ -8,4 +8,6 @@ Inter and Press Start 2P were downloaded from the [Google Fonts repository](http
 
 `ui-utilities.css` is a small application-maintained stylesheet covering the actual utility classes in the interface and generated spectral legend. It replaces the runtime Tailwind CDN compiler without adding a build or network dependency. When adding interface classes, maintain these local rules as well.
 
+The Moon inspector uses GLTFLoader and BufferGeometryUtils from the official Three.js **r164** tag, matching the app's renderer. Their bare Three.js imports are rewritten to the local vendored module. `three/LICENSE` preserves the upstream MIT license, and `offline-assets.json` records the shipped bytes and sources. The Moon model embeds its images and buffers; no online decoder is required.
+
 Run `node tests/offline-assets.cjs` for static asset, hash, font signature and actual GSAP interpolation checks. This is not proof of an offline application launch; the packaged Electron checks provide that separate evidence.

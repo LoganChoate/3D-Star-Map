@@ -1,6 +1,11 @@
 # Preserve upstream asset bytes so integrity hashes survive Windows checkouts.
 vendor/fonts/** -text
 vendor/gsap/** -text
+vendor/three/examples/jsm/loaders/GLTFLoader.js -text
+vendor/three/examples/jsm/utils/BufferGeometryUtils.js -text
+vendor/three/LICENSE -text
+assets/moon/** -text
+scripts/build_moon_asset.py -text
 data/horizons/** -text
 data/exploration-catalog.json -text
 data/pipeline/*.json -text

@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -54,6 +54,8 @@
       "AdditiveBlendShader.js",
       "style.css",
       "exploration.css",
+      "moon-trial.css",
+      "assets/moon/**/*",
       "data/**/*",
       "!data/pipeline/records.json",
       "ui-utilities.css",
@@ -67,6 +69,7 @@
       "tests/interaction-runtime.js",
       "tests/exploration-runtime.js",
       "tests/nearby-runtime.js",
+      "tests/moon-trial-runtime.js",
       "tests/scientific-runtime.js"
     ],
     "publish": {

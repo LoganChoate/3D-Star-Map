@@ -38,6 +38,30 @@
       "path": "vendor/fonts/PressStart2P-OFL.txt",
       "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/pressstart2p/OFL.txt",
       "bytes": 4413
+    },
+    {
+      "path": "vendor/three/examples/jsm/loaders/GLTFLoader.js",
+      "source": "https://github.com/mrdoob/three.js/blob/r164/examples/jsm/loaders/GLTFLoader.js",
+      "sha256": "fb657ebb61419201b5c5682a0c4efb4f6a9ae110d04e19a3577358de0e7a755f",
+      "bytes": 109807,
+      "license": "vendor/three/LICENSE",
+      "processing": "Bare three import replaced with local vendored relative path."
+    },
+    {
+      "path": "vendor/three/examples/jsm/utils/BufferGeometryUtils.js",
+      "source": "https://github.com/mrdoob/three.js/blob/r164/examples/jsm/utils/BufferGeometryUtils.js",
+      "sha256": "5b961d7f5c7f958731666e42deef0376a2c664f681af1dc74943d53c0ef1927a",
+      "bytes": 31580,
+      "license": "vendor/three/LICENSE",
+      "processing": "Bare three import replaced with local vendored relative path."
+    },
+    {
+      "path": "vendor/three/LICENSE",
+      "source": "https://github.com/mrdoob/three.js/blob/r164/LICENSE",
+      "sha256": "4c40a1ef62450b857c3b2aaf294936304cd552d965fbcd9d32d4c5bcf4ba4454",
+      "bytes": 1081,
+      "license": "vendor/three/LICENSE",
+      "processing": "Unmodified upstream license."
     }
   ],
   "retrievedDate": "2026-10-31"

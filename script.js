@@ -8,6 +8,7 @@ import { Octree, Box3D } from './utils/SpatialIndex.js';
 import { filterStars } from './utils/StarFilters.js';
 import { buildStarIndex } from './utils/StarIdentity.js';
 import { ExplorationController } from './modules/ExplorationController.js';
+import { MoonAssetTrial } from './modules/MoonAssetTrial.js';
 import { attachCatalogMetadata, verifyCatalogBytes, hasUnresolvedDistance } from './utils/CatalogMetadata.js';
 
 // Import external data modules
@@ -29,6 +30,7 @@ let routeManager = null;
 let tourController = null;
 let uiManager = null;
 let explorer = null;
+let moonTrial = null;
 
 // DEBUG: Expose to window
 window.starRenderer = null;
@@ -206,8 +208,21 @@ async function init() {
         // Build spectral legend
         buildSpectralLegend();
 
+        moonTrial = new MoonAssetTrial({
+            onOpen: () => {
+                explorer.suspended = true;
+                explorer.controls.enabled = false;
+                window.speechSynthesis?.cancel();
+            },
+            onClose: () => {
+                explorer.suspended = false;
+                explorer.controls.enabled = explorer.currentMode !== 'atlas';
+                explorer.resize();
+            }
+        });
         explorer = new ExplorationController({
             mount: document.getElementById('exploration-root'),
+            onInspectBody: body => moonTrial.open(body),
             onModeChange: mode => {
                 if (mode !== 'atlas') {
                     if (tourController.isActive()) tourController.stop();
@@ -236,7 +251,7 @@ async function init() {
         // Start animation loop
         animate();
 
-        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, catalogAudit });
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, moonTrial, catalogAudit });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {

@@ -11,7 +11,7 @@ exports.attach = function attach(app, session, outputDirectory) {
   const stem = path.join(output, `offline-${runId}`);
   const evidence = {
     runId,
-    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking and routing with network unavailable',
+    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking, routing and Moon asset inspection with network unavailable',
     appVersion: app.getVersion(),
     isPackaged: app.isPackaged,
     executable: process.execPath,
@@ -23,6 +23,8 @@ exports.attach = function attach(app, session, outputDirectory) {
     messages: [],
     requests: [],
     checks: {},
+    stage: 'startup',
+    stageHistory: [{stage:'startup',at:new Date().toISOString()}],
     status: 'running'
   };
   let finished = false;
@@ -30,6 +32,10 @@ exports.attach = function attach(app, session, outputDirectory) {
   let probing = false;
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   let timeout;
+  const stage = name => {
+    evidence.stage = name;
+    evidence.stageHistory.push({stage:name,at:new Date().toISOString()});
+  };
   const finish = error => {
     if (finished) return;
     finished = true;
@@ -40,7 +46,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     console.log(JSON.stringify({ status: evidence.status, evidence: `${stem}.json`, screenshot: evidence.screenshot, error: evidence.error }));
     app.exit(error ? 1 : 0);
   };
-  timeout = setTimeout(() => finish(new Error('Packaged offline verification did not finish within 120 seconds')), 120000);
+  timeout = setTimeout(() => finish(new Error(`Packaged offline verification did not finish within 180 seconds (stage: ${evidence.stage})`)), 180000);
 
   // Electron uses only the most recently registered callback. This harness owns
   // the deny-and-record callback in verification mode; normal --offline has its
@@ -84,6 +90,28 @@ exports.attach = function attach(app, session, outputDirectory) {
 
   async function verifyWindow(win) {
     await win.webContents.executeJavaScript('document.fonts.ready.then(() => true)');
+    stage('foreground');
+    const windowState = async () => ({
+      visible:win.isVisible(),minimized:win.isMinimized(),focused:win.isFocused(),
+      document:await win.webContents.executeJavaScript('({visibility:document.visibilityState,hidden:document.hidden,focused:document.hasFocus()})')
+    });
+    evidence.checks.windowBeforeVerification = await windowState();
+    // A Windows launcher may start the native process hidden. Real RAF and
+    // native-input checks require an explicitly visible, focused test window.
+    // Keep the production renderer's normal background throttling unchanged.
+    if (win.isMinimized()) win.restore();
+    win.show();win.focus();win.webContents.focus();
+    const foregroundDeadline = Date.now()+5000;
+    do {
+      evidence.checks.verificationWindow = await windowState();
+      const state = evidence.checks.verificationWindow;
+      if (state.visible && !state.minimized && !state.document.hidden && state.document.focused) break;
+      await delay(50);
+    } while (Date.now()<foregroundDeadline);
+    assert.equal(evidence.checks.verificationWindow.visible,true,'Packaged verification requires a visible native window');
+    assert.equal(evidence.checks.verificationWindow.document.hidden,false,'Packaged verification requires visible render frames');
+    assert.equal(evidence.checks.verificationWindow.document.focused,true,'Packaged verification requires focused native input');
+    stage('renderer');
     await delay(1800);
     evidence.checks.renderer = await win.webContents.executeJavaScript(`(() => {
       const r = window.starRenderer;
@@ -155,6 +183,7 @@ exports.attach = function attach(app, session, outputDirectory) {
 
     // Drive the real selector's change listener -> UIManager custom event ->
     // script.js preset handler. Wait for render frames to update both materials.
+    stage('visual-modes');
     evidence.checks.visualModes = await win.webContents.executeJavaScript(`(async () => {
       const r = window.starRenderer;
       const selector = document.getElementById('visual-preset');
@@ -163,7 +192,10 @@ exports.attach = function attach(app, session, outputDirectory) {
       for (const mode of ['scientific', 'cinematic']) {
         selector.value = mode;
         selector.dispatchEvent(new Event('change', {bubbles:true}));
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await new Promise((resolve,reject) => {
+          const timer=setTimeout(()=>reject(new Error('Visual mode render frames stalled: visibility='+document.visibilityState+', focused='+document.hasFocus())),5000);
+          requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(timer);resolve();}));
+        });
         const positions = r.starsMesh.geometry.getAttribute('position').array;
         records.push({
           selected: selector.value, visualMode: r.visualMode,
@@ -192,6 +224,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.deepEqual(evidence.checks.visualModes.map(mode => mode.selected), ['scientific', 'cinematic']);
     assert.deepEqual(evidence.messages.filter(m => m.level >= 3), [], 'Visual mode switching must not produce renderer errors');
 
+    stage('star-field');
     const screenshot = await win.webContents.capturePage();
     evidence.screenshot = `${stem}.png`;
     fs.writeFileSync(evidence.screenshot, screenshot.toPNG());
@@ -218,6 +251,7 @@ exports.attach = function attach(app, session, outputDirectory) {
 
     // Exercise the real production camera animation with the bundled GSAP,
     // then verify it finishes and restores normal controls while offline.
+    stage('camera-animation');
     evidence.checks.cameraAnimation = await win.webContents.executeJavaScript(`new Promise((resolve, reject) => {
       const r = window.starRenderer;
       const before = r.camera.position.clone();
@@ -233,6 +267,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.equal(evidence.checks.cameraAnimation.controlsEnabled, true);
     assert.equal(evidence.requests.length, 0, 'Offline camera interaction must not fetch remote assets');
 
+    stage('atlas-interactions');
     let interactionsFinished = false;
     const interactionsPromise = win.webContents.executeJavaScript(`import('./tests/interaction-runtime.js').then(module => module.verifyInteractions())`);
     interactionsPromise.then(() => { interactionsFinished = true; }, () => { interactionsFinished = true; });
@@ -253,12 +288,14 @@ exports.attach = function attach(app, session, outputDirectory) {
     evidence.interactionScreenshot = `${stem}-interactions.png`;
     fs.writeFileSync(evidence.interactionScreenshot, (await win.webContents.capturePage()).toPNG());
 
+    stage('exploration-and-moon');
     let explorationFinished = false;
     evidence.explorationScreenshots = {};
     const explorationPromise = win.webContents.executeJavaScript(`(async () => {
       const exploration=await import('./tests/exploration-runtime.js').then(module=>module.verifyExploration());
       const nearby=await import('./tests/nearby-runtime.js').then(module=>module.verifyNearbyExpansion({nativeBridge:true}));
-      return {exploration,nearby};
+      const moon=await import('./tests/moon-trial-runtime.js').then(module=>module.verifyMoonAssetTrial({nativeBridge:true}));
+      return {exploration,nearby,moon};
     })()`);
     explorationPromise.then(() => { explorationFinished = true; }, () => { explorationFinished = true; });
     while (!explorationFinished) {
@@ -287,15 +324,18 @@ exports.attach = function attach(app, session, outputDirectory) {
     const explorationResults = await explorationPromise;
     evidence.checks.exploration = explorationResults.exploration;
     evidence.checks.nearbyExpansion = explorationResults.nearby;
+    evidence.checks.moonAssetTrial = explorationResults.moon;
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Exploration must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Exploration must use bundled assets while offline');
 
+    stage('scientific');
     evidence.checks.scientific = await win.webContents.executeJavaScript("import('./tests/scientific-runtime.js').then(module => module.verifyScientificPipeline())");
     evidence.scientificScreenshot = `${stem}-scientific-quality.png`;
     fs.writeFileSync(evidence.scientificScreenshot, (await win.webContents.capturePage()).toPNG());
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Scientific metadata and quality controls must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Scientific catalog metadata must load and work offline');
 
+    stage('network-probes');
     probing = true;
     evidence.checks.networkProbe = await win.webContents.executeJavaScript(`(async () => {
       try { await fetch('https://example.com/galaxy-map-offline-probe', {cache: 'no-store'}); return {blocked:false}; }
@@ -315,6 +355,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.equal(evidence.checks.sessionNetworkProbe.cancellationObserved, true, 'Network cancellation callback must observe the session probe');
     evidence.checks.startupRemoteRequests = evidence.requests.filter(request => !request.intentionalProbe).length;
     evidence.updatePolicy = 'main.js enters this harness in its explicit offline branch, which skips network update checks; the shipped updater module was loaded and checked above';
+    stage('complete');
     finish();
   }
 };
