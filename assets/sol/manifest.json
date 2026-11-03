@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "body": {
+    "id": "sol",
+    "name": "Sun",
+    "meanRadiusKm": 695700,
+    "radiusDefinition": "IAU 2015 nominal solar radius; a reference conversion constant, not an exact measured radius.",
+    "nominalEffectiveTemperatureK": 5772,
+    "temperatureDefinition": "IAU 2015 nominal effective temperature; a reference conversion constant, not a surface temperature map."
+  },
+  "classification": "Procedural scientific illustration with a separate artistic interpretation; not a live observation or plasma simulation.",
+  "appearanceSha256": "88bb70843929ad69179db8219c2b50d0c7d8f6fadf8bd84f137b394687dd8d2e",
+  "asset": {
+    "url": "sol.glb",
+    "bytes": 366844,
+    "sha256": "e1f9e801d673f3baee3befa59f7d2e08d76101a33c7285fff265d2a58c801ef9",
+    "geometryOnly": true,
+    "triangles": 16128,
+    "externalTextures": 0
+  },
+  "geometry": {
+    "radiusUnits": 1,
+    "orientation": "+Y north; +Z longitude zero; +X longitude 90 degrees east",
+    "longitudeReference": "Illustrative asset coordinates, not a measured solar orientation.",
+    "vertices": 8066,
+    "triangles": 16128,
+    "nonManifoldEdges": 0,
+    "minRadius": 0.9999977528299213,
+    "maxRadius": 1.0000001712725757,
+    "volume": 4.184582150699972
+  },
+  "sources": [
+    {
+      "label": "NASA: solar photosphere",
+      "url": "https://solarscience.msfc.nasa.gov/surface.shtml"
+    },
+    {
+      "label": "NASA: the Sun in different colors",
+      "url": "https://svs.gsfc.nasa.gov/vis/a010000/a013800/a013859/script_31299_00.html"
+    },
+    {
+      "label": "IAU nominal solar constants (2015 Resolution B3)",
+      "url": "https://www.iau.org/common/Uploaded%20files/IAUGA2015-Resolution-B3-recommended-nominal-conversion.pdf"
+    }
+  ],
+  "authoring": {
+    "blenderVersion": "4.4.3",
+    "project": "asset-projects/sol/sol.blend",
+    "scriptSha256": "b230838c0b39b67c7550ae030de31e4a1b227dfef828cdf59efa57ce92465ace",
+    "proceduralInputsEmbedded": true,
+    "modes": [
+      "scientific",
+      "artistic"
+    ],
+    "animation": "Frame-driven 4D Voronoi field and illustrative field rotation; no baked view-dependent textures."
+  },
+  "transfer": "Blender nodes and the application shader are separate implementations sharing appearance parameters. Arbitrary Blender procedural graphs and compositor glow are not executable glTF payloads.",
+  "limits": [
+    "Surface activity is generated, not measured.",
+    "Brightness is compressed for a display; it is not a radiometric simulation.",
+    "The linear limb-darkening approximation does not encode wavelength dependence.",
+    "Artistic glow is not a physically solved corona or magnetic-field model.",
+    "The inspection view does not update catalog positions or the historical coordinate epoch."
+  ],
+  "verification": {
+    "geometry": "passed",
+    "renders": [
+      {
+        "file": "blender-scientific-0001.png",
+        "sha256": "313ddd5fb57d5bec9c986a2c2b3b68e923db06bcc3c8cff401028c379b887f83",
+        "frame": 1,
+        "illustrationSeconds": 0.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 0.31842314814814815,
+        "boundsBottomUp": [
+          269,
+          119,
+          930,
+          780
+        ],
+        "framing": "whole disc passed",
+        "encodedSrgbMin": 0.0,
+        "encodedSrgbMax": 0.9215686917304993
+      },
+      {
+        "file": "blender-scientific-0241.png",
+        "sha256": "785c3572e9396baaf9ec6a4fef42b25b75075d1a42fd1f6d2892ac86205a40cf",
+        "frame": 241,
+        "illustrationSeconds": 10.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 0.3183898148148148,
+        "boundsBottomUp": [
+          269,
+          119,
+          930,
+          780
+        ],
+        "framing": "whole disc passed",
+        "encodedSrgbMin": 0.0,
+        "encodedSrgbMax": 0.9215686917304993
+      },
+      {
+        "file": "blender-scientific-close-0001.png",
+        "sha256": "7ce6791a29db04ddd9f06de90950e6841e30e6a9b5247e6edffcd61a206c7537",
+        "frame": 1,
+        "illustrationSeconds": 0.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 1.0,
+        "boundsBottomUp": [
+          0,
+          0,
+          1199,
+          899
+        ],
+        "framing": "close surface crop",
+        "encodedSrgbMin": 0.7882353663444519,
+        "encodedSrgbMax": 0.9725490808486938
+      },
+      {
+        "file": "blender-scientific-close-0241.png",
+        "sha256": "5a9512910c875d00601ab29f798435894cc8a6579ec1bd27d75166857dd79eb4",
+        "frame": 241,
+        "illustrationSeconds": 10.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 1.0,
+        "boundsBottomUp": [
+          0,
+          0,
+          1199,
+          899
+        ],
+        "framing": "close surface crop",
+        "encodedSrgbMin": 0.7921569347381592,
+        "encodedSrgbMax": 0.9725490808486938
+      },
+      {
+        "file": "blender-artistic-0001.png",
+        "sha256": "7903e7926fc251c40678ef7f166daef1f592365877a645f2f11c6e616805c6e7",
+        "frame": 1,
+        "illustrationSeconds": 0.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 0.4467138888888889,
+        "boundsBottomUp": [
+          208,
+          58,
+          991,
+          841
+        ],
+        "framing": "whole disc passed",
+        "encodedSrgbMin": 0.0,
+        "encodedSrgbMax": 1.0
+      },
+      {
+        "file": "blender-artistic-0241.png",
+        "sha256": "d1c5cb4d477f00bac82fbdc2cc2c957fe327395e37670a449ea2932d95fbda8f",
+        "frame": 241,
+        "illustrationSeconds": 10.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 0.446675,
+        "boundsBottomUp": [
+          208,
+          58,
+          991,
+          841
+        ],
+        "framing": "whole disc passed",
+        "encodedSrgbMin": 0.0,
+        "encodedSrgbMax": 1.0
+      },
+      {
+        "file": "blender-artistic-close-0001.png",
+        "sha256": "b5fad17f007c36ec4051e41a6e40f08c480f26800082ce573a457aef25a56d73",
+        "frame": 1,
+        "illustrationSeconds": 0.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 1.0,
+        "boundsBottomUp": [
+          0,
+          0,
+          1199,
+          899
+        ],
+        "framing": "close surface crop",
+        "encodedSrgbMin": 0.24313727021217346,
+        "encodedSrgbMax": 1.0
+      },
+      {
+        "file": "blender-artistic-close-0241.png",
+        "sha256": "daa5dfdd8057fb614405b01674a946323e30aa52bfff2adba6ed94d8d8d071a8",
+        "frame": 241,
+        "illustrationSeconds": 10.0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 1.0,
+        "boundsBottomUp": [
+          0,
+          0,
+          1199,
+          899
+        ],
+        "framing": "close surface crop",
+        "encodedSrgbMin": 0.24705883860588074,
+        "encodedSrgbMax": 1.0
+      }
+    ],
+    "scientificAnimation": {
+      "meanAbsoluteSrgbChange": 0.00016422654152847826,
+      "changedChannels": 6675,
+      "frames": [
+        1,
+        241
+      ]
+    },
+    "scientificCloseAnimation": {
+      "meanAbsoluteSrgbChange": 0.02207867056131363,
+      "changedChannels": 2701149
+    },
+    "artisticAnimation": {
+      "meanAbsoluteSrgbChange": 0.000488470250274986,
+      "changedChannels": 67604,
+      "frames": [
+        1,
+        241
+      ]
+    },
+    "artisticCloseAnimation": {
+      "meanAbsoluteSrgbChange": 0.029936708509922028,
+      "changedChannels": 2689046
+    },
+    "animationAndPixels": "passed"
+  },
+  "buildSeconds": 21.281000000075437
+}

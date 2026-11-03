@@ -6,6 +6,8 @@ vendor/three/examples/jsm/utils/BufferGeometryUtils.js -text
 vendor/three/LICENSE -text
 assets/moon/** -text
 scripts/build_moon_asset.py -text
+assets/sol/** -text
+scripts/build_sol_asset.py -text
 data/horizons/** -text
 data/exploration-catalog.json -text
 data/pipeline/*.json -text

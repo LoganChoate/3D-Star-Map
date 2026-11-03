@@ -305,9 +305,10 @@ export class ExplorationController {
         const stellar=body.space==='nearby'&&body.id!=='sol'?`${body.spectralType?`<dt>Spectral type</dt><dd>${escape(body.spectralType)}</dd>`:''}${Number.isFinite(body.apparentMagnitude)?`<dt>Apparent magnitude</dt><dd>${escape(body.apparentMagnitude)}</dd>`:''}${Number.isFinite(body.distancePc)?`<dt>Catalog distance</dt><dd>${escape(body.distancePc)} pc</dd>`:''}`:'';
         panel.innerHTML=`<span class="ex-eyebrow">${escape(body.kind || 'Star')}</span><h3 id="ex-object-name" data-object-id="${escape(body.id)}">${escape(body.name)}</h3><p class="ex-description">${escape(body.description || 'Position from the bundled star catalog.')}</p><dl><dt>Catalog identity</dt><dd>${escape(body.id)}</dd>${radius}${stellar}<dt>Coordinate separation from Sun</dt><dd>${escape(distance.primary)}<small>${escape(distance.secondary)}</small></dd><dt>Reference</dt><dd>${escape(body.space==='solar'?this.catalog.solar.epochLabel:'Bundled HYG catalog positions')}</dd></dl><div class="ex-selection-actions"><button id="ex-focus-selected">Focus view</button><button id="ex-measure-selected">Measure from here</button></div><details class="ex-provenance"><summary>Coordinates & sources</summary><p>${escape(body.space==='solar'?this.catalog.solar.frame:(this.catalog.nearby.frame || 'HYG heliocentric catalog frame, rotated by the atlas renderer'))}</p><p class="ex-coordinates">${body.position.map(value=>Number(value).toPrecision(9)).join(' · ')} ${body.space==='solar'?'AU':'pc'}</p>${sources.map(source=>`<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${escape(source.label || 'Data source')} ↗</a>`).join('')}</details>`;
         panel.querySelector('#ex-object-name').textContent=nearbyDisplayLabel(body);
-        if(body.id==='solar:moon' && this.onInspectBody) {
+        if(['solar:moon','sol'].includes(body.id) && this.onInspectBody) {
             const inspect=document.createElement('button');
-            inspect.id='ex-inspect-moon';inspect.textContent='Explore Moon surface';
+            inspect.id=body.id==='sol'?'ex-inspect-sol':'ex-inspect-moon';
+            inspect.textContent=body.id==='sol'?'Explore Sun surface':'Explore Moon surface';
             inspect.addEventListener('click',()=>this.onInspectBody(body));
             panel.querySelector('.ex-selection-actions').append(inspect);
         }

@@ -1,0 +1,113 @@
+{
+  "status": "technical-proof-passed-awaiting-user-review",
+  "recordedAtUtc": "2026-11-03T03:04:45.070Z",
+  "phase": 6,
+  "step": 3,
+  "scope": "Sun-first visual comparison; Earth and subsequent steps remain deferred for critique.",
+  "version": "1.4.0",
+  "regressionSuites": 7,
+  "packagedSourceFilesMatched": 97,
+  "payloadSha256": "4b7efc9c56693e22044f46b1e6b71106469d461764f58245be532c1b3c93011b",
+  "offline": {
+    "installed": "passed",
+    "remoteDependencies": 0,
+    "limit": "Application session only; the host network adapter remains connected. navigator.onLine is recorded but is not a reliable signal of session emulation."
+  },
+  "sun": {
+    "firstRenderedFrameMs": 129.29999995231628,
+    "appearance": {
+      "bytes": 4262,
+      "sha256": "88bb70843929ad69179db8219c2b50d0c7d8f6fadf8bd84f137b394687dd8d2e"
+    },
+    "renderer": {
+      "textures": 0,
+      "geometries": 2,
+      "drawCalls": 2,
+      "triangles": 25152,
+      "programs": 2
+    },
+    "cadence": [
+      {
+        "label": "scientific-whole-disc",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 10.600000023841858
+        },
+        "intervalsOver50ms": 0
+      },
+      {
+        "label": "scientific-surface-detail",
+        "frames": 187,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.099999904632568,
+          "max": 10.899999976158142
+        },
+        "intervalsOver50ms": 0
+      },
+      {
+        "label": "artistic-surface-detail",
+        "frames": 187,
+        "frameIntervalMs": {
+          "median": 9.600000023841858,
+          "p95": 10.199999928474426,
+          "max": 10.600000023841858
+        },
+        "intervalsOver50ms": 0
+      }
+    ],
+    "warmCadenceBudget": {
+      "p95Ms": 16.7,
+      "intervalsOver50ms": 0,
+      "passed": true
+    },
+    "evolutionWithoutRotation": {
+      "rotationTemporarilyDisabled": true,
+      "cameraHeldFixed": true,
+      "elapsed": 1.4062000000000012,
+      "changedPixels": 488730,
+      "meanAbsoluteChannelDifference": 1.6877957529871053
+    },
+    "pausedPixelsStable": true,
+    "errorRecovery": [
+      "missing-local-file",
+      "wrong-object-identity",
+      "invalid-shader-parameter"
+    ],
+    "nearbySolIdentity": true,
+    "catalogUnchanged": true
+  },
+  "blender": {
+    "project": "asset-projects/sol/sol.blend",
+    "bytes": 4587212,
+    "sha256": "082688406d6117d301858e67f1dbf9bda8d717510a786a051388dbc19d3c6769",
+    "renderChecks": 8,
+    "referenceGeometry": {
+      "url": "sol.glb",
+      "bytes": 366844,
+      "sha256": "e1f9e801d673f3baee3befa59f7d2e08d76101a33c7285fff265d2a58c801ef9",
+      "geometryOnly": true,
+      "triangles": 16128,
+      "externalTextures": 0
+    }
+  },
+  "limits": [
+    "This is an exposure-adjusted procedural illustration, not live solar imagery or a plasma simulation.",
+    "Blender and app shaders are separate implementations sharing settings; their close-up styles differ.",
+    "Cadence is render-call pacing on one workstation, not GPU completion or physical presentation.",
+    "Resource disposal and counts do not establish VRAM release or long-term memory stability.",
+    "No public binary release was published."
+  ],
+  "performanceComparison": {
+    "readiness": {
+      "baselineMedianMs": 1765.1327,
+      "updatedMedianMs": 2570.3432,
+      "currentControlMs": 2593.5921
+    },
+    "currentScenarioP95Ms": 10.2,
+    "interpretation": "The original baseline was about 120 fps; both the retained 1.3.1 control and 1.4.0 now run about 104 fps. GPU metadata reports changed overlay support; the exact cause is unestablished. The original timing difference is not attributed to the Sun implementation. One current control is not a statistical study.",
+    "method": "Same Electron 31.7.7 diagnostic host and 1600 by 900 outer window, foreground actual render-call sampling, 1200 ms warmup and 6000 ms per scenario. Readiness excludes native process creation; OS file cache is uncontrolled. Working-set sums may double-count shared pages and are not VRAM."
+  }
+}
