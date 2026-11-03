@@ -44,6 +44,7 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     check(initial.status==='ready'&&initial.objectId==='sol'&&initial.mode==='scientific','Sun opens in scientific mode with stable identity');
     check(initial.geometry.radius===1&&initial.geometry.triangles>0&&initial.renderer.triangles>0,'Actual spherical surface must reach a WebGL draw');
     check(initial.renderer.textures===0,'Live procedural Sun must not rely on static image textures');
+    check(initial.activity&&!initial.activity.enabled&&el('sol-trial-eruption').disabled,'Scientific mode must suppress the enlarged ultraviolet-inspired plasma structures');
     check(/^[a-f0-9]{64}$/.test(initial.appearance.sha256),'Appearance bytes must be hashed for provenance');
     check(/695,700/.test(el('sol-trial-facts').textContent)&&/5,772/.test(el('sol-trial-facts').textContent),'Nominal reference radius and temperature must be shown');
     check(/unknown/i.test(el('sol-trial-facts').textContent)&&/not live solar observations/.test(el('sol-trial-motion-note').textContent),'Unknown activity and illustrative motion must be explicit');
@@ -58,10 +59,54 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     el('sol-trial-artistic').click();await frames();const artistic=pixels();
     check(scientific.hash!==artistic.hash,'Scientific/artistic control must alter actual shader pixels');
     check(artistic.meanBrightRgb[0]/artistic.meanBrightRgb[2]>scientific.meanBrightRgb[0]/scientific.meanBrightRgb[2]*1.2,'Artistic mode must visibly differ in color, not only change its label');
-    check(el('sol-trial-artistic').getAttribute('aria-pressed')==='true'&&/artistic choices/i.test(el('sol-trial-mode-note').textContent),'Artistic state and interpretation must be disclosed');
+    check(el('sol-trial-artistic').getAttribute('aria-pressed')==='true'&&/not a visible-light or ultraviolet observation/i.test(el('sol-trial-mode-note').textContent),'Artistic state and interpretation must be disclosed');
     checks.appearanceComparison={scientific:summary(scientific),artistic:summary(artistic),difference:difference(scientific,artistic)};
     if(nativeBridge)await request({kind:'screenshot',name:'sol-artistic-whole'});
+    // Compare the same fixed surface with/without actual plasma meshes. Only
+    // pixels beyond the projected photosphere count as evidence of an arch.
+    const activity=trial.appearance.activity;
+    const activityStart=trial.snapshot().activity;
+    check(activityStart.enabled&&activityStart.loopCount===activity.loops.length&&activityStart.depthTest&&!activityStart.depthWrite,'Artistic arches must use real depth-tested geometry');
+    el('sol-trial-eruption').click();await frames();
+    check(trial.paused&&trial.snapshot().activity.opacity>0,'Show an eruption must reveal an event while respecting pause');
+    const eventStartTime=trial.elapsed,flowAtPause=trial.snapshot().activity.flowTime;
+    const eventPaused=pixels();await frames(8);
+    check(pixels().hash===eventPaused.hash&&trial.snapshot().activity.flowTime===flowAtPause,'Paused plasma flow and eruption geometry must remain pixel-stable');
+    const stages=[];
+    for(const fraction of [0.20,0.58,0.92]) {
+        trial.elapsed=activity.eruptionStartSeconds+activity.eruptionDurationSeconds*fraction;trial.updateTime();await frames();
+        const stagePixels=pixels();stages.push({fraction,state:trial.snapshot().activity,pixels:summary(stagePixels)});
+        if(nativeBridge)await request({kind:'screenshot',name:fraction===0.20?'sol-eruption-rising':fraction===0.58?'sol-eruption-expanding':'sol-eruption-fading'});
+    }
+    check(stages[1].state.eruptionApex.some((value,index)=>Math.abs(value-stages[0].state.eruptionApex[index])>0.1),'Ejection geometry must rise and expand above the surface');
+    check(stages[2].state.opacity<stages[1].state.opacity&&stages[0].pixels.hash!==stages[1].pixels.hash,'Eruption must visibly evolve and fade');
+    trial.elapsed=activity.eruptionStartSeconds+activity.eruptionDurationSeconds*0.58;trial.updateTime();await frames();
+    const withPlasma=pixels();trial.plasma.group.visible=false;const withoutPlasma=pixels();trial.plasma.group.visible=true;
+    const discRadius=withPlasma.height/(2*Math.tan(trial.camera.fov*Math.PI/360)*Math.sqrt(trial.camera.position.lengthSq()-1));
+    let outsideChangedPixels=0;
+    for(let y=0;y<withPlasma.height;y++)for(let x=0;x<withPlasma.width;x++){
+        if(Math.hypot(x-withPlasma.width/2,y-withPlasma.height/2)<=discRadius+2)continue;
+        const offset=(y*withPlasma.width+x)*4;
+        const change=Math.abs(withPlasma.values[offset]-withoutPlasma.values[offset])+Math.abs(withPlasma.values[offset+1]-withoutPlasma.values[offset+1])+Math.abs(withPlasma.values[offset+2]-withoutPlasma.values[offset+2]);
+        if(change>3)outsideChangedPixels++;
+    }
+    check(outsideChangedPixels>30,'Actual plasma meshes must produce visible pixels outside the stellar disc');
+    // The central arch is hidden by the opaque star when viewed from behind.
+    // A camera-facing overlay or disabled depth test would fail this comparison.
+    const oldCamera=trial.camera.position.clone();trial.camera.position.set(0,0,-oldCamera.length());trial.controls.update();
+    const priorVisible=trial.plasma.meshes.map(mesh=>mesh.visible);
+    trial.plasma.meshes.forEach((mesh,index)=>{mesh.visible=index===0;});
+    const hiddenBehind=pixels();trial.plasma.group.visible=false;const noBehind=pixels();
+    check(hiddenBehind.hash===noBehind.hash,'The opaque photosphere must fully occlude the central far-side arch');
+    trial.camera.position.copy(oldCamera);trial.controls.update();trial.plasma.meshes.forEach((mesh,index)=>{mesh.visible=priorVisible[index];});trial.plasma.group.visible=true;
+    trial.setPaused(false);checks.performance.push(await cadence('artistic-whole-disc-eruption'));trial.setPaused(true);
+    trial.elapsed=activity.eruptionStartSeconds+activity.eruptionDurationSeconds+0.1;trial.updateTime();
+    check(!trial.plasma.eruption.visible&&trial.snapshot().activity.opacity===0,'An eruption must disappear when its finite event ends');
+    el('sol-trial-reset').click();await frames();
+    check(trial.elapsed===0&&trial.snapshot().activity.phase==='Quiet activity'&&trial.snapshot().activity.opacity===0,'Reset must restore quiet activity and the exact event start');
+    checks.plasmaActivity={eventStartTime,pauseStable:true,stages,outsideChangedPixels,farSideOcclusion:true,finiteEvent:true,reset:true};
     el('sol-trial-scientific').click();await frames();
+    check(!trial.plasma.group.visible&&el('sol-trial-eruption').disabled,'Changing back to scientific must hide all interpretive plasma meshes');
     // Independent radial image samples check the visible result of the limb law.
     // The center and near-limb points avoid the known demonstration spot groups.
     const radial=pixels(),distance=trial.camera.position.length();
@@ -113,7 +158,7 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     }
     el('sol-trial-close').click();await frames();
     check(!trial.isOpen&&!el('sol-trial')&&trial.snapshot().renderer===null,'Close must remove the Sun inspector and release renderer');
-    check(trial.lastRelease.geometries===2&&trial.lastRelease.materials===2&&trial.lastRelease.contextLossRequested,'Both actual procedural meshes and shader materials must be disposed');
+    check(trial.lastRelease.geometries===initial.activity.geometryCount+2&&trial.lastRelease.materials===initial.activity.materialCount+2&&trial.lastRelease.contextLossRequested,'The surface, halo, and every plasma mesh/material must be disposed');
     const mapAfter={camera:explorer.camera.position.toArray(),target:explorer.controls.target.toArray(),selection:explorer.selectedObject.id,mode:explorer.currentMode};
     const same=(before,after)=>before.every((value,index)=>Math.abs(value-after[index])<=1e-10*Math.max(1,Math.abs(value)));
     check(same(mapBefore.camera,mapAfter.camera)&&same(mapBefore.target,mapAfter.target)&&mapBefore.selection===mapAfter.selection&&mapBefore.mode===mapAfter.mode,'Return must preserve map camera, target, mode and Sol identity');
@@ -134,7 +179,8 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
         for(const failure of [
             {name:'missing-local-file',response:()=>new Response('',{status:404}),message:/unavailable/},
             {name:'wrong-object-identity',response:()=>new Response(JSON.stringify({...validAppearance,body:{...validAppearance.body,id:'not-sol'}})),message:/identity/},
-            {name:'invalid-shader-parameter',response:()=>new Response(JSON.stringify({...validAppearance,surface:{...validAppearance.surface,granulationScale:0}})),message:/parameters/}
+            {name:'invalid-shader-parameter',response:()=>new Response(JSON.stringify({...validAppearance,surface:{...validAppearance.surface,granulationScale:0}})),message:/parameters/},
+            {name:'invalid-eruption-timing',response:()=>new Response(JSON.stringify({...validAppearance,activity:{...validAppearance.activity,periodSeconds:0}})),message:/timing/}
         ]) {
             window.fetch=(input,options)=>String(input)===appearanceUrl.href?Promise.resolve(failure.response()):originalFetch(input,options);
             el('ex-inspect-sol').click();check(await trial.ready===false,'Invalid Sun input must not report success');

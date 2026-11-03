@@ -1,0 +1,331 @@
+{
+  "status": "technical-proof-passed-awaiting-user-review",
+  "recordedAtUtc": "2026-11-03T18:31:42.914Z",
+  "phase": 6,
+  "step": 3,
+  "scope": "Revised Sun-first visual comparison; Earth and subsequent steps remain deferred for critique.",
+  "version": "1.4.1",
+  "regressionSuites": 7,
+  "packagedSourceFilesMatched": 98,
+  "payloadSha256": "0f7d428052a007a6ca5052156de920f99f0739aa5b283f6fc61b08db27cbcdd2",
+  "offline": {
+    "packaged": "passed",
+    "installed": "passed",
+    "startupRemoteRequests": 0,
+    "limit": "Application session only; the host network adapter remains connected. navigator.onLine is recorded but is not a reliable signal of session emulation."
+  },
+  "baseline": {
+    "version": "1.4.0",
+    "payloadSha256": "4b7efc9c56693e22044f46b1e6b71106469d461764f58245be532c1b3c93011b",
+    "firstSunFrameMs": 106.69999992847443,
+    "cadence": [
+      {
+        "label": "scientific-whole-disc",
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 8.700000047683716
+        }
+      },
+      {
+        "label": "scientific-surface-detail",
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 8.600000023841858
+        }
+      },
+      {
+        "label": "artistic-surface-detail",
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 8.5
+        }
+      }
+    ],
+    "comparisonLimit": "Same workstation; revised detail camera, geometry and shaders differ. Not a controlled GPU benchmark."
+  },
+  "sun": {
+    "firstRenderedFrameMs": 184.89999997615814,
+    "appearance": {
+      "bytes": 6214,
+      "sha256": "335e8861bc4404309ac436bc6d3a039587a6c4355a1a6196af0ac8da1cc12add"
+    },
+    "cadence": [
+      {
+        "label": "scientific-whole-disc",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 11.799999952316284
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 2,
+          "drawCalls": 2,
+          "triangles": 25152,
+          "programs": 3
+        }
+      },
+      {
+        "label": "artistic-whole-disc-eruption",
+        "frames": 188,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 10.600000023841858
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 6,
+          "triangles": 40512,
+          "programs": 3
+        }
+      },
+      {
+        "label": "scientific-surface-detail",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 10.700000047683716
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 2,
+          "triangles": 25152,
+          "programs": 3
+        }
+      },
+      {
+        "label": "artistic-surface-detail",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.599999904632568,
+          "p95": 10.300000071525574,
+          "max": 10.699999928474426
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 5,
+          "triangles": 36672,
+          "programs": 3
+        }
+      }
+    ],
+    "warmCadenceBudget": {
+      "p95Ms": 16.7,
+      "intervalsOver50ms": 0,
+      "passed": true
+    },
+    "evolutionWithoutRotation": {
+      "rotationTemporarilyDisabled": true,
+      "cameraHeldFixed": true,
+      "elapsed": 1.3938999999999975,
+      "changedPixels": 673696,
+      "meanAbsoluteChannelDifference": 1.4306269118318096
+    },
+    "pausedPixelsStable": true,
+    "plasmaActivity": {
+      "eventStartTime": 15.44,
+      "pauseStable": true,
+      "stages": [
+        {
+          "fraction": 0.2,
+          "state": {
+            "enabled": true,
+            "phase": "Plasma rising",
+            "progress": 0.19999999999999987,
+            "opacity": 0.6536946765362854,
+            "flowTime": 16.4,
+            "rotationRadians": 0.049199999999999994,
+            "loopCount": 3,
+            "geometryCount": 4,
+            "materialCount": 4,
+            "eruptionApex": [
+              1.140909498449036,
+              0.3841081240080596,
+              0.30957303729455843
+            ],
+            "anchors": [
+              [
+                -0.25042748363569434,
+                0.29237170472273677,
+                0.9229327503764372
+              ],
+              [
+                0.917867657642024,
+                0.3090169943749474,
+                0.24905312734880006
+              ],
+              [
+                -0.9142825466720287,
+                -0.20791169081775934,
+                0.3476494695411027
+              ]
+            ],
+            "depthTest": true,
+            "depthWrite": false,
+            "triangles": 15360
+          },
+          "pixels": {
+            "hash": 4233694866,
+            "width": 1264,
+            "height": 749,
+            "brightSamples": 93258,
+            "meanBrightRgb": [
+              191.37626798773294,
+              138.0855154517575,
+              59.25574213472303
+            ]
+          }
+        },
+        {
+          "fraction": 0.58,
+          "state": {
+            "enabled": true,
+            "phase": "Ejecta expanding",
+            "progress": 0.5800000000000001,
+            "opacity": 0.9747865576959276,
+            "flowTime": 20.96,
+            "rotationRadians": 0.06288,
+            "loopCount": 3,
+            "geometryCount": 4,
+            "materialCount": 4,
+            "eruptionApex": [
+              1.2595919933740896,
+              0.42253593234355613,
+              0.32334361309827847
+            ],
+            "anchors": [
+              [
+                -0.23777872497339783,
+                0.29237170472273677,
+                0.9262721329218244
+              ],
+              [
+                0.921188713519232,
+                0.3090169943749474,
+                0.2364737855920946
+              ],
+              [
+                -0.9094413010831562,
+                -0.20791169081775934,
+                0.36012393520214186
+              ]
+            ],
+            "depthTest": true,
+            "depthWrite": false,
+            "triangles": 15360
+          },
+          "pixels": {
+            "hash": 709703424,
+            "width": 1264,
+            "height": 749,
+            "brightSamples": 93394,
+            "meanBrightRgb": [
+              191.1826455660963,
+              137.91315287919994,
+              59.1841124697518
+            ]
+          }
+        },
+        {
+          "fraction": 0.92,
+          "state": {
+            "enabled": true,
+            "phase": "Ejection fading",
+            "progress": 0.9199999999999999,
+            "opacity": 0.328493288034431,
+            "flowTime": 25.04,
+            "rotationRadians": 0.07511999999999999,
+            "loopCount": 3,
+            "geometryCount": 4,
+            "materialCount": 4,
+            "eruptionApex": [
+              1.3973680070088044,
+              0.46732022025334546,
+              0.34053672802005736
+            ],
+            "anchors": [
+              [
+                -0.22642362566234595,
+                0.29237170472273677,
+                0.9291130867765445
+              ],
+              [
+                0.9240140761028409,
+                0.3090169943749474,
+                0.22518100353113002
+              ],
+              [
+                -0.9049653698733713,
+                -0.20791169081775934,
+                0.3712282426637998
+              ]
+            ],
+            "depthTest": true,
+            "depthWrite": false,
+            "triangles": 15360
+          },
+          "pixels": {
+            "hash": 2614740963,
+            "width": 1264,
+            "height": 749,
+            "brightSamples": 93354,
+            "meanBrightRgb": [
+              191.16829487756283,
+              137.95429226385585,
+              59.20692203869143
+            ]
+          }
+        }
+      ],
+      "outsideChangedPixels": 2211,
+      "farSideOcclusion": true,
+      "finiteEvent": true,
+      "reset": true
+    },
+    "errorRecovery": [
+      "missing-local-file",
+      "wrong-object-identity",
+      "invalid-shader-parameter",
+      "invalid-eruption-timing"
+    ],
+    "nearbySolIdentity": true,
+    "catalogUnchanged": true
+  },
+  "blender": {
+    "project": "asset-projects/sol/sol-v2.blend",
+    "bytes": 9079926,
+    "sha256": "beba2b8cda8d95912a6f7ae7e826951819971eb1d960eaaac2fd22c513996fff",
+    "freshFileVerification": "passed",
+    "renderChecks": 8,
+    "referenceGeometry": {
+      "url": "sol.glb",
+      "bytes": 366840,
+      "sha256": "3586a043ddf00abdb7458eb41c3961ed2c131ab8514de83af47c866930b29c2e",
+      "geometryOnly": true,
+      "triangles": 16128,
+      "externalTextures": 0
+    }
+  },
+  "limits": [
+    "This is a procedural illustration, not live solar imagery or a plasma simulation.",
+    "Artistic mode enlarges cells and spots and combines atmospheric inspiration from different solar layers.",
+    "Blender and app shaders are separate implementations sharing settings; their close-up styles differ.",
+    "Cell interiors remain stylized and plasma intensity is restrained; visual acceptance awaits user critique.",
+    "Cadence is render-call pacing on one workstation, not GPU completion or physical presentation.",
+    "Resource disposal and counts do not establish VRAM release or long-term memory stability.",
+    "No public binary release was published."
+  ]
+}

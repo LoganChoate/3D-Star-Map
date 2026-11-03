@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import { OrbitControls } from '../vendor/three/examples/jsm/controls/OrbitControls.js';
+import { SolarPlasmaActivity, validateSolarActivity } from './SolarPlasmaActivity.js';
 
 const APPEARANCE_URL = new URL('../assets/sol/appearance.json', import.meta.url);
 const safeSource = value => { try { return new URL(value).protocol === 'https:'; } catch { return false; } };
@@ -17,8 +18,9 @@ void main() {
 }`;
 const noiseShader = `
 vec3 hash3(vec3 p) {
-  p = vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6)));
-  return fract(sin(p)*43758.5453);
+  p=fract(p*vec3(0.1031,0.1030,0.0973));
+  p+=dot(p,p.yxz+33.33);
+  return fract((p.xxy+p.yxx)*p.zyx);
 }
 float noise3(vec3 p) {
   vec3 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
@@ -28,7 +30,7 @@ float noise3(vec3 p) {
 vec3 rotateY(vec3 p,float a) { float c=cos(a),s=sin(a);return vec3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z); }
 `;
 const surfaceShader = `
-uniform float uTime, uEvolutionRate, uRotationRate, uScale, uContrast, uLimb, uExposure, uUmbra, uPenumbra, uArtistic;
+uniform float uTime, uEvolutionRate, uRotationRate, uScale, uContrast, uLimb, uExposure, uUmbra, uPenumbra, uArtistic, uSpotScale, uFilaments;
 uniform vec3 uColor;
 uniform vec4 uSpots[8];
 uniform int uSpotCount;
@@ -36,42 +38,70 @@ varying vec3 vLocalPosition;
 varying vec3 vWorldPosition;
 varying vec3 vWorldNormal;
 ${noiseShader}
-float cells(vec3 p,float t) {
-  vec3 base=floor(p),f=fract(p);float first=10.0,second=10.0;
+vec3 cells(vec3 p,float t) {
+  vec3 base=floor(p),f=fract(p);float first=10.0,second=10.0,variation=0.5;
   for(int z=-1;z<=1;z++)for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++) {
     vec3 b=vec3(float(x),float(y),float(z));
     vec3 random=hash3(base+b);
     vec3 point=0.5+0.34*sin(6.2831853*random+t*(0.65+random));
     float d=length(b+point-f);
-    if(d<first){second=first;first=d;}else{second=min(second,d);}
+    if(d<first){second=first;first=d;variation=random.x;}else{second=min(second,d);}
   }
   // Bright cell interiors separated by darker lanes. Cell points evolve;
   // this is not merely a rotating pre-baked image.
-  return smoothstep(0.025,0.20,second-first);
+  return vec3(second-first,first,variation);
 }
 void main() {
   vec3 p=rotateY(normalize(vLocalPosition),-uTime*uRotationRate);
   float t=uTime*uEvolutionRate;
-  vec3 fine=p*uScale;
+  // Continuously advected coordinates bend cell boundaries and transport
+  // internal variation. The visible artistic cells are explicitly enlarged.
+  vec3 warp=sin(p.yzx*27.0+sin(p.zxy*16.0+t*0.22)+vec3(t*0.19,-t*0.16,t*0.13));
+  vec3 fine=p*uScale+warp*0.72;
+  vec3 eddies=vec3(noise3(fine*0.82+vec3(t*0.14,0.0,0.0)),noise3(fine*0.82+vec3(13.2,t*0.12,7.8)),noise3(fine*0.82+vec3(4.1,19.7,-t*0.11)))-0.5;
+  fine+=eddies*0.95;
   float footprint=length(fwidth(fine));
-  float resolved=1.0-smoothstep(0.55,1.5,footprint);
+  float resolved=1.0-smoothstep(0.35,1.1,footprint);
   float granule=0.57;
-  if(resolved>0.005)granule=mix(0.57,cells(fine,t),resolved);
+  if(resolved>0.005){
+    vec3 cell=cells(fine,t);
+    float lane=smoothstep(0.012+footprint*0.06,0.24+footprint*0.06,cell.x);
+    float interior=0.73+0.24*cell.z+0.36*(1.0-smoothstep(0.0,1.0,cell.y));
+    float texture=(noise3(fine*3.8+vec3(t*0.21))-0.5)*0.16;
+    granule=mix(0.57,lane*interior+texture,resolved);
+  }
   float broad=noise3(p*24.0+vec3(t*0.31,-t*0.24,t*0.18));
   float finer=noise3(p*81.0+vec3(-t*0.43,t*0.18,t*0.29));
   // Broad modulation is a restrained illustrative variation, not a measured
   // brightness map. Artistic mode deliberately makes it more legible.
   float brightness=1.0+uContrast*(granule-0.57)*1.8;
-  brightness+=(broad-0.5)*mix(0.035,0.27,uArtistic)+(finer-0.5)*mix(0.018,0.10,uArtistic);
+  brightness+=(broad-0.5)*mix(0.035,0.12,uArtistic)+(finer-0.5)*mix(0.018,0.06,uArtistic);
   for(int i=0;i<8;i++) {
     if(i>=uSpotCount)break;
     vec4 spot=uSpots[i];
-    float radius=spot.w*(0.96+0.04*sin(t*0.7+float(i)));
-    float irregularity=1.0+0.10*(noise3(p*140.0+vec3(t*0.17))-0.5);
-    float d=length(p-spot.xyz)/(2.0*sin(radius*0.5))*irregularity;
-    float penumbra=1.0-smoothstep(0.76,1.08,d);
-    float umbra=1.0-smoothstep(0.35,0.57,d);
-    brightness*=mix(mix(1.0,uPenumbra,penumbra),uUmbra,umbra);
+    float radius=spot.w*uSpotScale*(0.96+0.04*sin(t*0.7+float(i)));
+    float distance=length(p-spot.xyz)/(2.0*sin(radius*0.5));
+    if(distance<1.32){
+      vec3 east=normalize(cross(vec3(0.0,1.0,0.0),spot.xyz));
+      vec3 north=normalize(cross(spot.xyz,east));
+      vec3 delta=p-spot.xyz;
+      float angle=atan(dot(delta,north),dot(delta,east));
+      float spotNoise=noise3(delta*(9.0/radius)+vec3(t*0.10));
+      float radial=distance+0.10*sin(angle*7.0+float(i))+0.06*sin(angle*13.0-float(i)*1.3)+0.11*(spotNoise-0.5);
+      float filamentAngle=angle*uFilaments+distance*9.0+2.1*sin(angle*9.0+distance*3.0+t*0.13)+3.3*spotNoise;
+      float angularFootprint=fwidth(filamentAngle);
+      float secondaryAngle=angle*floor(uFilaments*1.73+0.5)+distance*14.0+spotNoise*5.0;
+      float rawThreads=0.5+0.32*sin(filamentAngle)+0.18*sin(secondaryAngle);
+      float threads=mix(0.5,rawThreads,1.0-smoothstep(1.0,3.5,angularFootprint));
+      float penumbra=1.0-smoothstep(0.78,1.15,radial);
+      float umbra=1.0-smoothstep(0.30,0.50,radial);
+      float penumbralLight=uPenumbra*(0.65+0.65*threads)*(0.88+0.24*spotNoise);
+      float umbralLight=uUmbra*(0.82+0.25*spotNoise);
+      // Sunspots replace the granular brightness field: large polygonal
+      // convection lanes must not show through the dark umbra.
+      brightness=mix(brightness,penumbralLight,penumbra);
+      brightness=mix(brightness,umbralLight,umbra);
+    }
   }
   float mu=max(0.0,dot(normalize(vWorldNormal),normalize(cameraPosition-vWorldPosition)));
   float limb=1.0-uLimb*(1.0-mu);
@@ -135,14 +165,15 @@ export class SunAssetTrial {
           <div id="sol-trial-message" class="sol-trial-message" role="status" aria-live="polite">Preparing the Sun…</div>
           <div class="sol-trial-stage-footer"><p>Drag to orbit · Scroll to zoom · Space to pause</p><p id="sol-trial-motion-note">Generated illustration — activity and motion are not live solar observations or a physical time simulation.</p></div></div>
           <aside class="sol-trial-panel" aria-label="Sun appearance, animation and catalog information">
-          <p class="sol-trial-lead">A living surface of luminous cells. Move closer to see their evolution.</p>
+          <p class="sol-trial-lead">Follow the luminous cells, sunspot filaments, and rising plasma.</p>
           <fieldset class="sol-trial-modes"><legend>Appearance</legend><button id="sol-trial-scientific" aria-pressed="true" disabled>Scientific</button><button id="sol-trial-artistic" aria-pressed="false" disabled>Artistic</button></fieldset>
           <p id="sol-trial-mode-note" class="sol-trial-note"></p>
+          <div class="sol-trial-activity"><span id="sol-trial-activity-state">Visible-light surface</span><button id="sol-trial-eruption" disabled>Show an eruption</button></div>
           <div class="sol-trial-controls"><button id="sol-trial-home" disabled>Whole Sun</button><button id="sol-trial-detail" disabled>Surface detail</button><button id="sol-trial-pause" aria-pressed="false" disabled>Pause activity</button><button id="sol-trial-turntable" aria-pressed="false" disabled>Turntable camera</button></div>
           <label for="sol-trial-speed">Illustration speed <output id="sol-trial-speed-value">1×</output></label><input id="sol-trial-speed" type="range" min="0" max="4" step="0.25" value="1" disabled>
           <button id="sol-trial-reset" class="sol-trial-wide" disabled>Reset activity</button><p class="sol-trial-small">Speed changes the demonstration, not solar time. Pause freezes surface activity; you can still orbit.</p>
           <p id="sol-trial-description" class="sol-trial-description"></p><dl id="sol-trial-facts"></dl>
-          <details><summary>Sources & what is unknown</summary><div id="sol-trial-sources"></div><p id="sol-trial-unknowns" class="sol-trial-note"></p><p class="sol-trial-note">Surface patterns and spot groups are invented. Brightness is compressed for a display. The edge-darkening approximation is not fitted to an observing wavelength. Artistic glow is not a magnetic-field or corona simulation.</p><p class="sol-trial-note">Blender and this live view use separate procedural implementations with shared appearance settings.</p></details>
+          <details><summary>Sources & what is unknown</summary><div id="sol-trial-sources"></div><p id="sol-trial-unknowns" class="sol-trial-note"></p><p class="sol-trial-note">Surface patterns and spot groups are invented. Brightness is compressed for a display. The edge-darkening approximation is not fitted to an observing wavelength. Artistic mode enlarges cells and sunspots and combines visible-surface and ultraviolet-inspired structures. The loops and ejections illustrate motion, not measured activity or a solved magnetic field.</p><p class="sol-trial-note">Blender and this live view use separate procedural implementations with shared appearance settings.</p></details>
           </aside></div>`;
         this.mount.append(element);
         this.elements=Object.fromEntries([...element.querySelectorAll('[id]')].map(item=>[item.id,item]));
@@ -156,6 +187,11 @@ export class SunAssetTrial {
         listen('sol-trial-artistic','click',()=>this.setMode('artistic'));
         listen('sol-trial-speed','input',event=>this.setSpeed(Number(event.target.value)));
         listen('sol-trial-reset','click',()=>{this.elapsed=0;this.updateTime();});
+        listen('sol-trial-eruption','click',()=>{
+            const activity=this.appearance.activity;
+            this.elapsed=Math.floor(this.elapsed/activity.periodSeconds)*activity.periodSeconds+activity.eruptionStartSeconds+activity.eruptionDurationSeconds*0.12;
+            this.updateTime();
+        });
         element.addEventListener('keydown',event=>this.handleKey(event),{signal:this.abort.signal});
         this.elements['sol-trial-close'].focus({preventScroll:true});
     }
@@ -181,6 +217,7 @@ export class SunAssetTrial {
             this.status='ready';this.completedLoads++;
             this.elements['sol-trial-message'].hidden=true;
             this.element.querySelectorAll('button:disabled,input:disabled').forEach(control=>{control.disabled=false;});
+            this.elements['sol-trial-eruption'].disabled=!appearance.modes[this.mode].activityVisible;
             this.canvas.focus({preventScroll:true});
             this.previousFrameTime=performance.now();this.animate(this.previousFrameTime);
             return true;
@@ -195,10 +232,12 @@ export class SunAssetTrial {
         if(value.schemaVersion!==1||value.body?.id!=='sol'||value.geometry?.radiusUnits!==1||value.body.meanRadiusKm!==695700)throw new Error('Sun appearance identity or physical scale is incompatible');
         if(positive(this.body.radiusKm)&&Math.abs(this.body.radiusKm-value.body.meanRadiusKm)>0.001)throw new Error('Sun radius differs from the catalog');
         if(!positive(value.surface?.granulationScale)||!Number.isFinite(value.surface.evolutionRate)||!Number.isFinite(value.surface.rotationRadiansPerSecond))throw new Error('Sun surface parameters are invalid');
+        if(!positive(value.surface.artisticGranulationScale)||!positive(value.surface.penumbraFilaments)||!positive(value.surface.spotArtisticRadiusMultiplier))throw new Error('Sun surface detail parameters are invalid');
         if(!Array.isArray(value.surface.spots)||value.surface.spots.length>8||value.surface.spots.some(spot=>![spot.longitudeDeg,spot.latitudeDeg,spot.radiusRadians].every(Number.isFinite)||spot.radiusRadians<=0))throw new Error('Sun demonstration spots are invalid');
+        validateSolarActivity(value.activity,value.surface.spots);
         for(const name of ['scientific','artistic']) {
             const mode=value.modes?.[name];
-            if(!mode||!/^#[0-9a-f]{6}$/i.test(mode.colorSrgb)||![mode.exposure,mode.granulationContrast,mode.limbDarkeningCoefficient,mode.umbraBrightness,mode.penumbraBrightness,mode.glowStrength,mode.glowRadius].every(Number.isFinite)||mode.limbDarkeningCoefficient<0||mode.limbDarkeningCoefficient>1||mode.glowRadius<=1)throw new Error('Sun appearance mode is invalid');
+            if(!mode||!/^#[0-9a-f]{6}$/i.test(mode.colorSrgb)||![mode.exposure,mode.granulationContrast,mode.limbDarkeningCoefficient,mode.umbraBrightness,mode.penumbraBrightness,mode.glowStrength,mode.glowRadius].every(Number.isFinite)||mode.limbDarkeningCoefficient<0||mode.limbDarkeningCoefficient>1||mode.glowRadius<=1||typeof mode.activityVisible!=='boolean')throw new Error('Sun appearance mode is invalid');
         }
         if(!value.time||![value.time.defaultSpeed,value.time.minimumSpeed,value.time.maximumSpeed].every(Number.isFinite)||value.time.minimumSpeed<0||value.time.maximumSpeed<value.time.minimumSpeed||value.time.defaultSpeed<value.time.minimumSpeed||value.time.defaultSpeed>value.time.maximumSpeed)throw new Error('Sun illustration speed is invalid');
     }
@@ -210,13 +249,14 @@ export class SunAssetTrial {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.NoToneMapping;
         const spots=Array.from({length:8},()=>new THREE.Vector4(0,0,1,0.01));
         appearance.surface.spots.forEach((spot,index)=>{const lon=THREE.MathUtils.degToRad(spot.longitudeDeg),lat=THREE.MathUtils.degToRad(spot.latitudeDeg);spots[index].set(Math.sin(lon)*Math.cos(lat),Math.sin(lat),Math.cos(lon)*Math.cos(lat),spot.radiusRadians);});
-        this.surfaceUniforms={uTime:{value:0},uEvolutionRate:{value:appearance.surface.evolutionRate},uRotationRate:{value:appearance.surface.rotationRadiansPerSecond},uScale:{value:appearance.surface.granulationScale},uContrast:{value:0},uLimb:{value:0},uExposure:{value:1},uUmbra:{value:0},uPenumbra:{value:0},uArtistic:{value:0},uColor:{value:new THREE.Color()},uSpots:{value:spots},uSpotCount:{value:appearance.surface.spots.length}};
+        this.surfaceUniforms={uTime:{value:0},uEvolutionRate:{value:appearance.surface.evolutionRate},uRotationRate:{value:appearance.surface.rotationRadiansPerSecond},uScale:{value:appearance.surface.granulationScale},uContrast:{value:0},uLimb:{value:0},uExposure:{value:1},uUmbra:{value:0},uPenumbra:{value:0},uArtistic:{value:0},uSpotScale:{value:1},uFilaments:{value:appearance.surface.penumbraFilaments},uColor:{value:new THREE.Color()},uSpots:{value:spots},uSpotCount:{value:appearance.surface.spots.length}};
         this.surface=new THREE.Mesh(new THREE.SphereGeometry(1,128,64),new THREE.ShaderMaterial({uniforms:this.surfaceUniforms,vertexShader,fragmentShader:surfaceShader}));
         this.surface.name='Illustrative photosphere';this.scene.add(this.surface);
         const outerRadius=Math.max(appearance.modes.scientific.glowRadius,appearance.modes.artistic.glowRadius);
         this.haloUniforms={uTime:{value:0},uEvolutionRate:{value:appearance.surface.evolutionRate},uGlow:{value:0},uRadius:{value:outerRadius},uArtistic:{value:0},uColor:{value:new THREE.Color()}};
         this.halo=new THREE.Mesh(new THREE.SphereGeometry(outerRadius,96,48),new THREE.ShaderMaterial({uniforms:this.haloUniforms,vertexShader,fragmentShader:haloShader,side:THREE.BackSide,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
         this.halo.name='Illustrative display glow';this.scene.add(this.halo);
+        this.plasma=new SolarPlasmaActivity(appearance);this.scene.add(this.plasma.group);
         this.controls=new OrbitControls(this.camera,this.canvas);this.controls.enableDamping=true;this.controls.dampingFactor=0.08;this.controls.enablePan=false;
         this.controls.minDistance=1.035;this.controls.maxDistance=16;this.controls.autoRotateSpeed=0.7;
         this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(this.elements['sol-trial-stage']);
@@ -227,11 +267,16 @@ export class SunAssetTrial {
         this.mode=name;const mode=this.appearance.modes[name],u=this.surfaceUniforms,h=this.haloUniforms;
         u.uColor.value.set(mode.colorSrgb);u.uContrast.value=mode.granulationContrast;u.uLimb.value=mode.limbDarkeningCoefficient;u.uExposure.value=mode.exposure;
         u.uUmbra.value=mode.umbraBrightness;u.uPenumbra.value=mode.penumbraBrightness;u.uArtistic.value=name==='artistic'?1:0;
+        u.uScale.value=name==='artistic'?this.appearance.surface.artisticGranulationScale:this.appearance.surface.granulationScale;
+        u.uSpotScale.value=name==='artistic'?this.appearance.surface.spotArtisticRadiusMultiplier:1;
         h.uColor.value.set(mode.colorSrgb);h.uGlow.value=mode.glowStrength;h.uRadius.value=mode.glowRadius;h.uArtistic.value=u.uArtistic.value;
         this.elements['sol-trial-scientific'].setAttribute('aria-pressed',String(name==='scientific'));
         this.elements['sol-trial-artistic'].setAttribute('aria-pressed',String(name==='artistic'));
         this.elements['sol-trial-mode-note'].textContent=mode.description;
         this.element.dataset.appearance=name;
+        this.elements['sol-trial-eruption'].disabled=!mode.activityVisible;
+        this.elements['sol-trial-eruption'].title=mode.activityVisible?'Jump to the start of an illustrative eruption. Pause and speed still apply.':'Switch to Artistic to explore illustrative plasma eruptions.';
+        this.updateTime();
     }
     setPaused(value) {
         this.paused=!!value;this.elements['sol-trial-pause'].textContent=this.paused?'Resume activity':'Pause activity';
@@ -266,8 +311,24 @@ export class SunAssetTrial {
         const vertical=THREE.MathUtils.degToRad(this.camera.fov/2),horizontal=Math.atan(Math.tan(vertical)*this.camera.aspect);
         this.camera.position.set(0,0,1.22/Math.sin(Math.min(vertical,horizontal)));this.controls.target.set(0,0,0);this.controls.update();
     }
-    detailView() {if(!this.controls)return;this.stopCameraMotion();this.camera.position.set(0,0,1.13);this.controls.target.set(0,0,0);this.controls.update();}
-    updateTime() {if(this.surfaceUniforms)this.surfaceUniforms.uTime.value=this.elapsed;if(this.haloUniforms)this.haloUniforms.uTime.value=this.elapsed;}
+    detailView() {
+        if(!this.controls)return;this.stopCameraMotion();
+        // Aim at the first illustrative active region so its filamentary
+        // penumbra is available without hunting around the whole sphere.
+        const spot=this.appearance.surface.spots[0],lon=THREE.MathUtils.degToRad(spot?.longitudeDeg||0)+this.elapsed*this.appearance.surface.rotationRadiansPerSecond,lat=THREE.MathUtils.degToRad(spot?.latitudeDeg||0);
+        this.camera.position.set(Math.sin(lon)*Math.cos(lat),Math.sin(lat),Math.cos(lon)*Math.cos(lat)).multiplyScalar(1.13);
+        this.controls.target.set(0,0,0);this.controls.update();
+    }
+    updateTime() {
+        if(this.surfaceUniforms)this.surfaceUniforms.uTime.value=this.elapsed;
+        if(this.haloUniforms)this.haloUniforms.uTime.value=this.elapsed;
+        if(this.plasma){
+            const visible=this.appearance.modes[this.mode].activityVisible;
+            this.plasma.update(this.elapsed,visible);
+            const text=visible?this.plasma.phase:'Visible-light surface · plasma illustration hidden';
+            if(this.elements['sol-trial-activity-state'].textContent!==text)this.elements['sol-trial-activity-state'].textContent=text;
+        }
+    }
     animate(now) {
         if(!this.isOpen||this.status!=='ready')return;
         const delta=Math.min(Math.max(0,(now-this.previousFrameTime)/1000),0.1);this.previousFrameTime=now;
@@ -290,11 +351,12 @@ export class SunAssetTrial {
         else if(['+','=','-','_'].includes(event.key)){event.preventDefault();const offset=this.camera.position.clone().sub(this.controls.target);offset.setLength(THREE.MathUtils.clamp(offset.length()*(['+','='].includes(event.key)?0.85:1/0.85),this.controls.minDistance,this.controls.maxDistance));this.camera.position.copy(this.controls.target).add(offset);this.controls.update();}
     }
     snapshot() {
-        return {status:this.status,isOpen:this.isOpen,objectId:this.isOpen?this.body?.id:null,mode:this.mode||null,elapsed:this.elapsed||0,speed:this.speed,paused:this.paused,rotationRadians:(this.elapsed||0)*(this.appearance?.surface.rotationRadiansPerSecond||0),camera:this.camera?.position.toArray()||null,turntable:!!this.controls?.autoRotate,frameCount:this.frameCount||0,completedLoads:this.completedLoads,cancelledLoads:this.cancelledLoads,appearance:this.appearanceInfo?{...this.appearanceInfo}:null,firstRenderedFrameMs:this.firstRenderedFrameMs,compileMs:this.compileMs,geometry:this.surface?{radius:1,vertices:this.surface.geometry.getAttribute('position').count,triangles:this.surface.geometry.index.count/3}:null,renderer:this.renderer?{textures:this.renderer.info.memory.textures,geometries:this.renderer.info.memory.geometries,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,programs:this.renderer.info.programs?.length}:null,lastRelease:this.lastRelease};
+        return {status:this.status,isOpen:this.isOpen,objectId:this.isOpen?this.body?.id:null,mode:this.mode||null,elapsed:this.elapsed||0,speed:this.speed,paused:this.paused,rotationRadians:(this.elapsed||0)*(this.appearance?.surface.rotationRadiansPerSecond||0),camera:this.camera?.position.toArray()||null,turntable:!!this.controls?.autoRotate,frameCount:this.frameCount||0,completedLoads:this.completedLoads,cancelledLoads:this.cancelledLoads,appearance:this.appearanceInfo?{...this.appearanceInfo}:null,firstRenderedFrameMs:this.firstRenderedFrameMs,compileMs:this.compileMs,geometry:this.surface?{radius:1,vertices:this.surface.geometry.getAttribute('position').count,triangles:this.surface.geometry.index.count/3}:null,activity:this.plasma?.snapshot()||null,renderer:this.renderer?{textures:this.renderer.info.memory.textures,geometries:this.renderer.info.memory.geometries,drawCalls:this.renderer.info.render.calls,triangles:this.renderer.info.render.triangles,programs:this.renderer.info.programs?.length}:null,lastRelease:this.lastRelease};
     }
     releaseScene() {
         cancelAnimationFrame(this.animationFrame);this.resizeObserver?.disconnect();this.controls?.dispose();
         let geometries=0,materials=0;for(const mesh of [this.surface,this.halo])if(mesh){mesh.geometry.dispose();mesh.material.dispose();geometries++;materials++;}
+        if(this.plasma){const released=this.plasma.dispose();geometries+=released.geometries;materials+=released.materials;this.plasma=null;}
         if(this.renderer){this.renderer.renderLists.dispose();this.renderer.dispose();this.renderer.forceContextLoss();}
         if(geometries)this.lastRelease={geometries,materials,textures:0,contextLossRequested:true};
         this.scene?.clear();this.scene=this.camera=this.renderer=this.controls=this.canvas=this.surface=this.halo=this.resizeObserver=null;
