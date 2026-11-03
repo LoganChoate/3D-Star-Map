@@ -9,6 +9,7 @@ import { filterStars } from './utils/StarFilters.js';
 import { buildStarIndex } from './utils/StarIdentity.js';
 import { ExplorationController } from './modules/ExplorationController.js';
 import { MoonAssetTrial } from './modules/MoonAssetTrial.js';
+import { SunAssetTrial } from './modules/SunAssetTrial.js';
 import { attachCatalogMetadata, verifyCatalogBytes, hasUnresolvedDistance } from './utils/CatalogMetadata.js';
 
 // Import external data modules
@@ -31,6 +32,7 @@ let tourController = null;
 let uiManager = null;
 let explorer = null;
 let moonTrial = null;
+let sunTrial = null;
 
 // DEBUG: Expose to window
 window.starRenderer = null;
@@ -208,7 +210,7 @@ async function init() {
         // Build spectral legend
         buildSpectralLegend();
 
-        moonTrial = new MoonAssetTrial({
+        const inspectionCallbacks = {
             onOpen: () => {
                 explorer.suspended = true;
                 explorer.controls.enabled = false;
@@ -219,10 +221,12 @@ async function init() {
                 explorer.controls.enabled = explorer.currentMode !== 'atlas';
                 explorer.resize();
             }
-        });
+        };
+        moonTrial = new MoonAssetTrial(inspectionCallbacks);
+        sunTrial = new SunAssetTrial(inspectionCallbacks);
         explorer = new ExplorationController({
             mount: document.getElementById('exploration-root'),
-            onInspectBody: body => moonTrial.open(body),
+            onInspectBody: body => body.id === 'sol' ? sunTrial.open(body) : moonTrial.open(body),
             onModeChange: mode => {
                 if (mode !== 'atlas') {
                     if (tourController.isActive()) tourController.stop();
@@ -251,7 +255,7 @@ async function init() {
         // Start animation loop
         animate();
 
-        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, moonTrial, catalogAudit });
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, moonTrial, sunTrial, catalogAudit });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {

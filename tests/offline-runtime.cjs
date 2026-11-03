@@ -11,7 +11,7 @@ exports.attach = function attach(app, session, outputDirectory) {
   const stem = path.join(output, `offline-${runId}`);
   const evidence = {
     runId,
-    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking, routing and Moon asset inspection with network unavailable',
+    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking, routing, Moon inspection and animated Sun inspection with network unavailable',
     appVersion: app.getVersion(),
     isPackaged: app.isPackaged,
     executable: process.execPath,
@@ -295,7 +295,8 @@ exports.attach = function attach(app, session, outputDirectory) {
       const exploration=await import('./tests/exploration-runtime.js').then(module=>module.verifyExploration());
       const nearby=await import('./tests/nearby-runtime.js').then(module=>module.verifyNearbyExpansion({nativeBridge:true}));
       const moon=await import('./tests/moon-trial-runtime.js').then(module=>module.verifyMoonAssetTrial({nativeBridge:true}));
-      return {exploration,nearby,moon};
+      const sun=await import('./tests/sol-trial-runtime.js').then(module=>module.verifySunAssetTrial({nativeBridge:true}));
+      return {exploration,nearby,moon,sun};
     })()`);
     explorationPromise.then(() => { explorationFinished = true; }, () => { explorationFinished = true; });
     while (!explorationFinished) {
@@ -325,6 +326,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     evidence.checks.exploration = explorationResults.exploration;
     evidence.checks.nearbyExpansion = explorationResults.nearby;
     evidence.checks.moonAssetTrial = explorationResults.moon;
+    evidence.checks.sunAssetTrial = explorationResults.sun;
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Exploration must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Exploration must use bundled assets while offline');
 
