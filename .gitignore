@@ -4,6 +4,8 @@ logs
 
 # Dependency directories
 node_modules/
+__pycache__/
+*.pyc
 
 # Build output
 dist/

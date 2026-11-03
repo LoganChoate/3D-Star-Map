@@ -6,6 +6,10 @@
   "time": {"defaultSpeed": 1, "minimumSpeed": 0, "maximumSpeed": 4, "defaultPaused": false, "label": "Illustration speed", "meaning": "Illustrative evolution seconds. Speed is not a calibrated solar time multiplier; catalog epoch and positions never advance."},
   "surface": {
     "granulationScale": 650,
+    "artisticGranulationScale": 90,
+    "penumbraFilaments": 64,
+    "spotArtisticRadiusMultiplier": 2.2,
+    "artisticScaleMeaning": "Cells and sunspots are deliberately enlarged in artistic mode for whole-Sun readability; their apparent sizes are not measured solar dimensions.",
     "granulationScaleMeaning": "Procedural cell frequency per normalized radius; approximate order-of-magnitude size only, not measured solar cells.",
     "evolutionRate": 0.045,
     "rotationRadiansPerSecond": 0.003,
@@ -15,20 +19,38 @@
       {"longitudeDeg": -15.4, "latitudeDeg": 18.2, "radiusRadians": 0.010},
       {"longitudeDeg": 36, "latitudeDeg": -21, "radiusRadians": 0.014},
       {"longitudeDeg": 39.2, "latitudeDeg": -19.8, "radiusRadians": 0.008},
-      {"longitudeDeg": 147, "latitudeDeg": 12, "radiusRadians": 0.015}
+      {"longitudeDeg": 147, "latitudeDeg": 12, "radiusRadians": 0.015},
+      {"longitudeDeg": 72, "latitudeDeg": 18, "radiusRadians": 0.018},
+      {"longitudeDeg": -72, "latitudeDeg": -12, "radiusRadians": 0.014}
     ],
     "spotsMeaning": "Invented demonstration groups; not an observed or forecast sunspot map."
   },
+  "activity": {
+    "periodSeconds": 36,
+    "eruptionStartSeconds": 14,
+    "eruptionDurationSeconds": 12,
+    "flowSpeed": 0.7,
+    "loops": [
+      {"spotIndex": 0, "height": 0.17, "spanRadians": 0.12, "angleDeg": 20},
+      {"spotIndex": 5, "height": 0.24, "spanRadians": 0.15, "angleDeg": 65},
+      {"spotIndex": 6, "height": 0.14, "spanRadians": 0.10, "angleDeg": -30}
+    ],
+    "eruption": {"longitudeDeg": 72, "latitudeDeg": 18, "height": 0.55, "spanRadians": 0.20, "angleDeg": 15},
+    "meaning": "Stylized plasma arches and occasional expanding ejecta in artistic mode only. Geometry follows invented active regions, not a computed magnetic field. Timing, height and flow are illustrative; this is neither observed current solar activity nor a physical plasma simulation."
+  },
   "modes": {
-    "scientific": {"label": "Scientific illustration", "colorSrgb": "#fffdf7", "exposure": 0.82, "granulationContrast": 0.16, "limbDarkeningCoefficient": 0.60, "umbraBrightness": 0.22, "penumbraBrightness": 0.58, "glowStrength": 0.06, "glowRadius": 1.10, "description": "Exposure-adjusted near-white photosphere with restrained convection cells and illustrative sunspots. The linear limb-darkening coefficient is an approximation, not a fit to a specified observing band."},
-    "artistic": {"label": "Artistic interpretation", "colorSrgb": "#ffb44d", "exposure": 1.05, "granulationContrast": 0.33, "limbDarkeningCoefficient": 0.48, "umbraBrightness": 0.16, "penumbraBrightness": 0.48, "glowStrength": 0.42, "glowRadius": 1.28, "description": "Deliberately warm palette, increased surface contrast and animated limb glow. These colors and emphasis are artistic choices, not a visible-light or ultraviolet observation."}
+    "scientific": {"label": "Scientific illustration", "colorSrgb": "#fffdf7", "exposure": 0.82, "granulationContrast": 0.16, "limbDarkeningCoefficient": 0.60, "umbraBrightness": 0.22, "penumbraBrightness": 0.58, "glowStrength": 0.06, "glowRadius": 1.10, "activityVisible": false, "description": "Exposure-adjusted near-white photosphere with fine convection cells and illustrative filamented sunspots. Dramatic atmospheric effects are reserved for Artistic. The edge-darkening approximation is not fitted to a specified observing band."},
+    "artistic": {"label": "Artistic interpretation", "colorSrgb": "#ffb44d", "exposure": 1.05, "granulationContrast": 0.50, "limbDarkeningCoefficient": 0.48, "umbraBrightness": 0.16, "penumbraBrightness": 0.48, "glowStrength": 0.22, "glowRadius": 1.28, "activityVisible": true, "description": "Warm, enlarged convection cells and sunspots, flowing plasma arches and occasional expanding eruptions. This combines visual inspiration from different solar layers; it is not a visible-light or ultraviolet observation. Motion and feature sizes are illustrative."}
   },
   "rendering": {"limbModel": "I(mu)/I(1) = 1 - u * (1 - mu); mu is the cosine between the outward surface normal and view direction.", "granulationFiltering": "Attenuate unresolved procedural detail with pixel footprint or equivalent filtering; do not claim that unresolved whole-disc cells are measured features.", "transfer": "Blender nodes and the application shader are separate implementations sharing appearance parameters. Arbitrary Blender procedural graphs and compositor glow are not executable glTF payloads."},
   "sources": [
     {"label": "NASA: solar photosphere", "url": "https://solarscience.msfc.nasa.gov/surface.shtml"},
     {"label": "NASA: the Sun in different colors", "url": "https://svs.gsfc.nasa.gov/vis/a010000/a013800/a013859/script_31299_00.html"},
+    {"label": "NASA/JAXA Hinode: convection and sunspot close-ups", "url": "https://svs.gsfc.nasa.gov/4061/"},
+    {"label": "NASA SDO: coronal rain and eruption observations", "url": "https://svs.gsfc.nasa.gov/4026/"},
+    {"label": "ESA/NASA Solar Orbiter: ultraviolet atmospheric motion", "url": "https://www.esa.int/ESA_Multimedia/Videos/2024/04/The_Sun_s_fluffy_corona_in_exquisite_detail/(lang)/en"},
     {"label": "IAU nominal solar constants (2015 Resolution B3)", "url": "https://www.iau.org/common/Uploaded%20files/IAUGA2015-Resolution-B3-recommended-nominal-conversion.pdf"}
   ],
   "unknowns": ["Current active regions", "Current surface velocity and magnetic field", "Current solar orientation in this inspection view"],
-  "limits": ["Surface activity is generated, not measured.", "Brightness is compressed for a display; it is not a radiometric simulation.", "The linear limb-darkening approximation does not encode wavelength dependence.", "Artistic glow is not a physically solved corona or magnetic-field model.", "The inspection view does not update catalog positions or the historical coordinate epoch."]
+  "limits": ["Surface activity is generated, not measured.", "Brightness is compressed for a display; it is not a radiometric simulation.", "The linear limb-darkening approximation does not encode wavelength dependence.", "Artistic glow, plasma arches and eruptions are not a physically solved corona or magnetic-field model.", "Artistic cells and sunspots are deliberately enlarged; brightness is not elevation and no solar terrain map is used.", "The inspection view does not update catalog positions or the historical coordinate epoch."]
 }
