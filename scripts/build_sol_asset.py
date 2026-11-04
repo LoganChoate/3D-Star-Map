@@ -120,12 +120,13 @@ def surface_material(scene, contract, mode):
     g.set(rotate.inputs['Vector'], position)
     g.set(rotate.inputs['Angle'], g.math('MULTIPLY', clock, -surface['rotationRadiansPerSecond']))
     p = rotate.outputs['Vector']
-    evolution = g.math('MULTIPLY', clock, surface['evolutionRate'])
+    evolution = g.math('MULTIPLY', clock, surface['evolutionRate'], 'Original spot evolution')
+    convection = g.math('MULTIPLY', evolution, surface['convectionSpeedMultiplier'], 'Surface convection speed multiplier')
     scale = surface['artisticGranulationScale'] if mode == 'artistic' else surface['granulationScale']
-    warp = g.noise(p, 18, evolution, 'Slow transport distorts the cellular field')
+    warp = g.noise(p, 18, convection, 'Transport distorts the cellular field')
     offset = g.vector('SUBTRACT', warp.outputs['Color'], (.5, .5, .5))
     distorted = g.vector('ADD', p, g.scale(offset, .022))
-    fine_warp = g.noise(p, scale * .65, evolution, 'Small curved cell boundaries')
+    fine_warp = g.noise(p, scale * .65, convection, 'Small curved cell boundaries')
     fine_offset = g.vector('SUBTRACT', fine_warp.outputs['Color'], (.5, .5, .5))
     distorted = g.vector('ADD', distorted, g.scale(fine_offset, .72 / scale))
     scaled = g.scale(distorted, scale, 'Cell frequency per normalized radius')
@@ -135,14 +136,14 @@ def surface_material(scene, contract, mode):
     cells.distance = 'EUCLIDEAN'
     cells.inputs['Scale'].default_value = 1
     g.set(cells.inputs['Vector'], scaled)
-    g.set(cells.inputs['W'], evolution)
+    g.set(cells.inputs['W'], convection)
     grain = g.smooth(cells.outputs['Distance'], .005, .24, 'Soft bright interiors and narrow dark lanes')
     interiors = g.node('ShaderNodeTexVoronoi', 'Rounded varying cell interiors')
     interiors.voronoi_dimensions = '4D'
     interiors.feature = 'F1'
     interiors.inputs['Scale'].default_value = 1
     g.set(interiors.inputs['Vector'], scaled)
-    g.set(interiors.inputs['W'], evolution)
+    g.set(interiors.inputs['W'], convection)
     rounded = g.math('SUBTRACT', 1.25, g.math('MULTIPLY', interiors.outputs['Distance'], .45))
     grain = g.math('MULTIPLY', grain, rounded)
     centered = g.math('MULTIPLY', g.math('SUBTRACT', grain, .60), 2)
@@ -154,7 +155,7 @@ def surface_material(scene, contract, mode):
     pixels_per_cell = g.math('DIVIDE', footprint, camera.outputs['View Distance'])
     filtered = g.smooth(g.math('MULTIPLY', pixels_per_cell, mu), .45, 1.2, 'Suppress unresolved cellular detail')
     grain_brightness = g.math('ADD', 1, g.math('MULTIPLY', centered, g.math('MULTIPLY', filtered, settings['granulationContrast'])))
-    grain_noise = g.noise(p, scale * 1.6, evolution, 'Small variation within the cells')
+    grain_noise = g.noise(p, scale * 1.6, convection, 'Small variation within the cells')
     fine_variation = g.math('MULTIPLY', g.math('SUBTRACT', grain_noise.outputs['Fac'], .5), g.math('MULTIPLY', filtered, .28))
     grain_brightness = g.math('MULTIPLY', grain_brightness, g.math('ADD', 1, fine_variation))
     spot_brightness = 1
@@ -477,7 +478,7 @@ def main():
     parser.add_argument('--project-dir', type=Path, required=True)
     parser.add_argument('--asset-dir', type=Path, required=True)
     parser.add_argument('--evidence-dir', type=Path, required=True)
-    parser.add_argument('--project-name', default='sol-v2.blend', help='Versioned project filename; preserves the approved first proof.')
+    parser.add_argument('--project-name', default='sol-v3.blend', help='Versioned project filename; preserves the earlier proofs.')
     parser.add_argument('--render', action='store_true', help='Render verification only when the GPU slot is available.')
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
     for key in ('appearance', 'project_dir', 'asset_dir', 'evidence_dir'):
@@ -515,6 +516,8 @@ def main():
                           ('READ ME — animated Sol', 'Select the Scientific illustration or Artistic interpretation scene. Spacebar plays/pauses the 36-second illustration at 24fps. Rendered shading is needed. At frame481 (20seconds) the artistic eruption is midway through its cycle. All shaders, meshes, drivers and appearance settings are embedded; no external textures or frame-change Python handlers are needed.\n\n' + contract['classification'] + '\nScientific mode shows an exposure-adjusted near-white photosphere; the artistic mode combines exaggerated cells, colorized plasma arches and eruptive activity inspired by different observed solar layers. No real solar activity, position, orientation or plasma solution is implied. The exported GLB contains the reference sphere geometry only. The app shader is a separate implementation.\n')]:
         text = bpy.data.texts.new(name)
         text.use_fake_user = True
+        if name.startswith('READ ME'):
+            content += f'\nSurface convection runs at {contract["surface"]["convectionSpeedMultiplier"]:g} times the previous proof. This affects cell evolution, transport and internal variation only; sunspot evolution, rotation, halo, plasma flow and the eruption schedule retain their original rates.\n'
         text.write(content)
     sun = scenes['artistic'][1]
     for obj in bpy.context.scene.objects:
@@ -538,7 +541,8 @@ def main():
                 'geometry': {**contract['geometry'], **report}, 'sources': contract['sources'],
                 'authoring': {'blenderVersion': bpy.app.version_string, 'project': 'asset-projects/sol/' + args.project_name,
                               'scriptSha256': digest(Path(__file__)), 'proceduralInputsEmbedded': True,
-                              'modes': list(scenes), 'animation': 'Frame-driven distorted 4D cellular field, radial penumbrae, UV flow on 3D plasma strands, and a rising/fading shape-key ejection. No baked view-dependent textures.'},
+                              'modes': list(scenes), 'convectionSpeedMultiplier': contract['surface']['convectionSpeedMultiplier'],
+                              'animation': 'Frame-driven distorted 4D cellular field, radial penumbrae, UV flow on 3D plasma strands, and a rising/fading shape-key ejection. No baked view-dependent textures.'},
                 'transfer': contract['rendering']['transfer'], 'limits': contract['limits'], 'verification': {'geometry': 'passed', 'renders': []}}
     if args.render:
         for mode, (scene, _, halo) in scenes.items():

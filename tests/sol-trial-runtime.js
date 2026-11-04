@@ -23,6 +23,35 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     };
     const summary=p=>({hash:p.hash,width:p.width,height:p.height,brightSamples:p.brightSamples,meanBrightRgb:p.meanBrightRgb});
     const difference=(a,b)=>{check(a.values.length===b.values.length,'Pixel comparison dimensions must match');let changed=0,absolute=0;for(let i=0;i<a.values.length;i+=4){const d=Math.abs(a.values[i]-b.values[i])+Math.abs(a.values[i+1]-b.values[i+1])+Math.abs(a.values[i+2]-b.values[i+2]);if(d)changed++;absolute+=d;}return {changedPixels:changed,meanAbsoluteChannelDifference:absolute/(a.width*a.height*3)};};
+    const pausedRasterLimits={maximumChannelStep:1,maximumChangedPixelFraction:0.0001,alphaMustMatch:true,meaning:'At most one 8-bit RGB code value in no more than 0.01% of pixels; exact animation, camera and canvas state is required separately.'};
+    const pausedRasterDifference=(a,b)=>{
+        check(a.width===b.width&&a.height===b.height&&a.values.length===b.values.length,'Paused pixel comparison dimensions must match');
+        let changedPixels=0,absoluteChannelDifference=0,maxAbsoluteChannelDifference=0,maxAlphaDifference=0;
+        for(let i=0;i<a.values.length;i+=4){
+            const r=Math.abs(a.values[i]-b.values[i]),g=Math.abs(a.values[i+1]-b.values[i+1]),blue=Math.abs(a.values[i+2]-b.values[i+2]);
+            if(r+g+blue)changedPixels++;
+            absoluteChannelDifference+=r+g+blue;maxAbsoluteChannelDifference=Math.max(maxAbsoluteChannelDifference,r,g,blue);
+            maxAlphaDifference=Math.max(maxAlphaDifference,Math.abs(a.values[i+3]-b.values[i+3]));
+        }
+        const pixelCount=a.width*a.height;
+        return {pixelCount,changedPixels,changedPixelFraction:changedPixels/pixelCount,absoluteChannelDifference,meanAbsoluteChannelDifference:absoluteChannelDifference/(pixelCount*3),maxAbsoluteChannelDifference,maxAlphaDifference};
+    };
+    const pausedRasterStable=metrics=>metrics.maxAbsoluteChannelDifference<=pausedRasterLimits.maximumChannelStep&&metrics.changedPixelFraction<=pausedRasterLimits.maximumChangedPixelFraction&&metrics.maxAlphaDifference===0;
+    // Exercise the bound with actual pixel arrays: sparse one-code-value
+    // rounding is permitted, while brighter changes or wider motion fail.
+    const rasterFixture={width:100,height:100,values:new Uint8Array(100*100*4)};
+    const changedFixture={...rasterFixture,values:rasterFixture.values.slice()};
+    changedFixture.values[0]=1;const oneStep=pausedRasterDifference(rasterFixture,changedFixture);
+    changedFixture.values[0]=2;const largerStep=pausedRasterDifference(rasterFixture,changedFixture);
+    changedFixture.values[0]=1;changedFixture.values[4]=1;const widerChange=pausedRasterDifference(rasterFixture,changedFixture);
+    check(pausedRasterStable(oneStep)&&!pausedRasterStable(largerStep)&&!pausedRasterStable(widerChange),'Paused raster guard must accept sparse rounding and reject larger or widespread changes');
+    checks.pausedRasterGuard={oneStepAccepted:true,largerStepRejected:true,widerChangeRejected:true,oneStep,largerStep,widerChange,limits:pausedRasterLimits};
+    const renderState=()=>({elapsed:trial.elapsed,flowTime:trial.snapshot().activity.flowTime,activity:trial.snapshot().activity,surfaceTime:trial.surfaceUniforms.uTime.value,haloTime:trial.haloUniforms.uTime.value,paused:trial.paused,speed:trial.speed,camera:trial.camera.position.toArray(),quaternion:trial.camera.quaternion.toArray(),projection:trial.camera.projectionMatrix.toArray(),target:trial.controls.target.toArray(),autoRotate:trial.controls.autoRotate,canvas:{width:trial.canvas.width,height:trial.canvas.height,bounds:trial.canvas.getBoundingClientRect().toJSON(),pixelRatio:trial.renderer.getPixelRatio()},hidden:document.hidden,focused:document.hasFocus(),frameCount:trial.frameCount,programs:trial.renderer.info.programs?.map(program=>({id:program.id,usedTimes:program.usedTimes,runnable:program.diagnostics?.runnable}))});
+    const stableRenderComparison=(beforePixels,afterPixels,before,after,controlChanges)=>{
+        const {frameCount:beforeFrameCount,...stableBefore}=before,{frameCount:afterFrameCount,...stableAfter}=after;
+        return {before,after,beforePixels:summary(beforePixels),afterPixels:summary(afterPixels),controlChanges,stateUnchanged:JSON.stringify(stableBefore)===JSON.stringify(stableAfter),...pausedRasterDifference(beforePixels,afterPixels),limits:pausedRasterLimits};
+    };
+    const renderRemainedStable=comparison=>comparison.stateUnchanged&&comparison.controlChanges===0&&!comparison.before.hidden&&comparison.before.focused&&pausedRasterStable(comparison);
     const cadence=async(label,milliseconds=1800)=>{
         trial.frameSamples=[];await delay(milliseconds);const samples=trial.frameSamples.slice();
         check(samples.length>20,'Sun cadence measurement needs actual rendered frames');
@@ -53,9 +82,13 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     checks.performance=[await cadence('scientific-whole-disc')];
     el('sol-trial-pause').click();check(trial.paused,'Pause button must stop activity');
     el('sol-trial-reset').click();await frames();
-    const scientific=pixels(),pausedTime=trial.elapsed;await frames(12);const paused=pixels();
-    check(scientific.hash===paused.hash&&trial.elapsed===pausedTime,'Paused surface pixels and activity time must remain stable without camera motion');
-    checks.pausedSurface={stablePixels:true,elapsed:pausedTime,pixels:summary(paused)};
+    const scientific=pixels(),pausedTime=trial.elapsed,surfacePauseBefore=renderState();let surfaceControlChanges=0;
+    const observeSurfaceControls=()=>{surfaceControlChanges++;};trial.controls.addEventListener('change',observeSurfaceControls);
+    await frames(12);const paused=pixels(),surfacePauseAfter=renderState();trial.controls.removeEventListener('change',observeSurfaceControls);
+    const pausedSurfaceComparison=stableRenderComparison(scientific,paused,surfacePauseBefore,surfacePauseAfter,surfaceControlChanges);
+    checks.pausedSurface={elapsed:pausedTime,pixels:summary(paused),comparison:pausedSurfaceComparison};
+    check(trial.paused&&trial.elapsed===pausedTime&&renderRemainedStable(pausedSurfaceComparison),`Paused surface must retain exact state with only bounded raster rounding: ${JSON.stringify(pausedSurfaceComparison)}`);
+    checks.pausedSurface.stablePixels=true;
     el('sol-trial-artistic').click();await frames();const artistic=pixels();
     check(scientific.hash!==artistic.hash,'Scientific/artistic control must alter actual shader pixels');
     check(artistic.meanBrightRgb[0]/artistic.meanBrightRgb[2]>scientific.meanBrightRgb[0]/scientific.meanBrightRgb[2]*1.2,'Artistic mode must visibly differ in color, not only change its label');
@@ -70,8 +103,12 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     el('sol-trial-eruption').click();await frames();
     check(trial.paused&&trial.snapshot().activity.opacity>0,'Show an eruption must reveal an event while respecting pause');
     const eventStartTime=trial.elapsed,flowAtPause=trial.snapshot().activity.flowTime;
-    const eventPaused=pixels();await frames(8);
-    check(pixels().hash===eventPaused.hash&&trial.snapshot().activity.flowTime===flowAtPause,'Paused plasma flow and eruption geometry must remain pixel-stable');
+    const eventPaused=pixels(),pauseBefore=renderState();let controlChanges=0;
+    const observeControls=()=>{controlChanges++;};trial.controls.addEventListener('change',observeControls);
+    await frames(8);const eventPausedAfter=pixels(),pauseAfter=renderState();trial.controls.removeEventListener('change',observeControls);
+    const pausedPlasmaComparison=stableRenderComparison(eventPaused,eventPausedAfter,pauseBefore,pauseAfter,controlChanges);
+    checks.pausedPlasmaComparison=pausedPlasmaComparison;
+    check(trial.snapshot().activity.flowTime===flowAtPause&&renderRemainedStable(pausedPlasmaComparison),`Paused plasma must retain exact state with only bounded raster rounding: ${JSON.stringify(pausedPlasmaComparison)}`);
     const stages=[];
     for(const fraction of [0.20,0.58,0.92]) {
         trial.elapsed=activity.eruptionStartSeconds+activity.eruptionDurationSeconds*fraction;trial.updateTime();await frames();
@@ -132,8 +169,56 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
     el('sol-trial-pause').click();checks.performance.push(await cadence('scientific-surface-detail'));
     el('sol-trial-artistic').click();checks.performance.push(await cadence('artistic-surface-detail'));
     if(nativeBridge)await request({kind:'screenshot',name:'sol-artistic-detail'});
-    const speed=el('sol-trial-speed');speed.value='0';speed.dispatchEvent(new Event('input',{bubbles:true}));const stoppedAt=trial.elapsed;await frames(15);
-    check(trial.elapsed===stoppedAt,'Zero illustration speed must freeze surface evolution');
+    // Compare the shipped cellular pace with the prior 1x pace over identical
+    // illustration seconds. A spot-free central crop isolates convection from
+    // spot animation, limb glow, plasma and camera/surface rotation.
+    const savedConvectionView={camera:trial.camera.position.clone(),elapsed:trial.elapsed,rotation:trial.surfaceUniforms.uRotationRate.value,multiplier:trial.surfaceUniforms.uConvectionSpeedMultiplier.value};
+    trial.setPaused(true);trial.surfaceUniforms.uRotationRate.value=0;
+    trial.camera.position.set(0,0,1.13);trial.controls.update();
+    const fixedConvectionCamera=trial.camera.position.toArray();
+    const cropDifference=(a,b)=>{
+        check(a.width===b.width&&a.height===b.height,'Convection sample dimensions must match');
+        const left=Math.floor(a.width*0.2),right=Math.ceil(a.width*0.8),bottom=Math.floor(a.height*0.2),top=Math.ceil(a.height*0.8);
+        let absolute=0,changedPixels=0;
+        for(let y=bottom;y<top;y++)for(let x=left;x<right;x++){
+            const i=(y*a.width+x)*4,d=Math.abs(a.values[i]-b.values[i])+Math.abs(a.values[i+1]-b.values[i+1])+Math.abs(a.values[i+2]-b.values[i+2]);
+            absolute+=d;if(d>3)changedPixels++;
+        }
+        return {changedPixels,meanAbsoluteChannelDifference:absolute/((right-left)*(top-bottom)*3),crop:{left,bottom,width:right-left,height:top-bottom}};
+    };
+    const convectionSequences=[];
+    try {
+        for(const [name,multiplier] of [['prior-pace',1],['configured-pace',savedConvectionView.multiplier]]){
+            trial.surfaceUniforms.uConvectionSpeedMultiplier.value=multiplier;
+            let first,previous;const adjacentChanges=[],sampleHashes=[];
+            for(const elapsed of [0,0.25,0.5,0.75,1]){
+                trial.elapsed=elapsed;trial.updateTime();const sample=pixels();
+                if(!first)first=sample;
+                if(previous)adjacentChanges.push(cropDifference(previous,sample));
+                previous=sample;sampleHashes.push({elapsed,hash:sample.hash});
+                if(nativeBridge&&name==='configured-pace'&&(elapsed===0||elapsed===1))await request({kind:'screenshot',name:elapsed===0?'sol-convection-start':'sol-convection-one-second'});
+            }
+            convectionSequences.push({name,multiplier,sampleHashes,adjacentChanges,startToEnd:cropDifference(first,previous),meanAdjacentChannelDifference:adjacentChanges.reduce((sum,item)=>sum+item.meanAbsoluteChannelDifference,0)/adjacentChanges.length,unchangedClocks:{surface:trial.surfaceUniforms.uTime.value,halo:trial.haloUniforms.uTime.value,plasma:trial.snapshot().activity}});
+        }
+        const [prior,current]=convectionSequences;
+        check(prior.sampleHashes[0].hash===current.sampleHashes[0].hash,'Cellular pace must preserve the exact initial surface');
+        check(current.startToEnd.changedPixels>100,'Configured convection must visibly change the spot-free surface crop');
+        const changeRatio=current.meanAdjacentChannelDifference/prior.meanAdjacentChannelDifference;
+        check(Number.isFinite(changeRatio)&&changeRatio>1.5,'Configured convection must produce more pronounced short-interval surface changes than the prior pace');
+        check(JSON.stringify(prior.unchangedClocks)===JSON.stringify(current.unchangedClocks),'Changing cellular pace must preserve the spot/halo/plasma clock and eruption state');
+        check(fixedConvectionCamera.every((value,index)=>value===trial.camera.position.toArray()[index]),'Convection comparison camera must stay fixed');
+        checks.convectionPace={durationSeconds:1,sampleStepSeconds:0.25,rotationDisabled:true,camera:fixedConvectionCamera,changeRatio,sequences:convectionSequences,method:'Actual RGB pixel changes in the central 60% width/height of a spot-free Artistic surface close-up. Identical deterministic illustration times compare configured cellular pace with a temporary 1x uniform. This measures visible temporal change, not fluid velocity or calibrated solar time.'};
+    } finally {
+        trial.surfaceUniforms.uConvectionSpeedMultiplier.value=savedConvectionView.multiplier;
+        trial.surfaceUniforms.uRotationRate.value=savedConvectionView.rotation;
+        trial.elapsed=savedConvectionView.elapsed;trial.updateTime();trial.camera.position.copy(savedConvectionView.camera);trial.controls.update();trial.setPaused(false);
+    }
+    const speed=el('sol-trial-speed');speed.value='0';speed.dispatchEvent(new Event('input',{bubbles:true}));const stoppedAt=trial.elapsed,stoppedPixels=pixels(),zeroSpeedBefore=renderState();let zeroSpeedControlChanges=0;
+    const observeZeroSpeedControls=()=>{zeroSpeedControlChanges++;};trial.controls.addEventListener('change',observeZeroSpeedControls);
+    await frames(15);const stoppedAfterPixels=pixels(),zeroSpeedAfter=renderState();trial.controls.removeEventListener('change',observeZeroSpeedControls);
+    const zeroSpeedComparison=stableRenderComparison(stoppedPixels,stoppedAfterPixels,zeroSpeedBefore,zeroSpeedAfter,zeroSpeedControlChanges);
+    checks.zeroSpeedComparison=zeroSpeedComparison;
+    check(trial.speed===0&&trial.elapsed===stoppedAt&&renderRemainedStable(zeroSpeedComparison),`Zero illustration speed must retain exact state with only bounded raster rounding: ${JSON.stringify(zeroSpeedComparison)}`);
     speed.value='4';speed.dispatchEvent(new Event('input',{bubbles:true}));const acceleratedAt=trial.elapsed,timingStart=performance.now();await delay(350);const timingEnd=performance.now();
     const elapsedDelta=trial.elapsed-acceleratedAt;check(elapsedDelta>0.65&&elapsedDelta<(timingEnd-timingStart)/1000*4+0.15,'Speed control must drive the actual activity clock');
     el('sol-trial-pause').click();el('sol-trial-reset').click();await frames();check(trial.elapsed===0,'Reset activity must restore its deterministic start while paused');
@@ -180,6 +265,7 @@ export async function verifySunAssetTrial({nativeBridge=false}={}) {
             {name:'missing-local-file',response:()=>new Response('',{status:404}),message:/unavailable/},
             {name:'wrong-object-identity',response:()=>new Response(JSON.stringify({...validAppearance,body:{...validAppearance.body,id:'not-sol'}})),message:/identity/},
             {name:'invalid-shader-parameter',response:()=>new Response(JSON.stringify({...validAppearance,surface:{...validAppearance.surface,granulationScale:0}})),message:/parameters/},
+            {name:'invalid-convection-pace',response:()=>new Response(JSON.stringify({...validAppearance,surface:{...validAppearance.surface,convectionSpeedMultiplier:0}})),message:/parameters/},
             {name:'invalid-eruption-timing',response:()=>new Response(JSON.stringify({...validAppearance,activity:{...validAppearance.activity,periodSeconds:0}})),message:/timing/}
         ]) {
             window.fetch=(input,options)=>String(input)===appearanceUrl.href?Promise.resolve(failure.response()):originalFetch(input,options);

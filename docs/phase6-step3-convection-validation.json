@@ -1,0 +1,1651 @@
+{
+  "status": "technical-proof-passed-awaiting-user-review",
+  "recordedAtUtc": "2026-11-04T01:18:27.805Z",
+  "phase": 6,
+  "step": 3,
+  "scope": "More visible continuous solar surface convection; rotation and eruption timing unchanged. Earth and subsequent steps remain deferred for critique.",
+  "version": "1.4.2",
+  "regressionSuites": 7,
+  "packagedSourceFilesMatched": 98,
+  "payloadSha256": "316f42c168e522c50862a48a6569887d73cd2e38755df97d588282e3607df396",
+  "offline": {
+    "packaged": "passed",
+    "installed": "passed",
+    "startupRemoteRequests": 0,
+    "limit": "Application session only; the host network adapter remains connected. navigator.onLine is recorded but is not a reliable signal of session emulation."
+  },
+  "baseline": {
+    "version": "1.4.1",
+    "payloadSha256": "0f7d428052a007a6ca5052156de920f99f0739aa5b283f6fc61b08db27cbcdd2",
+    "firstSunFrameMs": 184.89999997615814,
+    "cadence": [
+      {
+        "label": "scientific-whole-disc",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 11.799999952316284
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 2,
+          "drawCalls": 2,
+          "triangles": 25152,
+          "programs": 3
+        }
+      },
+      {
+        "label": "artistic-whole-disc-eruption",
+        "frames": 188,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 10.600000023841858
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 6,
+          "triangles": 40512,
+          "programs": 3
+        }
+      },
+      {
+        "label": "scientific-surface-detail",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.5,
+          "p95": 10.399999976158142,
+          "max": 10.700000047683716
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 2,
+          "triangles": 25152,
+          "programs": 3
+        }
+      },
+      {
+        "label": "artistic-surface-detail",
+        "frames": 186,
+        "frameIntervalMs": {
+          "median": 9.599999904632568,
+          "p95": 10.300000071525574,
+          "max": 10.699999928474426
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 5,
+          "triangles": 36672,
+          "programs": 3
+        }
+      }
+    ],
+    "comparisonLimit": "Prior installed-app measurement on the same workstation; not a controlled GPU benchmark."
+  },
+  "sun": {
+    "firstRenderedFrameMs": 194,
+    "appearance": {
+      "bytes": 6514,
+      "sha256": "dc6899466db40f90074800b99ac4525fe12820263beeab951e50db8c08a5ce32"
+    },
+    "cadence": [
+      {
+        "label": "scientific-whole-disc",
+        "frames": 216,
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 8.600000023841858
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 2,
+          "drawCalls": 2,
+          "triangles": 25152,
+          "programs": 3
+        }
+      },
+      {
+        "label": "artistic-whole-disc-eruption",
+        "frames": 217,
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 10.199999928474426
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 6,
+          "triangles": 40512,
+          "programs": 3
+        }
+      },
+      {
+        "label": "scientific-surface-detail",
+        "frames": 216,
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 8.600000023841858
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 2,
+          "triangles": 25152,
+          "programs": 3
+        }
+      },
+      {
+        "label": "artistic-surface-detail",
+        "frames": 216,
+        "frameIntervalMs": {
+          "median": 8.300000071525574,
+          "p95": 8.5,
+          "max": 8.5
+        },
+        "intervalsOver50ms": 0,
+        "renderer": {
+          "textures": 0,
+          "geometries": 6,
+          "drawCalls": 5,
+          "triangles": 36672,
+          "programs": 3
+        }
+      }
+    ],
+    "convectionPace": {
+      "durationSeconds": 1,
+      "sampleStepSeconds": 0.25,
+      "rotationDisabled": true,
+      "camera": [
+        0,
+        6.919254415182545e-17,
+        1.13
+      ],
+      "changeRatio": 2.9777004790636217,
+      "sequences": [
+        {
+          "name": "prior-pace",
+          "multiplier": 1,
+          "sampleHashes": [
+            {
+              "elapsed": 0,
+              "hash": 127662351
+            },
+            {
+              "elapsed": 0.25,
+              "hash": 384261299
+            },
+            {
+              "elapsed": 0.5,
+              "hash": 4114181115
+            },
+            {
+              "elapsed": 0.75,
+              "hash": 1682062579
+            },
+            {
+              "elapsed": 1,
+              "hash": 2082667455
+            }
+          ],
+          "adjacentChanges": [
+            {
+              "changedPixels": 66927,
+              "meanAbsoluteChannelDifference": 0.6258412105652157,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            },
+            {
+              "changedPixels": 66906,
+              "meanAbsoluteChannelDifference": 0.6254463764733341,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            },
+            {
+              "changedPixels": 66755,
+              "meanAbsoluteChannelDifference": 0.6248385653712997,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            },
+            {
+              "changedPixels": 66572,
+              "meanAbsoluteChannelDifference": 0.624424281324153,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            }
+          ],
+          "startToEnd": {
+            "changedPixels": 146327,
+            "meanAbsoluteChannelDifference": 2.4862683315828376,
+            "crop": {
+              "left": 252,
+              "bottom": 149,
+              "width": 760,
+              "height": 451
+            }
+          },
+          "meanAdjacentChannelDifference": 0.6251376084335005,
+          "unchangedClocks": {
+            "surface": 1,
+            "halo": 1,
+            "plasma": {
+              "enabled": true,
+              "phase": "Quiet activity",
+              "progress": 0,
+              "opacity": 0,
+              "flowTime": 1,
+              "rotationRadians": 0.003,
+              "loopCount": 3,
+              "geometryCount": 4,
+              "materialCount": 4,
+              "eruptionApex": [
+                1.0805783144773753,
+                0.3688117827864997,
+                0.34752068306660233
+              ],
+              "anchors": [
+                [
+                  -0.2927845960638454,
+                  0.29237170472273677,
+                  0.9103823189107155
+                ],
+                [
+                  0.9053861034582115,
+                  0.3090169943749474,
+                  0.29117778220913476
+                ],
+                [
+                  -0.9293626720133595,
+                  -0.20791169081775934,
+                  0.3050536882083041
+                ]
+              ],
+              "depthTest": true,
+              "depthWrite": false,
+              "triangles": 15360
+            }
+          }
+        },
+        {
+          "name": "configured-pace",
+          "multiplier": 3,
+          "sampleHashes": [
+            {
+              "elapsed": 0,
+              "hash": 127662351
+            },
+            {
+              "elapsed": 0.25,
+              "hash": 1682062579
+            },
+            {
+              "elapsed": 0.5,
+              "hash": 4291445672
+            },
+            {
+              "elapsed": 0.75,
+              "hash": 1421173738
+            },
+            {
+              "elapsed": 1,
+              "hash": 1584404105
+            }
+          ],
+          "adjacentChanges": [
+            {
+              "changedPixels": 132781,
+              "meanAbsoluteChannelDifference": 1.8693536779865407,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            },
+            {
+              "changedPixels": 132317,
+              "meanAbsoluteChannelDifference": 1.8651709651067803,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            },
+            {
+              "changedPixels": 131574,
+              "meanAbsoluteChannelDifference": 1.8615377134632591,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            },
+            {
+              "changedPixels": 130909,
+              "meanAbsoluteChannelDifference": 1.849827867895904,
+              "crop": {
+                "left": 252,
+                "bottom": 149,
+                "width": 760,
+                "height": 451
+              }
+            }
+          ],
+          "startToEnd": {
+            "changedPixels": 207645,
+            "meanAbsoluteChannelDifference": 7.172414128447505,
+            "crop": {
+              "left": 252,
+              "bottom": 149,
+              "width": 760,
+              "height": 451
+            }
+          },
+          "meanAdjacentChannelDifference": 1.8614725561131211,
+          "unchangedClocks": {
+            "surface": 1,
+            "halo": 1,
+            "plasma": {
+              "enabled": true,
+              "phase": "Quiet activity",
+              "progress": 0,
+              "opacity": 0,
+              "flowTime": 1,
+              "rotationRadians": 0.003,
+              "loopCount": 3,
+              "geometryCount": 4,
+              "materialCount": 4,
+              "eruptionApex": [
+                1.0805783144773753,
+                0.3688117827864997,
+                0.34752068306660233
+              ],
+              "anchors": [
+                [
+                  -0.2927845960638454,
+                  0.29237170472273677,
+                  0.9103823189107155
+                ],
+                [
+                  0.9053861034582115,
+                  0.3090169943749474,
+                  0.29117778220913476
+                ],
+                [
+                  -0.9293626720133595,
+                  -0.20791169081775934,
+                  0.3050536882083041
+                ]
+              ],
+              "depthTest": true,
+              "depthWrite": false,
+              "triangles": 15360
+            }
+          }
+        }
+      ],
+      "method": "Actual RGB pixel changes in the central 60% width/height of a spot-free Artistic surface close-up. Identical deterministic illustration times compare configured cellular pace with a temporary 1x uniform. This measures visible temporal change, not fluid velocity or calibrated solar time."
+    },
+    "warmCadenceBudget": {
+      "p95Ms": 16.7,
+      "intervalsOver50ms": 0,
+      "passed": true
+    },
+    "evolutionWithoutRotation": {
+      "rotationTemporarilyDisabled": true,
+      "cameraHeldFixed": true,
+      "elapsed": 1.4,
+      "changedPixels": 818465,
+      "meanAbsoluteChannelDifference": 4.128309616760463
+    },
+    "pausedPixelsStable": true,
+    "plasmaActivity": {
+      "eventStartTime": 15.44,
+      "pauseStable": true,
+      "stages": [
+        {
+          "fraction": 0.2,
+          "state": {
+            "enabled": true,
+            "phase": "Plasma rising",
+            "progress": 0.19999999999999987,
+            "opacity": 0.6536946765362854,
+            "flowTime": 16.4,
+            "rotationRadians": 0.049199999999999994,
+            "loopCount": 3,
+            "geometryCount": 4,
+            "materialCount": 4,
+            "eruptionApex": [
+              1.140909498449036,
+              0.3841081240080596,
+              0.30957303729455843
+            ],
+            "anchors": [
+              [
+                -0.25042748363569434,
+                0.29237170472273677,
+                0.9229327503764372
+              ],
+              [
+                0.917867657642024,
+                0.3090169943749474,
+                0.24905312734880006
+              ],
+              [
+                -0.9142825466720287,
+                -0.20791169081775934,
+                0.3476494695411027
+              ]
+            ],
+            "depthTest": true,
+            "depthWrite": false,
+            "triangles": 15360
+          },
+          "pixels": {
+            "hash": 3565544657,
+            "width": 1264,
+            "height": 749,
+            "brightSamples": 93258,
+            "meanBrightRgb": [
+              191.4929014132836,
+              138.19951103390594,
+              59.30835960453795
+            ]
+          }
+        },
+        {
+          "fraction": 0.58,
+          "state": {
+            "enabled": true,
+            "phase": "Ejecta expanding",
+            "progress": 0.5800000000000001,
+            "opacity": 0.9747865576959276,
+            "flowTime": 20.96,
+            "rotationRadians": 0.06288,
+            "loopCount": 3,
+            "geometryCount": 4,
+            "materialCount": 4,
+            "eruptionApex": [
+              1.2595919933740896,
+              0.42253593234355613,
+              0.32334361309827847
+            ],
+            "anchors": [
+              [
+                -0.23777872497339783,
+                0.29237170472273677,
+                0.9262721329218244
+              ],
+              [
+                0.921188713519232,
+                0.3090169943749474,
+                0.2364737855920946
+              ],
+              [
+                -0.9094413010831562,
+                -0.20791169081775934,
+                0.36012393520214186
+              ]
+            ],
+            "depthTest": true,
+            "depthWrite": false,
+            "triangles": 15360
+          },
+          "pixels": {
+            "hash": 3200857939,
+            "width": 1264,
+            "height": 749,
+            "brightSamples": 93394,
+            "meanBrightRgb": [
+              191.27746964473093,
+              138.00566417542882,
+              59.225903162944086
+            ]
+          }
+        },
+        {
+          "fraction": 0.92,
+          "state": {
+            "enabled": true,
+            "phase": "Ejection fading",
+            "progress": 0.9199999999999999,
+            "opacity": 0.328493288034431,
+            "flowTime": 25.04,
+            "rotationRadians": 0.07511999999999999,
+            "loopCount": 3,
+            "geometryCount": 4,
+            "materialCount": 4,
+            "eruptionApex": [
+              1.3973680070088044,
+              0.46732022025334546,
+              0.34053672802005736
+            ],
+            "anchors": [
+              [
+                -0.22642362566234595,
+                0.29237170472273677,
+                0.9291130867765445
+              ],
+              [
+                0.9240140761028409,
+                0.3090169943749474,
+                0.22518100353113002
+              ],
+              [
+                -0.9049653698733713,
+                -0.20791169081775934,
+                0.3712282426637998
+              ]
+            ],
+            "depthTest": true,
+            "depthWrite": false,
+            "triangles": 15360
+          },
+          "pixels": {
+            "hash": 693626773,
+            "width": 1264,
+            "height": 749,
+            "brightSamples": 93354,
+            "meanBrightRgb": [
+              191.17181909719991,
+              137.917314737451,
+              59.18949375495426
+            ]
+          }
+        }
+      ],
+      "outsideChangedPixels": 2211,
+      "farSideOcclusion": true,
+      "finiteEvent": true,
+      "reset": true
+    },
+    "pausedPlasmaComparison": {
+      "before": {
+        "elapsed": 15.44,
+        "flowTime": 15.44,
+        "activity": {
+          "enabled": true,
+          "phase": "Active region brightening",
+          "progress": 0.11999999999999982,
+          "opacity": 0.4495684520664126,
+          "flowTime": 15.44,
+          "rotationRadians": 0.04632,
+          "loopCount": 3,
+          "geometryCount": 4,
+          "materialCount": 4,
+          "eruptionApex": [
+            1.1206430620080239,
+            0.3775816850868607,
+            0.30754175823820523
+          ],
+          "anchors": [
+            [
+              -0.2530844877101544,
+              0.29237170472273677,
+              0.9222076926365391
+            ],
+            [
+              0.9171465790486987,
+              0.3090169943749474,
+              0.2516955496760772
+            ],
+            [
+              -0.91527998405025,
+              -0.20791169081775934,
+              0.3450148976758463
+            ]
+          ],
+          "depthTest": true,
+          "depthWrite": false,
+          "triangles": 15360
+        },
+        "surfaceTime": 15.44,
+        "haloTime": 15.44,
+        "paused": true,
+        "speed": 1,
+        "camera": [
+          0,
+          2.2945565690399604e-16,
+          3.747295253843835
+        ],
+        "quaternion": [
+          -3.061616997868383e-17,
+          0,
+          0,
+          1
+        ],
+        "projection": [
+          1.7209287558379678,
+          0,
+          0,
+          0,
+          0,
+          2.9042108776758226,
+          0,
+          0,
+          0,
+          0,
+          -1.000080003200128,
+          -1,
+          0,
+          0,
+          -0.004000160006400256,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "autoRotate": false,
+        "canvas": {
+          "width": 1264,
+          "height": 749,
+          "bounds": {
+            "x": 0,
+            "y": 86,
+            "width": 1264,
+            "height": 749,
+            "top": 86,
+            "right": 1264,
+            "bottom": 835,
+            "left": 0
+          },
+          "pixelRatio": 1
+        },
+        "hidden": false,
+        "focused": true,
+        "frameCount": 258,
+        "programs": [
+          {
+            "id": 56,
+            "usedTimes": 1,
+            "runnable": true
+          },
+          {
+            "id": 57,
+            "usedTimes": 1
+          },
+          {
+            "id": 58,
+            "usedTimes": 4
+          }
+        ]
+      },
+      "after": {
+        "elapsed": 15.44,
+        "flowTime": 15.44,
+        "activity": {
+          "enabled": true,
+          "phase": "Active region brightening",
+          "progress": 0.11999999999999982,
+          "opacity": 0.4495684520664126,
+          "flowTime": 15.44,
+          "rotationRadians": 0.04632,
+          "loopCount": 3,
+          "geometryCount": 4,
+          "materialCount": 4,
+          "eruptionApex": [
+            1.1206430620080239,
+            0.3775816850868607,
+            0.30754175823820523
+          ],
+          "anchors": [
+            [
+              -0.2530844877101544,
+              0.29237170472273677,
+              0.9222076926365391
+            ],
+            [
+              0.9171465790486987,
+              0.3090169943749474,
+              0.2516955496760772
+            ],
+            [
+              -0.91527998405025,
+              -0.20791169081775934,
+              0.3450148976758463
+            ]
+          ],
+          "depthTest": true,
+          "depthWrite": false,
+          "triangles": 15360
+        },
+        "surfaceTime": 15.44,
+        "haloTime": 15.44,
+        "paused": true,
+        "speed": 1,
+        "camera": [
+          0,
+          2.2945565690399604e-16,
+          3.747295253843835
+        ],
+        "quaternion": [
+          -3.061616997868383e-17,
+          0,
+          0,
+          1
+        ],
+        "projection": [
+          1.7209287558379678,
+          0,
+          0,
+          0,
+          0,
+          2.9042108776758226,
+          0,
+          0,
+          0,
+          0,
+          -1.000080003200128,
+          -1,
+          0,
+          0,
+          -0.004000160006400256,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "autoRotate": false,
+        "canvas": {
+          "width": 1264,
+          "height": 749,
+          "bounds": {
+            "x": 0,
+            "y": 86,
+            "width": 1264,
+            "height": 749,
+            "top": 86,
+            "right": 1264,
+            "bottom": 835,
+            "left": 0
+          },
+          "pixelRatio": 1
+        },
+        "hidden": false,
+        "focused": true,
+        "frameCount": 266,
+        "programs": [
+          {
+            "id": 56,
+            "usedTimes": 1,
+            "runnable": true
+          },
+          {
+            "id": 57,
+            "usedTimes": 1
+          },
+          {
+            "id": 58,
+            "usedTimes": 4
+          }
+        ]
+      },
+      "beforePixels": {
+        "hash": 3594504281,
+        "width": 1264,
+        "height": 749,
+        "brightSamples": 93237,
+        "meanBrightRgb": [
+          191.45960294732777,
+          138.1993950899321,
+          59.308858071366515
+        ]
+      },
+      "afterPixels": {
+        "hash": 3594504281,
+        "width": 1264,
+        "height": 749,
+        "brightSamples": 93237,
+        "meanBrightRgb": [
+          191.45960294732777,
+          138.1993950899321,
+          59.308858071366515
+        ]
+      },
+      "controlChanges": 0,
+      "stateUnchanged": true,
+      "pixelCount": 946736,
+      "changedPixels": 0,
+      "changedPixelFraction": 0,
+      "absoluteChannelDifference": 0,
+      "meanAbsoluteChannelDifference": 0,
+      "maxAbsoluteChannelDifference": 0,
+      "maxAlphaDifference": 0,
+      "limits": {
+        "maximumChannelStep": 1,
+        "maximumChangedPixelFraction": 0.0001,
+        "alphaMustMatch": true,
+        "meaning": "At most one 8-bit RGB code value in no more than 0.01% of pixels; exact animation, camera and canvas state is required separately."
+      }
+    },
+    "zeroSpeedComparison": {
+      "before": {
+        "elapsed": 5.225100000000006,
+        "flowTime": 5.225100000000006,
+        "activity": {
+          "enabled": true,
+          "phase": "Quiet activity",
+          "progress": 0,
+          "opacity": 0,
+          "flowTime": 5.225100000000006,
+          "rotationRadians": 0.015675300000000017,
+          "loopCount": 3,
+          "geometryCount": 4,
+          "materialCount": 4,
+          "eruptionApex": [
+            1.0848963220017136,
+            0.3688117827864997,
+            0.33379647898831544
+          ],
+          "anchors": [
+            [
+              -0.28122201650195805,
+              0.29237170472273677,
+              0.9140202206253937
+            ],
+            [
+              0.9090040402192827,
+              0.3090169943749474,
+              0.2796786585574491
+            ],
+            [
+              -0.9254214723315258,
+              -0.20791169081775934,
+              0.31680881832589747
+            ]
+          ],
+          "depthTest": true,
+          "depthWrite": false,
+          "triangles": 15360
+        },
+        "surfaceTime": 5.225100000000006,
+        "haloTime": 5.225100000000006,
+        "paused": false,
+        "speed": 0,
+        "camera": [
+          -0.3339312961754062,
+          0.3303800263366925,
+          1.0277348527866412
+        ],
+        "quaternion": [
+          -0.14598963200294962,
+          -0.15471616750132355,
+          -0.02312248615797219,
+          0.9768394369061989
+        ],
+        "projection": [
+          1.7209287558379678,
+          0,
+          0,
+          0,
+          0,
+          2.9042108776758226,
+          0,
+          0,
+          0,
+          0,
+          -1.000080003200128,
+          -1,
+          0,
+          0,
+          -0.004000160006400256,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "autoRotate": false,
+        "canvas": {
+          "width": 1264,
+          "height": 749,
+          "bounds": {
+            "x": 0,
+            "y": 86,
+            "width": 1264,
+            "height": 749,
+            "top": 86,
+            "right": 1264,
+            "bottom": 835,
+            "left": 0
+          },
+          "pixelRatio": 1
+        },
+        "hidden": false,
+        "focused": true,
+        "frameCount": 1283,
+        "programs": [
+          {
+            "id": 56,
+            "usedTimes": 1,
+            "runnable": true
+          },
+          {
+            "id": 57,
+            "usedTimes": 1
+          },
+          {
+            "id": 58,
+            "usedTimes": 4
+          }
+        ]
+      },
+      "after": {
+        "elapsed": 5.225100000000006,
+        "flowTime": 5.225100000000006,
+        "activity": {
+          "enabled": true,
+          "phase": "Quiet activity",
+          "progress": 0,
+          "opacity": 0,
+          "flowTime": 5.225100000000006,
+          "rotationRadians": 0.015675300000000017,
+          "loopCount": 3,
+          "geometryCount": 4,
+          "materialCount": 4,
+          "eruptionApex": [
+            1.0848963220017136,
+            0.3688117827864997,
+            0.33379647898831544
+          ],
+          "anchors": [
+            [
+              -0.28122201650195805,
+              0.29237170472273677,
+              0.9140202206253937
+            ],
+            [
+              0.9090040402192827,
+              0.3090169943749474,
+              0.2796786585574491
+            ],
+            [
+              -0.9254214723315258,
+              -0.20791169081775934,
+              0.31680881832589747
+            ]
+          ],
+          "depthTest": true,
+          "depthWrite": false,
+          "triangles": 15360
+        },
+        "surfaceTime": 5.225100000000006,
+        "haloTime": 5.225100000000006,
+        "paused": false,
+        "speed": 0,
+        "camera": [
+          -0.3339312961754062,
+          0.3303800263366925,
+          1.0277348527866412
+        ],
+        "quaternion": [
+          -0.14598963200294962,
+          -0.15471616750132355,
+          -0.02312248615797219,
+          0.9768394369061989
+        ],
+        "projection": [
+          1.7209287558379678,
+          0,
+          0,
+          0,
+          0,
+          2.9042108776758226,
+          0,
+          0,
+          0,
+          0,
+          -1.000080003200128,
+          -1,
+          0,
+          0,
+          -0.004000160006400256,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "autoRotate": false,
+        "canvas": {
+          "width": 1264,
+          "height": 749,
+          "bounds": {
+            "x": 0,
+            "y": 86,
+            "width": 1264,
+            "height": 749,
+            "top": 86,
+            "right": 1264,
+            "bottom": 835,
+            "left": 0
+          },
+          "pixelRatio": 1
+        },
+        "hidden": false,
+        "focused": true,
+        "frameCount": 1298,
+        "programs": [
+          {
+            "id": 56,
+            "usedTimes": 1,
+            "runnable": true
+          },
+          {
+            "id": 57,
+            "usedTimes": 1
+          },
+          {
+            "id": 58,
+            "usedTimes": 4
+          }
+        ]
+      },
+      "beforePixels": {
+        "hash": 4024098177,
+        "width": 1264,
+        "height": 749,
+        "brightSamples": 236684,
+        "meanBrightRgb": [
+          208.80548326038092,
+          152.35757381149548,
+          63.95556522620878
+        ]
+      },
+      "afterPixels": {
+        "hash": 4024098177,
+        "width": 1264,
+        "height": 749,
+        "brightSamples": 236684,
+        "meanBrightRgb": [
+          208.80548326038092,
+          152.35757381149548,
+          63.95556522620878
+        ]
+      },
+      "controlChanges": 0,
+      "stateUnchanged": true,
+      "pixelCount": 946736,
+      "changedPixels": 0,
+      "changedPixelFraction": 0,
+      "absoluteChannelDifference": 0,
+      "meanAbsoluteChannelDifference": 0,
+      "maxAbsoluteChannelDifference": 0,
+      "maxAlphaDifference": 0,
+      "limits": {
+        "maximumChannelStep": 1,
+        "maximumChangedPixelFraction": 0.0001,
+        "alphaMustMatch": true,
+        "meaning": "At most one 8-bit RGB code value in no more than 0.01% of pixels; exact animation, camera and canvas state is required separately."
+      }
+    },
+    "pausedSurfaceComparison": {
+      "before": {
+        "elapsed": 0,
+        "flowTime": 0,
+        "activity": {
+          "enabled": false,
+          "phase": "Quiet activity",
+          "progress": 0,
+          "opacity": 0,
+          "flowTime": 0,
+          "rotationRadians": 0,
+          "loopCount": 3,
+          "geometryCount": 4,
+          "materialCount": 4,
+          "eruptionApex": [
+            1.0795308913932495,
+            0.3688117827864997,
+            0.3507608493055333
+          ],
+          "anchors": [
+            [
+              -0.2955144213941648,
+              0.29237170472273677,
+              0.9094998697226915
+            ],
+            [
+              0.9045084971874736,
+              0.3090169943749474,
+              0.29389262614623657
+            ],
+            [
+              -0.930273649576356,
+              -0.20791169081775934,
+              0.30226423163382676
+            ]
+          ],
+          "depthTest": true,
+          "depthWrite": false,
+          "triangles": 15360
+        },
+        "surfaceTime": 0,
+        "haloTime": 0,
+        "paused": true,
+        "speed": 1,
+        "camera": [
+          0,
+          2.2945565690399604e-16,
+          3.747295253843835
+        ],
+        "quaternion": [
+          -3.061616997868383e-17,
+          0,
+          0,
+          1
+        ],
+        "projection": [
+          1.7209287558379678,
+          0,
+          0,
+          0,
+          0,
+          2.9042108776758226,
+          0,
+          0,
+          0,
+          0,
+          -1.000080003200128,
+          -1,
+          0,
+          0,
+          -0.004000160006400256,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "autoRotate": false,
+        "canvas": {
+          "width": 1264,
+          "height": 749,
+          "bounds": {
+            "x": 0,
+            "y": 86,
+            "width": 1264,
+            "height": 749,
+            "top": 86,
+            "right": 1264,
+            "bottom": 835,
+            "left": 0
+          },
+          "pixelRatio": 1
+        },
+        "hidden": false,
+        "focused": true,
+        "frameCount": 223,
+        "programs": [
+          {
+            "id": 56,
+            "usedTimes": 1,
+            "runnable": true
+          },
+          {
+            "id": 57,
+            "usedTimes": 1
+          },
+          {
+            "id": 58,
+            "usedTimes": 4
+          }
+        ]
+      },
+      "after": {
+        "elapsed": 0,
+        "flowTime": 0,
+        "activity": {
+          "enabled": false,
+          "phase": "Quiet activity",
+          "progress": 0,
+          "opacity": 0,
+          "flowTime": 0,
+          "rotationRadians": 0,
+          "loopCount": 3,
+          "geometryCount": 4,
+          "materialCount": 4,
+          "eruptionApex": [
+            1.0795308913932495,
+            0.3688117827864997,
+            0.3507608493055333
+          ],
+          "anchors": [
+            [
+              -0.2955144213941648,
+              0.29237170472273677,
+              0.9094998697226915
+            ],
+            [
+              0.9045084971874736,
+              0.3090169943749474,
+              0.29389262614623657
+            ],
+            [
+              -0.930273649576356,
+              -0.20791169081775934,
+              0.30226423163382676
+            ]
+          ],
+          "depthTest": true,
+          "depthWrite": false,
+          "triangles": 15360
+        },
+        "surfaceTime": 0,
+        "haloTime": 0,
+        "paused": true,
+        "speed": 1,
+        "camera": [
+          0,
+          2.2945565690399604e-16,
+          3.747295253843835
+        ],
+        "quaternion": [
+          -3.061616997868383e-17,
+          0,
+          0,
+          1
+        ],
+        "projection": [
+          1.7209287558379678,
+          0,
+          0,
+          0,
+          0,
+          2.9042108776758226,
+          0,
+          0,
+          0,
+          0,
+          -1.000080003200128,
+          -1,
+          0,
+          0,
+          -0.004000160006400256,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "autoRotate": false,
+        "canvas": {
+          "width": 1264,
+          "height": 749,
+          "bounds": {
+            "x": 0,
+            "y": 86,
+            "width": 1264,
+            "height": 749,
+            "top": 86,
+            "right": 1264,
+            "bottom": 835,
+            "left": 0
+          },
+          "pixelRatio": 1
+        },
+        "hidden": false,
+        "focused": true,
+        "frameCount": 235,
+        "programs": [
+          {
+            "id": 56,
+            "usedTimes": 1,
+            "runnable": true
+          },
+          {
+            "id": 57,
+            "usedTimes": 1
+          },
+          {
+            "id": 58,
+            "usedTimes": 4
+          }
+        ]
+      },
+      "beforePixels": {
+        "hash": 2030654788,
+        "width": 1264,
+        "height": 749,
+        "brightSamples": 76270,
+        "meanBrightRgb": [
+          199.50006555657532,
+          198.1145273370919,
+          193.69027140422185
+        ]
+      },
+      "afterPixels": {
+        "hash": 2030654788,
+        "width": 1264,
+        "height": 749,
+        "brightSamples": 76270,
+        "meanBrightRgb": [
+          199.50006555657532,
+          198.1145273370919,
+          193.69027140422185
+        ]
+      },
+      "controlChanges": 0,
+      "stateUnchanged": true,
+      "pixelCount": 946736,
+      "changedPixels": 0,
+      "changedPixelFraction": 0,
+      "absoluteChannelDifference": 0,
+      "meanAbsoluteChannelDifference": 0,
+      "maxAbsoluteChannelDifference": 0,
+      "maxAlphaDifference": 0,
+      "limits": {
+        "maximumChannelStep": 1,
+        "maximumChangedPixelFraction": 0.0001,
+        "alphaMustMatch": true,
+        "meaning": "At most one 8-bit RGB code value in no more than 0.01% of pixels; exact animation, camera and canvas state is required separately."
+      }
+    },
+    "errorRecovery": [
+      "missing-local-file",
+      "wrong-object-identity",
+      "invalid-shader-parameter",
+      "invalid-convection-pace",
+      "invalid-eruption-timing"
+    ],
+    "nearbySolIdentity": true,
+    "catalogUnchanged": true
+  },
+  "blender": {
+    "project": "asset-projects/sol/sol-v3.blend",
+    "bytes": 9087451,
+    "sha256": "c54825da344edfd857f694295b7ddde14a81e9743a83146c0ac353108189ecb7",
+    "freshFileVerification": "passed",
+    "renderChecks": 8,
+    "convectionVerification": {
+      "comparisons": {
+        "previous": {
+          "steps": [
+            {
+              "render": {
+                "file": "blender-convection-previous-0007.png",
+                "sha256": "5592f6e50c408aad2fb4cbcd89eefc2896afaec0fd939ab5923876c88f5b2c14",
+                "frame": 7,
+                "illustrationSeconds": 0.25,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.08678445965051651,
+              "surfaceChangedChannels": 2794570
+            },
+            {
+              "render": {
+                "file": "blender-convection-previous-0013.png",
+                "sha256": "831089a68ccdb279461c31188cef0bfd60e65c1668d4d90b9024898e851a57ad",
+                "frame": 13,
+                "illustrationSeconds": 0.5,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.07740630209445953,
+              "surfaceChangedChannels": 2744078
+            },
+            {
+              "render": {
+                "file": "blender-convection-previous-0019.png",
+                "sha256": "db2948053adf24dca2024c63ed42f3b9bbeefe715d33911316ff7da2de454036",
+                "frame": 19,
+                "illustrationSeconds": 0.75,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.08060703426599503,
+              "surfaceChangedChannels": 2739447
+            },
+            {
+              "render": {
+                "file": "blender-convection-previous-0025.png",
+                "sha256": "cbe648172f26ac491b23a943269bd2beb58a876325f30705c0c90518b3f3a826",
+                "frame": 25,
+                "illustrationSeconds": 1,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18039216101169586,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.08414395153522491,
+              "surfaceChangedChannels": 2751412
+            }
+          ],
+          "surfaceMeanAbsoluteSrgbChange": 0.082235436886549,
+          "endpointMeanAbsoluteSrgbChange": 0.10781243443489075
+        },
+        "revised": {
+          "steps": [
+            {
+              "render": {
+                "file": "blender-convection-revised-0007.png",
+                "sha256": "082dad59109dc7482e6923da3b628a08d77be421d6fa2c68cc4ae45a997a66fa",
+                "frame": 7,
+                "illustrationSeconds": 0.25,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.107401542365551,
+              "surfaceChangedChannels": 2886078
+            },
+            {
+              "render": {
+                "file": "blender-convection-revised-0013.png",
+                "sha256": "a623b52d13477a7c61c77450d07928632de1b379b9cfa7fdced70c3cc4ac04fd",
+                "frame": 13,
+                "illustrationSeconds": 0.5,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.10636963695287704,
+              "surfaceChangedChannels": 2884369
+            },
+            {
+              "render": {
+                "file": "blender-convection-revised-0019.png",
+                "sha256": "be08c11271156e335dc2883c7db5ad14943764328b877f8c4c2d3cd8f352c3d2",
+                "frame": 19,
+                "illustrationSeconds": 0.75,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.10011128336191177,
+              "surfaceChangedChannels": 2863257
+            },
+            {
+              "render": {
+                "file": "blender-convection-revised-0025.png",
+                "sha256": "fa094d60c3b53978046d6fcbe1307a41b4f2602b75273c729e5aac623eaa70c5",
+                "frame": 25,
+                "illustrationSeconds": 1,
+                "width": 1200,
+                "height": 900,
+                "foregroundFraction": 1,
+                "boundsBottomUp": [
+                  0,
+                  0,
+                  1199,
+                  899
+                ],
+                "framing": "close surface crop",
+                "encodedSrgbMin": 0.18431372940540314,
+                "encodedSrgbMax": 1
+              },
+              "surfaceMeanAbsoluteSrgbChange": 0.11143945157527924,
+              "surfaceChangedChannels": 2897049
+            }
+          ],
+          "surfaceMeanAbsoluteSrgbChange": 0.10633047856390476,
+          "endpointMeanAbsoluteSrgbChange": 0.11863301694393158
+        }
+      },
+      "surfaceChangeRatio": 1.2930007134344892,
+      "measurement": "Mean of adjacent 0.25-second image differences over one second",
+      "zeroRender": {
+        "file": "blender-convection-close-0001.png",
+        "sha256": "40a0843fe7cbd5fc4ed7a366d823871b458341cf805ce8b781e57514a8b2acf5",
+        "frame": 1,
+        "illustrationSeconds": 0,
+        "width": 1200,
+        "height": 900,
+        "foregroundFraction": 1,
+        "boundsBottomUp": [
+          0,
+          0,
+          1199,
+          899
+        ],
+        "framing": "close surface crop",
+        "encodedSrgbMin": 0.18431372940540314,
+        "encodedSrgbMax": 1
+      },
+      "regionPixels": [
+        1200,
+        900
+      ],
+      "cameraRadius": 1.13,
+      "onlyConvectionMultiplierChanged": true,
+      "photosphereRotationHeldFixed": true,
+      "savedAssetRotationUnmodified": true
+    },
+    "referenceGeometry": {
+      "url": "sol.glb",
+      "bytes": 366840,
+      "sha256": "2c1a0dd1cdefdb34380eb162a93adea7e4c4bb95693c55714a8be97d730c9210",
+      "geometryOnly": true,
+      "triangles": 16128,
+      "externalTextures": 0
+    }
+  },
+  "verificationHistory": {
+    "initialInstalledRuns": "Two failed strict pixel-hash comparisons retained in installed-1 and installed-2; packaged-3 reached the remaining strict zero-speed hash check and failed there.",
+    "instrumentedFailure": {
+      "unchangedAnimationCameraCanvasState": true,
+      "controlChanges": 0,
+      "changedPixels": 22,
+      "pixelCount": 946736,
+      "totalAbsoluteRgbDifference": 22
+    },
+    "diagnosticChange": "All cross-frame freeze comparisons now allow only one RGB code value in at most 0.01% of pixels, alpha exact; all animation/camera/canvas/visibility state must remain exact. Larger or widespread differences fail guard fixtures.",
+    "productionPauseCodeChanged": false,
+    "interpretation": "Observed differences were at raster-rounding level; the precise GPU cause is not established. The actual final build is checked against the documented bounded criterion.",
+    "interruptedRun": "installed-3 timed out after 180 seconds; the window had lost foreground focus and progress resumed when raised. Final installed-4 completed in a fresh foreground run."
+  },
+  "limits": [
+    "This is a procedural illustration, not live solar imagery or a plasma simulation.",
+    "Artistic mode enlarges cells and spots and combines atmospheric inspiration from different solar layers.",
+    "Blender and app shaders are separate implementations sharing settings; their close-up styles differ.",
+    "Cell interiors remain stylized and plasma intensity is restrained; visual acceptance awaits user critique.",
+    "Cadence is render-call pacing on one workstation, not GPU completion or physical presentation.",
+    "Resource disposal and counts do not establish VRAM release or long-term memory stability.",
+    "No public binary release was published."
+  ]
+}

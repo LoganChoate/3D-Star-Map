@@ -9,11 +9,11 @@
     "temperatureDefinition": "IAU 2015 nominal effective temperature; a reference conversion constant, not a surface temperature map."
   },
   "classification": "Procedural scientific illustration with a separate artistic interpretation; not a live observation or plasma simulation.",
-  "appearanceSha256": "335e8861bc4404309ac436bc6d3a039587a6c4355a1a6196af0ac8da1cc12add",
+  "appearanceSha256": "dc6899466db40f90074800b99ac4525fe12820263beeab951e50db8c08a5ce32",
   "asset": {
     "url": "sol.glb",
     "bytes": 366840,
-    "sha256": "3586a043ddf00abdb7458eb41c3961ed2c131ab8514de83af47c866930b29c2e",
+    "sha256": "2c1a0dd1cdefdb34380eb162a93adea7e4c4bb95693c55714a8be97d730c9210",
     "geometryOnly": true,
     "triangles": 16128,
     "externalTextures": 0
@@ -27,7 +27,7 @@
     "nonManifoldEdges": 0,
     "minRadius": 0.9999977528299213,
     "maxRadius": 1.0000001712725757,
-    "volume": 4.184582150699971
+    "volume": 4.184582150699972
   },
   "sources": [
     {
@@ -57,13 +57,14 @@
   ],
   "authoring": {
     "blenderVersion": "4.4.3",
-    "project": "asset-projects/sol/sol-v2.blend",
-    "scriptSha256": "7f8550f0483e5a7732200d111ac84b3f7f216dcb3c079c6c91372a58e95e6e26",
+    "project": "asset-projects/sol/sol-v3.blend",
+    "scriptSha256": "74e0a921eb8c4d0a1af1d2e08fa71eb4be1f243a4b5d9a13ab10490d1e5bee50",
     "proceduralInputsEmbedded": true,
     "modes": [
       "scientific",
       "artistic"
     ],
+    "convectionSpeedMultiplier": 3,
     "animation": "Frame-driven distorted 4D cellular field, radial penumbrae, UV flow on 3D plasma strands, and a rising/fading shape-key ejection. No baked view-dependent textures."
   },
   "transfer": "Blender nodes and the application shader are separate implementations sharing appearance parameters. Arbitrary Blender procedural graphs and compositor glow are not executable glTF payloads.",
@@ -80,7 +81,7 @@
     "renders": [
       {
         "file": "blender-scientific-0001.png",
-        "sha256": "e1ff85d42f385dc186cd81137ed5382aed05fd4bfb0e4134f20462f5509379bc",
+        "sha256": "3aa6c3c75f097b4ffb8e1136a01f243159cea6daafbb372720df79988ce64edd",
         "frame": 1,
         "illustrationSeconds": 0.0,
         "width": 1200,
@@ -98,7 +99,7 @@
       },
       {
         "file": "blender-scientific-0241.png",
-        "sha256": "b7ca4baddec65b8d2a244dbf76c937764aa279b5209c2dffda754c560315742c",
+        "sha256": "1f16f3efd9a174d4dceb4a979f3bd2e59a53619dcc309416ccdbfab7febab8c8",
         "frame": 241,
         "illustrationSeconds": 10.0,
         "width": 1200,
@@ -112,11 +113,11 @@
         ],
         "framing": "whole disc passed",
         "encodedSrgbMin": 0.0,
-        "encodedSrgbMax": 0.917647123336792
+        "encodedSrgbMax": 0.9215686917304993
       },
       {
         "file": "blender-scientific-close-0001.png",
-        "sha256": "fa516a1d89dd85903927698940fb80eb558859685d9ae82b5ede0d16feea94f3",
+        "sha256": "d989ea0c31fba6c0f4d9380ff8a2ad24ef97ce15ba303b22317bebbe89983f2a",
         "frame": 1,
         "illustrationSeconds": 0.0,
         "width": 1200,
@@ -134,7 +135,7 @@
       },
       {
         "file": "blender-scientific-close-0241.png",
-        "sha256": "5b2c13480a61ec2f77f2f45da0dd7dbe7306af9c0824395728bab02b681b358d",
+        "sha256": "1c1b26caed74d8289645d857ed39b92f6e7eec5bbaf38313a353193299878a9e",
         "frame": 241,
         "illustrationSeconds": 10.0,
         "width": 1200,
@@ -152,7 +153,7 @@
       },
       {
         "file": "blender-artistic-0001.png",
-        "sha256": "fcb8d3888243f9636ccc1a45047146dda6ea20a668c16285856d19e0b39c7c84",
+        "sha256": "d1ba4b308216b8d7528d62fda5163f72e66949b5ffe8b62731e4f90b403b1787",
         "frame": 1,
         "illustrationSeconds": 0.0,
         "width": 1200,
@@ -170,7 +171,7 @@
       },
       {
         "file": "blender-artistic-0481.png",
-        "sha256": "21018b9a633791debb265f54c7e5a3d540a589e89a4ef7a2a4f132259d39692f",
+        "sha256": "56debcaaead7588bf1f6410ae14807eb5757e821009f6c932dcb672f58f43d3f",
         "frame": 481,
         "illustrationSeconds": 20.0,
         "width": 1200,
@@ -188,7 +189,7 @@
       },
       {
         "file": "blender-artistic-close-0001.png",
-        "sha256": "978015dc4400af9e371fbf2192af57ce7adb087e1c7369e92504e79b1f3f4c28",
+        "sha256": "906e1116815f2a996cc6ee72a8fdb05326055707dd121f4ff26feac0952cb0b9",
         "frame": 1,
         "illustrationSeconds": 0.0,
         "width": 1200,
@@ -206,7 +207,7 @@
       },
       {
         "file": "blender-artistic-close-0241.png",
-        "sha256": "5b5294aa3267090ee20acd2fa80a1f3106a504b0f4b5162312a94f1f63740243",
+        "sha256": "e7697c6c27fbff1b9e03d2d66a74eec067888a5938137c90ce939d108226e592",
         "frame": 241,
         "illustrationSeconds": 10.0,
         "width": 1200,
@@ -219,35 +220,35 @@
           899
         ],
         "framing": "close surface crop",
-        "encodedSrgbMin": 0.05490196496248245,
+        "encodedSrgbMin": 0.05882353335618973,
         "encodedSrgbMax": 1.0
       }
     ],
     "scientificAnimation": {
-      "meanAbsoluteSrgbChange": 0.00017928106535691768,
-      "changedChannels": 6926,
+      "meanAbsoluteSrgbChange": 0.00017928954912349582,
+      "changedChannels": 6925,
       "frames": [
         1,
         241
       ]
     },
     "scientificCloseAnimation": {
-      "meanAbsoluteSrgbChange": 0.05900430679321289,
-      "changedChannels": 2946485
+      "meanAbsoluteSrgbChange": 0.05898117646574974,
+      "changedChannels": 2946412
     },
     "artisticAnimation": {
-      "meanAbsoluteSrgbChange": 0.024989353492856026,
-      "changedChannels": 898288,
+      "meanAbsoluteSrgbChange": 0.02516126073896885,
+      "changedChannels": 899190,
       "frames": [
         1,
         481
       ]
     },
     "artisticCloseAnimation": {
-      "meanAbsoluteSrgbChange": 0.13653011620044708,
-      "changedChannels": 3003076
+      "meanAbsoluteSrgbChange": 0.1327202320098877,
+      "changedChannels": 2987177
     },
     "animationAndPixels": "passed"
   },
-  "buildSeconds": 38.65700000000652
+  "buildSeconds": 39.20400000002701
 }

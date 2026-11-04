@@ -12,6 +12,8 @@
     "artisticScaleMeaning": "Cells and sunspots are deliberately enlarged in artistic mode for whole-Sun readability; their apparent sizes are not measured solar dimensions.",
     "granulationScaleMeaning": "Procedural cell frequency per normalized radius; approximate order-of-magnitude size only, not measured solar cells.",
     "evolutionRate": 0.045,
+    "convectionSpeedMultiplier": 3,
+    "convectionSpeedMeaning": "Cell boundaries, internal variation and surface transport evolve three times faster than the first revised proof at the default illustration speed. This improves visible churning; it is not a calibrated solar convection timescale.",
     "rotationRadiansPerSecond": 0.003,
     "rotationMeaning": "Accelerated illustrative texture rotation; not a solar rotation model.",
     "spots": [
