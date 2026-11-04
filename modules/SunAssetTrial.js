@@ -30,7 +30,7 @@ float noise3(vec3 p) {
 vec3 rotateY(vec3 p,float a) { float c=cos(a),s=sin(a);return vec3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z); }
 `;
 const surfaceShader = `
-uniform float uTime, uEvolutionRate, uRotationRate, uScale, uContrast, uLimb, uExposure, uUmbra, uPenumbra, uArtistic, uSpotScale, uFilaments;
+uniform float uTime, uEvolutionRate, uConvectionSpeedMultiplier, uRotationRate, uScale, uContrast, uLimb, uExposure, uUmbra, uPenumbra, uArtistic, uSpotScale, uFilaments;
 uniform vec3 uColor;
 uniform vec4 uSpots[8];
 uniform int uSpotCount;
@@ -54,24 +54,27 @@ vec3 cells(vec3 p,float t) {
 void main() {
   vec3 p=rotateY(normalize(vLocalPosition),-uTime*uRotationRate);
   float t=uTime*uEvolutionRate;
+  // Only the cellular flow receives the extra pace. Spot evolution, rotation,
+  // halo and plasma continue to use the common illustration clock.
+  float convectionTime=t*uConvectionSpeedMultiplier;
   // Continuously advected coordinates bend cell boundaries and transport
   // internal variation. The visible artistic cells are explicitly enlarged.
-  vec3 warp=sin(p.yzx*27.0+sin(p.zxy*16.0+t*0.22)+vec3(t*0.19,-t*0.16,t*0.13));
+  vec3 warp=sin(p.yzx*27.0+sin(p.zxy*16.0+convectionTime*0.22)+vec3(convectionTime*0.19,-convectionTime*0.16,convectionTime*0.13));
   vec3 fine=p*uScale+warp*0.72;
-  vec3 eddies=vec3(noise3(fine*0.82+vec3(t*0.14,0.0,0.0)),noise3(fine*0.82+vec3(13.2,t*0.12,7.8)),noise3(fine*0.82+vec3(4.1,19.7,-t*0.11)))-0.5;
+  vec3 eddies=vec3(noise3(fine*0.82+vec3(convectionTime*0.14,0.0,0.0)),noise3(fine*0.82+vec3(13.2,convectionTime*0.12,7.8)),noise3(fine*0.82+vec3(4.1,19.7,-convectionTime*0.11)))-0.5;
   fine+=eddies*0.95;
   float footprint=length(fwidth(fine));
   float resolved=1.0-smoothstep(0.35,1.1,footprint);
   float granule=0.57;
   if(resolved>0.005){
-    vec3 cell=cells(fine,t);
+    vec3 cell=cells(fine,convectionTime);
     float lane=smoothstep(0.012+footprint*0.06,0.24+footprint*0.06,cell.x);
     float interior=0.73+0.24*cell.z+0.36*(1.0-smoothstep(0.0,1.0,cell.y));
-    float texture=(noise3(fine*3.8+vec3(t*0.21))-0.5)*0.16;
+    float texture=(noise3(fine*3.8+vec3(convectionTime*0.21))-0.5)*0.16;
     granule=mix(0.57,lane*interior+texture,resolved);
   }
-  float broad=noise3(p*24.0+vec3(t*0.31,-t*0.24,t*0.18));
-  float finer=noise3(p*81.0+vec3(-t*0.43,t*0.18,t*0.29));
+  float broad=noise3(p*24.0+vec3(convectionTime*0.31,-convectionTime*0.24,convectionTime*0.18));
+  float finer=noise3(p*81.0+vec3(-convectionTime*0.43,convectionTime*0.18,convectionTime*0.29));
   // Broad modulation is a restrained illustrative variation, not a measured
   // brightness map. Artistic mode deliberately makes it more legible.
   float brightness=1.0+uContrast*(granule-0.57)*1.8;
@@ -232,7 +235,7 @@ export class SunAssetTrial {
         if(value.schemaVersion!==1||value.body?.id!=='sol'||value.geometry?.radiusUnits!==1||value.body.meanRadiusKm!==695700)throw new Error('Sun appearance identity or physical scale is incompatible');
         if(positive(this.body.radiusKm)&&Math.abs(this.body.radiusKm-value.body.meanRadiusKm)>0.001)throw new Error('Sun radius differs from the catalog');
         if(!positive(value.surface?.granulationScale)||!Number.isFinite(value.surface.evolutionRate)||!Number.isFinite(value.surface.rotationRadiansPerSecond))throw new Error('Sun surface parameters are invalid');
-        if(!positive(value.surface.artisticGranulationScale)||!positive(value.surface.penumbraFilaments)||!positive(value.surface.spotArtisticRadiusMultiplier))throw new Error('Sun surface detail parameters are invalid');
+        if(!positive(value.surface.artisticGranulationScale)||!positive(value.surface.penumbraFilaments)||!positive(value.surface.spotArtisticRadiusMultiplier)||!positive(value.surface.convectionSpeedMultiplier))throw new Error('Sun surface detail parameters are invalid');
         if(!Array.isArray(value.surface.spots)||value.surface.spots.length>8||value.surface.spots.some(spot=>![spot.longitudeDeg,spot.latitudeDeg,spot.radiusRadians].every(Number.isFinite)||spot.radiusRadians<=0))throw new Error('Sun demonstration spots are invalid');
         validateSolarActivity(value.activity,value.surface.spots);
         for(const name of ['scientific','artistic']) {
@@ -249,7 +252,7 @@ export class SunAssetTrial {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.NoToneMapping;
         const spots=Array.from({length:8},()=>new THREE.Vector4(0,0,1,0.01));
         appearance.surface.spots.forEach((spot,index)=>{const lon=THREE.MathUtils.degToRad(spot.longitudeDeg),lat=THREE.MathUtils.degToRad(spot.latitudeDeg);spots[index].set(Math.sin(lon)*Math.cos(lat),Math.sin(lat),Math.cos(lon)*Math.cos(lat),spot.radiusRadians);});
-        this.surfaceUniforms={uTime:{value:0},uEvolutionRate:{value:appearance.surface.evolutionRate},uRotationRate:{value:appearance.surface.rotationRadiansPerSecond},uScale:{value:appearance.surface.granulationScale},uContrast:{value:0},uLimb:{value:0},uExposure:{value:1},uUmbra:{value:0},uPenumbra:{value:0},uArtistic:{value:0},uSpotScale:{value:1},uFilaments:{value:appearance.surface.penumbraFilaments},uColor:{value:new THREE.Color()},uSpots:{value:spots},uSpotCount:{value:appearance.surface.spots.length}};
+        this.surfaceUniforms={uTime:{value:0},uEvolutionRate:{value:appearance.surface.evolutionRate},uConvectionSpeedMultiplier:{value:appearance.surface.convectionSpeedMultiplier},uRotationRate:{value:appearance.surface.rotationRadiansPerSecond},uScale:{value:appearance.surface.granulationScale},uContrast:{value:0},uLimb:{value:0},uExposure:{value:1},uUmbra:{value:0},uPenumbra:{value:0},uArtistic:{value:0},uSpotScale:{value:1},uFilaments:{value:appearance.surface.penumbraFilaments},uColor:{value:new THREE.Color()},uSpots:{value:spots},uSpotCount:{value:appearance.surface.spots.length}};
         this.surface=new THREE.Mesh(new THREE.SphereGeometry(1,128,64),new THREE.ShaderMaterial({uniforms:this.surfaceUniforms,vertexShader,fragmentShader:surfaceShader}));
         this.surface.name='Illustrative photosphere';this.scene.add(this.surface);
         const outerRadius=Math.max(appearance.modes.scientific.glowRadius,appearance.modes.artistic.glowRadius);
