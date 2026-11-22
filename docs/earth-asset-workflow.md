@@ -29,8 +29,16 @@ Fetch and `--check` never rewrite that manifest; `--check` is offline/read-only.
   5400 × 2700. [Publisher and downloads](https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-map/).
 - **Optional night intensity:** NASA Black Marble 2016 grayscale composite,
   3600 × 1800. [Publisher and downloads](https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/).
-- **Cloud source unresolved:** historical NASA links redirected or returned 404.
-  No cloud map is claimed as downloaded or verified.
+- **Cloud opacity:** NASA Blue Marble 2002 grayscale global mosaic, 2048 × 1024,
+  now downloaded from NASA's migrated asset host and verified by SHA-256,
+  dimensions, image decoding and visual inspection. [Publisher](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/)
+  describes two days of visible-light imagery and a third polar thermal-infrared
+  day; exact acquisition dates are unspecified. [Cloud JPEG](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
+  The legacy cloud-detail link still redirects; the verified migrated file is
+  pinned in the manifest. Its grayscale values are a visualization opacity
+  input, not measured cloud height or calibrated optical depth. Creator notes
+  document hand-filled/repeated gaps and a Greenland streak artifact. Motion
+  remains illustrative; no current-weather claim is made.
 
 ## Scientific boundaries
 
