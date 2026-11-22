@@ -52,17 +52,41 @@
       "status": "downloaded-and-verified",
       "verification": "HTTPS GET 200",
       "pathRelativeToRepositoryRoot": "../assets-source/earth/sources/BlackMarble_2016_01deg_gray.jpg"
+    },
+    {
+      "id": "cloud-opacity",
+      "file": "cloud_combined_2048.jpg",
+      "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg",
+      "sourcePage": "https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/",
+      "creationNotes": "https://science.nasa.gov/blogs/earth-matters/2011/10/06/crafting-the-blue-marble/",
+      "dimensions": [
+        2048,
+        1024
+      ],
+      "epoch": "Blue Marble 2002 publication; three-day composite, exact acquisition dates not specified on the publisher page",
+      "role": "Historical global grayscale cloud mosaic used as illustrative opacity; not a height field or weather time series",
+      "credit": "NASA Goddard Space Flight Center; cloud imagery by Reto Stockli; compositing/enhancements by Robert Simmon; MODIS team",
+      "caveat": "Two visible-light days plus a third polar thermal-infrared day. Creator documents manually repeated gap fills and a Greenland streak artifact. Luminance is not calibrated cloud optical depth; motion and height must be labeled illustrative.",
+      "bytes": 829367,
+      "sha256": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793",
+      "verifiedDimensions": [
+        2048,
+        1024
+      ],
+      "status": "downloaded-and-verified",
+      "verification": "HTTPS GET 200, pinned SHA-256, JPEG dimensions, Windows image decode and visual inspection",
+      "pathRelativeToRepositoryRoot": "../assets-source/earth/sources/cloud_combined_2048.jpg"
     }
   ],
   "clouds": {
-    "status": "unresolved-not-downloaded",
-    "reason": "Historical NASA cloud links redirected or returned 404; no verified source selected.",
-    "animationRule": "Cloud drift/evolution must be labeled illustrative, not observed weather or a forecast."
+    "status": "downloaded-and-verified",
+    "sourceId": "cloud-opacity",
+    "animationRule": "Cloud drift/evolution and shell altitude are illustrative, not observed weather, calibrated wind speed, measured cloud height, or a forecast."
   },
   "limits": [
     "Input dates do not match one another, the app's J2000 positions, or current Earth.",
     "Map dimensions and SHA-256 checked; geographic registration and visual appearance await the Blender proof.",
-    "No elevation, water mask, cloud map, runtime derivatives, or new production assets generated."
+    "No elevation, water mask, runtime derivatives, or new production assets generated at this source checkpoint."
   ],
-  "nextCheckpoint": "Resolve cloud source; build layered Blender proof; verify seams, landmark orientation, terminator and animation; save and open for review."
+  "nextCheckpoint": "Build layered Blender proof using pinned day/night/cloud sources; verify seams, landmark orientation, terminator and independent cloud animation; save and open for review."
 }

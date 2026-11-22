@@ -12,4 +12,4 @@ User preference recorded 2026-11-21 (America/Denver): check remaining weekly Cod
 
 ## Current resume target
 
-Phase 6 Step 3: Earth. Moon and Sun are approved in app 1.4.2. Prepare NASA Earth inputs, then generate an animated Blender proof with surface, cloud and atmosphere layers for review. Phase 7 mobile follows Phase 6 and is planned only. Consult the current dashboard and Earth workflow file for the latest artifact status before resuming.
+Phase 6 Step 3: Earth. Moon and Sun are approved in app 1.4.2. The Earth proof is saved, its six render checks pass, and live Rendered playback has been observed. Collect user critique of cloud motion, atmosphere and city lights before revising or integrating it. The installed app remains 1.4.2. Phase 7 mobile follows Phase 6 and is planned only. Consult the current dashboard and Earth workflow file for exact artifact paths and validation limits.

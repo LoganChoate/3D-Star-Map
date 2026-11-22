@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "body": "Earth",
+  "classification": "Historical NASA map composites with illustrative cloud evolution and accelerated rotation. Not live weather, a climate simulation or a current Earth orientation.",
+  "geometry": {"normalizedRadius": 1, "longitudeZeroAxis": "+X", "eastAxis": "+Y", "northAxis": "+Z", "uv": "u=(longitude+180)/360, v=(latitude+90)/180; seam at 180 degrees"},
+  "animation": {"fps": 24, "frames": 1440, "rotationDegreesPerSecond": 3, "cloudDriftDegreesPerSecond": 0.65, "cloudEvolutionRate": 0.085, "cloudUvWarp": 0.006},
+  "modes": {
+    "scientific": {"cloudRadius": 1.0015, "cloudOpacity": 0.9, "atmosphereRadius": 1.012, "atmosphereStrength": 0.32, "nightIntensity": 1.4},
+    "artistic": {"cloudRadius": 1.006, "cloudOpacity": 0.96, "atmosphereRadius": 1.028, "atmosphereStrength": 0.62, "nightIntensity": 2.6}
+  },
+  "limits": [
+    "Scientific is a restrained visualization mode, not a physically solved atmosphere or measured cloud altitude.",
+    "Cloud drift, distortion and changing opacity are invented illustration; NASA's cloud mosaic has manually filled gaps and is not a time series.",
+    "Day 2004, night 2016 and historical cloud maps do not share an epoch or the catalog's J2000 positions.",
+    "Atmosphere thickness, illumination exposure, ocean roughness and night-light intensity are display choices; Artistic exaggerates their visibility.",
+    "No elevation displacement or water mask is used. No current orientation, seasonal lighting or weather forecast is implied.",
+    "This is an editable Blender proof only; no app integration or glTF animation equivalence is claimed."
+  ]
+}

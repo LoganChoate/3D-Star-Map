@@ -1,0 +1,241 @@
+{
+  "recordedDate": "2026-11-21",
+  "timezone": "America/Denver",
+  "scope": "Blender authoring proof only; app 1.4.2 unchanged",
+  "build": {
+    "status": "render-and-fresh-open-audit-passed",
+    "blenderVersion": "4.4.3",
+    "classification": "Historical NASA map composites with illustrative cloud evolution and accelerated rotation. Not live weather, a climate simulation or a current Earth orientation.",
+    "audit": {
+      "packedImages": [
+        {
+          "name": "NASA clouds / embedded proof derivative",
+          "dimensions": [
+            2048,
+            1024
+          ],
+          "packed": true
+        },
+        {
+          "name": "NASA day-surface / embedded proof derivative",
+          "dimensions": [
+            4096,
+            2048
+          ],
+          "packed": true
+        },
+        {
+          "name": "NASA night-lights / embedded proof derivative",
+          "dimensions": [
+            3600,
+            1800
+          ],
+          "packed": true
+        }
+      ],
+      "externalImages": 0,
+      "sourceHashes": {
+        "day-surface": "99f5faad74efe985fbf1714c8be7296ca9999759a1215b65f99b7f1df278dde5",
+        "night-lights": "4d2158f59123dadf0696a1cf8909c45018a1de8d0daab40da04122a5aa7f27c6",
+        "clouds": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793"
+      },
+      "scenes": [
+        {
+          "name": "01 Scientific illustration",
+          "rotationAt10SecondsRadians": 0.5235987901687622,
+          "cloudAdditionalDriftAt10SecondsRadians": 0.11344639956951141,
+          "zeroSpeedDrivers": "passed"
+        },
+        {
+          "name": "02 Artistic interpretation",
+          "rotationAt10SecondsRadians": 0.5235987901687622,
+          "cloudAdditionalDriftAt10SecondsRadians": 0.11344639956951141,
+          "zeroSpeedDrivers": "passed"
+        }
+      ],
+      "viewportModesAfterHeadlessReload": [
+        "SOLID"
+      ],
+      "viewportLimit": "Blender resets saved Rendered shading to Solid on fresh load in this environment. Live review requires Z then R; this does not remove materials.",
+      "geographicConvention": {
+        "equatorGreenwich": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "northPole": [
+          6.123234262925839E-17,
+          0.0,
+          1.0
+        ],
+        "east90": [
+          6.123234262925839E-17,
+          1.0,
+          0.0
+        ]
+      }
+    },
+    "renders": [
+      {
+        "file": "scientific-terminator.png",
+        "sha256": "6c39b209506f46496426d1478c7c7657b363f53a15d38b4e14250505b97e9156",
+        "frame": 1,
+        "meanRgb": 0.11647770553827286,
+        "foregroundFraction": 0.441223,
+        "bounds": [
+          77,
+          78,
+          913,
+          922
+        ]
+      },
+      {
+        "file": "artistic-day.png",
+        "sha256": "7c9d914431093582d7135ab9a0abc917c2881c7b72da300d8b607b09c9dfcaea",
+        "frame": 1,
+        "meanRgb": 0.17258751392364502,
+        "foregroundFraction": 0.581827,
+        "bounds": [
+          70,
+          70,
+          929,
+          929
+        ]
+      },
+      {
+        "file": "artistic-terminator.png",
+        "sha256": "4d65e369bc5723561bc2b0c72753db32e5ea83076671fcc34356658210d2ea45",
+        "frame": 1,
+        "meanRgb": 0.1265164613723755,
+        "foregroundFraction": 0.466718,
+        "bounds": [
+          70,
+          70,
+          914,
+          929
+        ]
+      },
+      {
+        "file": "artistic-night.png",
+        "sha256": "a7aa9ec50ac3d756b12f84be334d28567a382bd287045a8920c7f7ec291b2bf9",
+        "frame": 1,
+        "meanRgb": 0.03241719678044319,
+        "foregroundFraction": 0.143766,
+        "bounds": [
+          70,
+          116,
+          856,
+          929
+        ]
+      },
+      {
+        "file": "cloud-motion-0001.png",
+        "sha256": "4084fcfc2fc717f615561ea1048fea6085a0515ffedb2ca53d60066a42b1d768",
+        "frame": 1,
+        "meanRgb": 0.14753293991088867,
+        "foregroundFraction": 0.55755,
+        "bounds": [
+          70,
+          70,
+          902,
+          929
+        ]
+      },
+      {
+        "file": "cloud-motion-0241.png",
+        "sha256": "af6a1754e0136a3b3179b2131acd09f21a58569c3572201c85f5c93e9645de42",
+        "frame": 241,
+        "meanRgb": 0.1476888656616211,
+        "foregroundFraction": 0.557388,
+        "bounds": [
+          70,
+          70,
+          902,
+          929
+        ]
+      }
+    ],
+    "limits": [
+      "Scientific is a restrained visualization mode, not a physically solved atmosphere or measured cloud altitude.",
+      "Cloud drift, distortion and changing opacity are invented illustration; NASA's cloud mosaic has manually filled gaps and is not a time series.",
+      "Day 2004, night 2016 and historical cloud maps do not share an epoch or the catalog's J2000 positions.",
+      "Atmosphere thickness, illumination exposure, ocean roughness and night-light intensity are display choices; Artistic exaggerates their visibility.",
+      "No elevation displacement or water mask is used. No current orientation, seasonal lighting or weather forecast is implied.",
+      "This is an editable Blender proof only; no app integration or glTF animation equivalence is claimed."
+    ],
+    "nightRimCorrection": {
+      "cause": "Two-sided cloud shell revealed lit inside faces beyond the globe silhouette.",
+      "fix": "Cloud material backface culling enabled in both scenes and checked after fresh open.",
+      "diagnosis": [
+        "night-rim-cloud-hidden.png",
+        "night-rim-atmosphere-hidden.png",
+        "night-rim-backface-culled.png"
+      ],
+      "previousProof": "attempt-before-cloud-culling"
+    },
+    "cloudMotion": {
+      "surfaceRotationDisabled": true,
+      "evaluatedSurfaceRotations": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "cameraFixed": true,
+      "frames": [
+        1,
+        241
+      ],
+      "meanAbsoluteRgbChange": 0.030938109382987022,
+      "channelsChangedOver2CodeValues": 974652,
+      "interpretation": "Illustrative cloud evolution/drift only, not fluid velocity"
+    },
+    "project": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\asset-projects\\earth\\earth-v1.blend",
+    "review": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\asset-projects\\earth\\earth-v1-review.blend",
+    "projectSha256": "622911d103859db842220bc5eadf2d7a23497ffd972ebbf96857557824889b39",
+    "reviewSha256": "a9f25e94f2535f58ae7969900e55c02bd5efb2feb74efe16b18bad6945fe044a",
+    "generatorSha256": "ef5aa9f6d406a55aa9dd6790416b3fa7e94a97ceb63453f44abda2868bcbac6f",
+    "buildSeconds": 3.422000000020489
+  },
+  "liveReview": {
+    "date": "2026-11-21",
+    "timezone": "America/Denver",
+    "status": "live-rendered-playback-observed",
+    "scene": "02 Artistic interpretation",
+    "framesObserved": [
+      12,
+      103
+    ],
+    "visible": [
+      "geographic surface",
+      "cloud patterns changing",
+      "blue atmosphere limb",
+      "night lights"
+    ],
+    "reviewSavedBeforePlayback": true,
+    "reviewSha256": "399f35069cdcd7042a893ce51321d4176477e7b62293fa6fd6676e4fe29e39c0",
+    "leftOpenForUserReview": true,
+    "userApproval": "pending",
+    "applicationIntegration": "pending",
+    "notes": [
+      "Initial blank window repainted after maximizing.",
+      "Rendered materials loaded after shader compilation.",
+      "Headless fresh open resets viewport to Solid; use Z then R.",
+      "No playback frame-rate benchmark was performed."
+    ]
+  },
+  "retainedDiagnostics": [
+    "blender-first-audit-failure.log",
+    "blender-second-audit-failure.log",
+    "blender-third-audit-failure.log",
+    "attempt-before-cloud-culling",
+    "night-rim-diagnostic.log"
+  ],
+  "githubBackupScope": "Generator, appearance contract, pinned source manifest, workflow and validation. Blender projects and original NASA JPEGs are local."
+}
