@@ -97,6 +97,24 @@ try {
             ok(routeManager.pathfindingWorker,'Production worker is required by this test');
             const result=await routeManager.calculateRouteWithWorker(stars[0],stars[2],1.01);ok(result&&!result.stranded);deep(ids(result.path),['fixture:a','fixture:b','fixture:c']);result.path.forEach(star=>equal(star,stars.find(source=>source.id===star.id)));
         });
+        await test('pathfinding','Compact real-worker transport preserves full scientific route records',async()=>{
+            const scientific=stars.slice(0,3).map((star,i)=>({...star,catalogMetadata:{source:'Retained source description '.repeat(512),quality:i===1?'uncertain':'measured',uncertainty:{distancePc:i*.01}},description:'Display-only description '.repeat(128)}));
+            const before=JSON.stringify(scientific),worker=routeManager.pathfindingWorker,post=worker.postMessage;
+            let transmitted=null;
+            // Observe the actual message, then forward it to the real worker.
+            // The worker and both routing algorithms remain unchanged.
+            worker.postMessage=function(message,...rest){if(message.type==='setData')transmitted=message.data.starData;return post.call(this,message,...rest);};
+            try {
+                routeManager.setData(scientific,makeTree(scientific));
+                const fallback=routeManager.findPathAStar(scientific[0],scientific[2],1.01);
+                const actual=await routeManager.calculateRouteWithWorker(scientific[0],scientific[2],1.01);
+                deep(ids(actual.path),ids(fallback.path));equal(actual.totalDistance,fallback.totalDistance);equal(actual.jumps,fallback.jumps);
+                for(const star of actual.path){const canonical=scientific.find(s=>s.id===star.id);equal(star,canonical);equal(star.catalogMetadata,canonical.catalogMetadata);equal(star.description,canonical.description);}
+                equal(JSON.stringify(scientific),before,'Worker routing must not mutate retained scientific records');
+                ok(transmitted&&JSON.stringify(transmitted).length<before.length/10,'Scientific descriptions must not be redundantly copied into the routing catalog');
+                ok(transmitted.every(star=>!('catalogMetadata' in star)&&!('description' in star)),'Worker transport must leave scientific/display data in canonical main-thread records');
+            } finally {worker.postMessage=post;routeManager.setData(stars,makeTree(stars));}
+        });
         await test('pathfinding','Duplicate-name destination is not mistaken for a reachable different object',async()=>{
             const fallback=routeManager.findPathAStar(stars[0],stars[3],1.01);ok(fallback.stranded);equal(fallback.path.at(-1).id,'fixture:c');
             const worker=await routeManager.calculateRouteWithWorker(stars[0],stars[3],1.01);ok(worker.stranded);deep(ids(worker.path),ids(fallback.path));

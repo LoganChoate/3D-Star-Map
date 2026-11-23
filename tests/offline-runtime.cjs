@@ -11,7 +11,7 @@ exports.attach = function attach(app, session, outputDirectory) {
   const stem = path.join(output, `offline-${runId}`);
   const evidence = {
     runId,
-    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking, routing, Moon inspection and animated Sun inspection with network unavailable',
+    scope: 'Actual packaged executable startup, bundled assets, GPU buffers, camera, lookup, filtering, native picking, routing, exploration and unified Sun/Moon/Earth inspection with application networking unavailable',
     appVersion: app.getVersion(),
     isPackaged: app.isPackaged,
     executable: process.execPath,
@@ -19,7 +19,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     appPath: app.getAppPath(),
     versions: process.versions,
     networkMode: 'Electron offline network emulation plus HTTP/HTTPS/WS/WSS request cancellation',
-    networkLimit: 'Application session only; the host network adapter remains connected. navigator.onLine is recorded but is not a reliable signal of session emulation.',
+    networkLimit: 'Application session only; the host network adapter remains connected. navigator.onLine is recorded but is not a reliable signal of session emulation. Local speech events do not prove audible output or operating-system speech networking; verify those separately.',
     messages: [],
     requests: [],
     checks: {},
@@ -46,7 +46,7 @@ exports.attach = function attach(app, session, outputDirectory) {
     console.log(JSON.stringify({ status: evidence.status, evidence: `${stem}.json`, screenshot: evidence.screenshot, error: evidence.error }));
     app.exit(error ? 1 : 0);
   };
-  timeout = setTimeout(() => finish(new Error(`Packaged offline verification did not finish within 180 seconds (stage: ${evidence.stage})`)), 180000);
+  timeout = setTimeout(() => finish(new Error(`Packaged offline verification did not finish within 300 seconds (stage: ${evidence.stage})`)), 300000);
 
   // Electron uses only the most recently registered callback. This harness owns
   // the deny-and-record callback in verification mode; normal --offline has its
@@ -268,6 +268,23 @@ exports.attach = function attach(app, session, outputDirectory) {
     assert.equal(evidence.requests.length, 0, 'Offline camera interaction must not fetch remote assets');
 
     stage('atlas-interactions');
+    // Earlier map-level suites select objects in order to inspect filters,
+    // measurements and routes. Those selections now open the unified view.
+    // Dismiss it through its normal Return button between map actions, just as
+    // a user would. No product API or implementation is replaced. Disconnect
+    // this diagnostic before testing the complete native inspection flow below.
+    await win.webContents.executeJavaScript(`(() => {
+      window.__offlineMapReturns=[];
+      window.__offlineMapReturnObserver=new MutationObserver(() => {
+        const inspector=window.galaxyMap.inspector,button=document.getElementById('inspection-close');
+        if(inspector?.isOpen&&button){
+          const objectId=inspector.body?.id;
+          button.click();
+          window.__offlineMapReturns.push({objectId,closed:!inspector.isOpen,method:'Normal Return button click between legacy map actions'});
+        }
+      });
+      window.__offlineMapReturnObserver.observe(document.body,{childList:true,subtree:true});
+    })()`);
     let interactionsFinished = false;
     const interactionsPromise = win.webContents.executeJavaScript(`import('./tests/interaction-runtime.js').then(module => module.verifyInteractions())`);
     interactionsPromise.then(() => { interactionsFinished = true; }, () => { interactionsFinished = true; });
@@ -288,15 +305,13 @@ exports.attach = function attach(app, session, outputDirectory) {
     evidence.interactionScreenshot = `${stem}-interactions.png`;
     fs.writeFileSync(evidence.interactionScreenshot, (await win.webContents.capturePage()).toPNG());
 
-    stage('exploration-and-moon');
+    stage('exploration-and-nearby');
     let explorationFinished = false;
     evidence.explorationScreenshots = {};
     const explorationPromise = win.webContents.executeJavaScript(`(async () => {
       const exploration=await import('./tests/exploration-runtime.js').then(module=>module.verifyExploration());
       const nearby=await import('./tests/nearby-runtime.js').then(module=>module.verifyNearbyExpansion({nativeBridge:true}));
-      const moon=await import('./tests/moon-trial-runtime.js').then(module=>module.verifyMoonAssetTrial({nativeBridge:true}));
-      const sun=await import('./tests/sol-trial-runtime.js').then(module=>module.verifySunAssetTrial({nativeBridge:true}));
-      return {exploration,nearby,moon,sun};
+      return {exploration,nearby};
     })()`);
     explorationPromise.then(() => { explorationFinished = true; }, () => { explorationFinished = true; });
     while (!explorationFinished) {
@@ -325,8 +340,6 @@ exports.attach = function attach(app, session, outputDirectory) {
     const explorationResults = await explorationPromise;
     evidence.checks.exploration = explorationResults.exploration;
     evidence.checks.nearbyExpansion = explorationResults.nearby;
-    evidence.checks.moonAssetTrial = explorationResults.moon;
-    evidence.checks.sunAssetTrial = explorationResults.sun;
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Exploration must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Exploration must use bundled assets while offline');
 
@@ -336,6 +349,61 @@ exports.attach = function attach(app, session, outputDirectory) {
     fs.writeFileSync(evidence.scientificScreenshot, (await win.webContents.capturePage()).toPNG());
     assert.deepEqual(evidence.messages.filter(message => message.level >= 3), [], 'Scientific metadata and quality controls must not produce application errors');
     assert.equal(evidence.requests.length, 0, 'Scientific catalog metadata must load and work offline');
+
+    evidence.checks.mapReturns = await win.webContents.executeJavaScript(`(() => {
+      window.__offlineMapReturnObserver.disconnect();delete window.__offlineMapReturnObserver;
+      if(window.galaxyMap.inspector.isOpen)document.getElementById('inspection-close').click();
+      return window.__offlineMapReturns;
+    })()`);
+    assert.ok(evidence.checks.mapReturns.length>0,'Map checks must exercise selection and the normal inspection Return action');
+    assert.ok(evidence.checks.mapReturns.every(item=>item.closed),'Normal Return must close every intermediate inspection');
+
+    stage('unified-inspection');
+    win.setContentSize(1400,900);
+    await win.webContents.executeJavaScript(fs.readFileSync(path.join(__dirname,'earth-inspection-runtime.js'),'utf8'));
+    await win.webContents.executeJavaScript(fs.readFileSync(path.join(__dirname,'unified-inspection-runtime.js'),'utf8'));
+    let unifiedFinished=false,unifiedResult,unifiedError;
+    win.webContents.executeJavaScript('window.__verifyUnifiedInspection()').then(value=>{unifiedResult=value;unifiedFinished=true;},error=>{unifiedError=error;unifiedFinished=true;});
+    evidence.inspectionScreenshots={};
+    while(!unifiedFinished){
+      const request=await win.webContents.executeJavaScript('window.__unifiedRequest || null');
+      if(request){
+        if(request.kind==='input'){
+          for(const input of request.events){win.webContents.sendInputEvent(input);await delay(25);}
+        }else if(request.kind==='resize'){
+          assert.ok(Number.isInteger(request.width)&&request.width>=400&&request.width<=4000);
+          assert.ok(Number.isInteger(request.height)&&request.height>=400&&request.height<=4000);
+          win.setContentSize(request.width,request.height);await delay(100);
+        }else if(request.kind==='screenshot'){
+          assert.match(request.name,/^[a-z-]+$/);
+          const file=`${stem}-${request.name}.png`;
+          fs.writeFileSync(file,(await win.webContents.capturePage()).toPNG());evidence.inspectionScreenshots[request.name]=file;
+        }else if(request.kind==='media'){
+          if(!win.webContents.debugger.isAttached())win.webContents.debugger.attach('1.3');
+          await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:request.reduce?'reduce':'no-preference'}]});
+        }else if(request.kind==='visibility'){
+          assert.ok(request.durationMs>=100&&request.durationMs<=1000,'Visibility check must remain bounded');
+          const sample=()=>win.webContents.executeJavaScript('({hidden:document.hidden,visual:window.galaxyMap.inspector.activeTrial?.snapshot(),narration:window.galaxyMap.narration.snapshot()})');
+          let hiddenStart,hiddenEnd;
+          try{win.hide();await delay(100);hiddenStart=await sample();await delay(request.durationMs);hiddenEnd=await sample();}
+          finally{win.show();win.focus();win.webContents.focus();}
+          await win.webContents.executeJavaScript('window.__unifiedHostResult='+JSON.stringify({hiddenStart,hiddenEnd}));
+        }else throw new Error('Unexpected unified inspection verification request');
+        await win.webContents.executeJavaScript('window.__unifiedRequest=null');
+      }
+      await delay(25);
+    }
+    if(unifiedError){
+      evidence.checks.unifiedPartial=await win.webContents.executeJavaScript('({stage:window.__unifiedProgress,partial:window.__unifiedPartial})');
+      const file=`${stem}-unified-failure.png`;fs.writeFileSync(file,(await win.webContents.capturePage()).toPNG());evidence.inspectionFailureScreenshot=file;
+      throw unifiedError;
+    }
+    evidence.checks.unifiedInspection=unifiedResult;
+    if(win.webContents.debugger.isAttached())win.webContents.debugger.detach();
+    assert.deepEqual(evidence.messages.filter(message=>message.level>=3),[],'Unified inspection must not produce renderer errors');
+    assert.equal(evidence.requests.length,0,'Sun, Moon, Earth, catalog and narration controls must not request remote application resources');
+    evidence.checks.finalRemoteResources=await win.webContents.executeJavaScript("performance.getEntriesByType('resource').filter(e=>/^(https?|wss?):/.test(e.name)).map(e=>e.name)");
+    assert.deepEqual(evidence.checks.finalRemoteResources,[]);
 
     stage('network-probes');
     probing = true;

@@ -1,12 +1,17 @@
 # Phase 6 unified inspection checkpoint
 
-Current implementation, November 22, 2026 (America/Denver): **1.5.0-preview.2** adds
+Current acceptance and installed-version status: [Phase 6 Step 5](phase6-step5-acceptance.md).
+The user reviewed Step 4 and authorized Step 5; the preview results below are retained
+as historical functional evidence, not the current installation claim.
+
+Step 4 checkpoint, November 22, 2026 (America/Denver): **1.5.0-preview.2** adds
 Earth to the shared full-window inspector alongside Sun and Moon. The user approved
 Earth's rendered appearance, cloud coverage, movement speed and passive camera
 rotation; `earth-visual-approval.json` preserves that visual approval. Step 4
 implementation and functional verification are complete: both the source app and
 packaged preview passed the current checks. User critique of the runtime experience
-is pending. Step 5 acceptance has not been performed.
+was the next gate at this historical checkpoint. The current Step 5 record above
+supersedes these pending acceptance labels.
 
 Earth uses live surface, cloud and atmosphere shaders with the three exact packed
 maps extracted from the approved Blender master. Cloud drift and evolving shapes,

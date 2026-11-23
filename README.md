@@ -1,6 +1,6 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.3.1 adds a bounded NASA-sourced Moon surface study. It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
+Windows-first Electron / Three.js atlas with a shared web visualization core. The 1.5.0 candidate brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Current release acceptance is recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
 
 ## Execution tracker
 
@@ -35,13 +35,15 @@ The Solar System is a **fixed historical reference snapshot: 2000 January 1, 12:
 
 Exploration markers are 9–17 CSS pixels, enlarged for visibility rather than drawn at physical radii. Solar circles indicate Sun distances of 1, 5, 10, 20 and 30 AU, not orbital paths. Earth–Moon separation in this snapshot is about 402,449 km. Sources, units, transformations, licenses and offline regeneration are documented in `data/SOURCES.md` and `data/pipeline/SOURCES.md`.
 
-## Inspect the Moon surface
+## Inspect the Sun, Moon and Earth
 
-In **Solar System**, select **Moon**, then **Explore Moon surface**. Drag to orbit, scroll or use plus/minus to zoom, and use the inspection light or light sweep to examine the terrain. The turntable moves the camera. **Return to map** restores the selected body and map camera.
+Select a body in the atlas, Solar System or nearby collection to open its full-window information view. The Sun, Moon and Earth have reviewed live visuals; other records clearly state that detailed visuals are unavailable. Catalog identity, sources and unknown values remain attached to the selected record. Narration reads the factual summary only after Play; it uses voices reported as local by Windows and stops when the view closes or the app is hidden.
+
+Drag to orbit, scroll or use plus/minus to zoom, and choose Scientific or Artistic presentation. Hide details for a larger view. The Sun has animated convection and illustrative eruptions. Earth has independently moving clouds, globe rotation and a passive camera; Pause stops all automatic motion. The Moon's turntable moves the camera and its inspection light or light sweep reveals terrain. **Return to map** restores map navigation. Appearance modes do not change catalog measurements.
 
 The surface uses NASA CGI Moon Kit color and LOLA heights at 1× vertical scale. Color is processed and filled at the poles; lighting is illustrative inspection lighting, not a current lunar phase. The app uses bounded derivatives of retained full-resolution sources. Fine normal-map detail changes shading but does not add silhouettes or small-ridge shadows. Source information remains visible in the view. The editable Blender workflow, dimensions and reproduction commands are documented in [docs/moon-asset-workflow.md](docs/moon-asset-workflow.md).
 
-This is Phase 6 Step 2's Moon proof. The later Sun/Earth comparisons, animated stellar and atmospheric effects, close-up narration and broad performance acceptance remain subject to their separate review checkpoints.
+Earth uses the historical NASA day, night and cloud maps from the approved Blender proof. Cloud evolution, atmosphere, accelerated rotation and camera motion are illustrative, not live weather. The Sun's activity is a procedural illustration, not a current solar observation. See [Earth runtime notes](docs/earth-runtime.md), [Sun asset workflow](docs/sun-asset-workflow.md) and [unified inspection](docs/unified-inspection.md) for provenance and controls. Phase 7 independent Android/iPhone support remains planned separately.
 
 ## Scientific catalog pipeline
 
@@ -84,7 +86,7 @@ This explicit diagnostic mode uses a fresh profile, disables session networking 
 
 `npm test` runs negative controls for assertion/process failures, actual production modules and the real pathfinding worker, bundled asset checks, and GPU shader checks. The renderer test rasterizes the production shader and measures pixels at near/far depths and two pixel ratios. The asset test checks local references, pinned hashes/fonts and the real GSAP library. Old copied/mock test implementations are preserved under `docs/history/tests`; active tests import production code. These checks cover bounded regression scenarios, not exhaustive navigation or performance validation.
 
-The default runner has seven suites, including 14 exploration/data checks and 23 scientific-pipeline checks. The latter verifies repeated exports, every source join, coordinate transforms, quality rules and corruption rejection. The packaged diagnostic exercises all exploration views plus source panels, placeholder-distance handling, route rejection and complete ordinary-catalog coverage. It captures actual views and verifies that quality controls never change catalog coordinates.
+The default runner has ten suites, including inspection catalog projection, narration state/cancellation and a native drag-to-inspection camera-inertia regression. The scientific-pipeline suite verifies repeated exports, every source join, coordinate transforms, quality rules and corruption rejection. The packaged diagnostic exercises all exploration views plus source panels, placeholder-distance handling, routing, and the unified Sun/Moon/Earth inspector with native input. It captures actual views and verifies that presentation never changes catalog coordinates. Sustained loading, animation, memory and installed acceptance have separate recorded criteria and results in the Step 5 acceptance document.
 
 The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, updater 6.6.2 and builder 24.13.3. A fresh checkout uses `npm.cmd ci`; a clean dependency install has not yet been verified. Build commands explicitly use `--publish never`; no GitHub release is published by them. The installer is not code-signed.
 
