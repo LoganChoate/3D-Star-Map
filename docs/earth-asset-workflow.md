@@ -134,3 +134,36 @@ A pale night-side rim was isolated to illuminated cloud backfaces; culling those
 faces fixed it in both scenes. Earlier attempts and diagnostic renders are preserved
 under the local evidence/asset directories. Resume with user critique of cloud
 motion, atmosphere thickness and city-light balance before changing or integrating Earth.
+
+## Remote review clip
+
+At the user's request on November 22, 2026, a 24-second review clip was rendered
+from the saved Artistic scene. It preserves the existing cloud material, opacity,
+drift and evolution rates. Both saved Blender files were hashed before and after
+rendering and encoding and remain unchanged.
+
+- Seconds 0–8 hold the camera and surface still to isolate visible cloud motion.
+- Seconds 8–24 restart the original animation timeline and add a smooth 110-degree
+  review camera orbit while the saved globe and cloud drivers run. The camera path
+  is a viewing aid; it does not represent a physical spacecraft trajectory.
+- The clip uses the existing illustrative playback speed, without additional time
+  compression. Historical NASA map provenance and the earlier scientific limits apply.
+
+To reproduce in a fresh output folder (requires Blender 4.4 and local FFmpeg/ffprobe):
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 4.4\blender.exe' --background --factory-startup --python-exit-code 1 --python scripts/render_earth_motion_review.py -- --output 'C:\path\to\new-review-folder'
+python scripts/encode_earth_motion_review.py --output 'C:\path\to\new-review-folder'
+```
+
+The render helper opens the master in a separate background process and does not
+save either Blender file. The encoder validates the complete video decode, dimensions,
+frame count, duration and source preservation, and compares caption-free image regions
+for visible changes. These are review checks, not measurements of wind or physical
+cloud density and not application performance acceptance.
+
+The resulting H.264/yuv420p MP4 is 1280 × 720, 24 fps, 576 frames and 24 seconds,
+with silent playback and progressive-download metadata. It is retained with its
+poster and render record under `../evidence/phase6/earth-motion-review/` and is shown
+on the private dashboard alongside the Sun/Moon review. User critique and Earth app
+integration remain pending.
