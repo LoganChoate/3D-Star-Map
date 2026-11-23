@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.5.0-preview.2",
+  "version": "1.5.0",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -80,7 +80,9 @@
       "tests/nearby-runtime.js",
       "tests/moon-trial-runtime.js",
       "tests/sol-trial-runtime.js",
-      "tests/scientific-runtime.js"
+      "tests/scientific-runtime.js",
+      "tests/unified-inspection-runtime.js",
+      "tests/earth-inspection-runtime.js"
     ],
     "publish": {
       "provider": "github",

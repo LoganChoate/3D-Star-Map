@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "phase": 6,
+  "step": 5,
+  "status": "criteria-frozen-before-candidate-measurements",
+  "recordedDate": "2026-11-22",
+  "timezone": "America/Denver",
+  "authorization": "User accepted the Step 4 checkpoint and requested proceeding into Step 5.",
+  "candidateVersion": "1.5.0",
+  "baseline": {"version":"1.4.2","record":"evidence/phase6/step4-unified/baseline-summary.json","readyMedianMs":1669.8936,"readyMaxMs":2174.9616,"readyWorkingSetMiB":769.2734375,"sunFirstMs":269.7,"sunRepeatMs":30.9,"moonFirstMs":673.3,"moonRepeatMs":629.3},
+  "conditions": {"contentWidth":1584,"contentHeight":835,"freshStartupProcesses":3,"warmupQuartets":1,"forcedGarbageCollection":false,"foregroundRequired":true,"applicationNetworkBlocked":true,"allFramesVisibleAndFocused":true},
+  "limits": {
+    "startup": {"medianMs":2500,"maxMs":3500},
+    "loading": {"firstMs":1500,"repeatMs":1000,"driftRatio":1.25,"driftAllowanceMs":100},
+    "animation": {"p95Ms":16.7,"sampleMs":60000},
+    "memory": {"workingSetGrowthMiB":128,"privateGrowthMiB":128,"jsHeapGrowthMiB":32},
+    "navigation": {"cycles":24}
+  },
+  "budgetRationale": [
+    "Startup limits provide bounded headroom over three recorded baseline processes, while keeping launch within a few seconds.",
+    "First/repeat loading budgets retain sub-second repeat viewing and allow initial shader compilation/texture decode; Earth receives the same ceiling as Sun and Moon.",
+    "All six body/mode samples preserve the existing Sun p95 frame interval ceiling of 16.7 ms for 60-second foreground samples.",
+    "Compare equivalent four-body quartets after a full warmup: last four minus first four cycle medians may grow by at most 128 MiB in summed working/private bytes and 32 MiB in JS heap. Report all samples, peaks and trends; do not force garbage collection.",
+    "Close-up render resources and canvases must be released on every return, independent of process allocator caching. Repeat-load drift is capped at 25 percent plus 100 ms."
+  ],
+  "requiredBehavior": ["24 mixed Sun/Moon/Earth/Sirius visits after warmup","scientific and artistic modes","interrupted and missing-asset recovery","hidden-window stop/resume without hidden-time jump or speech autoplay","retained catalog identity and map return","existing filtering, worker routing, measurement and tour regressions","actual installed executable offline launch and packaged integrity","local narration audio verification with explicit OS-network and capture-method limits"],
+  "measurementLimits": ["Fresh processes/profiles do not flush operating-system caches.","Frame intervals describe render-call cadence, not GPU completion or display presentation latency.","Summed working sets can double-count shared pages; working sets and private bytes are not VRAM.","Global GPU memory, if sampled, includes other applications and is contextual only.","A waveform and speech events do not establish pronunciation or subjective listening quality; review the actual recording separately.","Criteria are fixed before candidate runs; retain failures and fix causes rather than relaxing targets to fit results."]
+}

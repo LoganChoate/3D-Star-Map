@@ -33,6 +33,7 @@ async function main() {
         {name:'Bundled assets',script:path.join(__dirname,'offline-assets.cjs')},
         {name:'Inspection catalog projection',script:path.join(__dirname,'inspection-dossier.cjs')},
         {name:'Narration state and cancellation',script:path.join(__dirname,'narration-controller.cjs')},
+        {name:'Native map inertia across inspection',command:electron,script:path.join(__dirname,'inspection-inertia-host.cjs')},
         {name:'Production shader GPU pixels',command:electron,script:path.join(__dirname,'marker-rendering.cjs')}
     ];
     const result = await runSuites(suites);

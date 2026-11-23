@@ -46,6 +46,30 @@ function inspectObject(body) {
     return inspector.open(body, dossierFor(body));
 }
 
+function discardOrbitInertia(controls) {
+    // Disabling input/rendering does not clear OrbitControls' private damping
+    // deltas. Drain them without retaining the temporary camera movement, so a
+    // drag cannot restart when the user returns from an inspection view.
+    const camera = controls.object;
+    const position = camera.position.clone(), target = controls.target.clone();
+    const quaternion = camera.quaternion.clone(), zoom = camera.zoom;
+    const damping = controls.enableDamping, autoRotate = controls.autoRotate;
+    try {
+        controls.enableDamping = false;
+        controls.autoRotate = false;
+        controls.update(0);
+    } finally {
+        controls.enableDamping = damping;
+        controls.autoRotate = autoRotate;
+        controls.target.copy(target);
+        camera.position.copy(position);
+        camera.quaternion.copy(quaternion);
+        camera.zoom = zoom;
+        camera.updateProjectionMatrix();
+        camera.updateMatrixWorld(true);
+    }
+}
+
 // DEBUG: Expose to window
 window.starRenderer = null;
 
@@ -216,8 +240,9 @@ async function init() {
         // Populate constellation dropdown
         uiManager.populateConstellationDropdown();
 
-        // Apply initial filters
-        applyFilters();
+        // loadAndPrepareStarData already applied the initial filters and built
+        // their matching geometry. The data-reference setup above does not
+        // change filter inputs, so do not rebuild the same catalog a second time.
 
         // Build spectral legend
         buildSpectralLegend();
@@ -236,6 +261,8 @@ async function init() {
                 inspectionMapState = {explorerSuspended:explorer.suspended, explorerControls:explorer.controls.enabled, atlasControls:starRenderer.activeControls.enabled || !!interruptedFraming};
                 window.gsap?.killTweensOf(starRenderer.camera.position);
                 window.gsap?.killTweensOf(starRenderer.controls.target);
+                discardOrbitInertia(explorer.controls);
+                discardOrbitInertia(starRenderer.controls);
                 explorer.suspended = true;
                 explorer.controls.enabled = false;
                 starRenderer.activeControls.enabled = false;

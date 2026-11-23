@@ -125,7 +125,12 @@ export class RouteManager {
             this.pathfindingWorker.postMessage({
                 type: 'setData',
                 data: {
-                    starData: this.fullStarData,
+                    // Routing uses only identity and coordinates. Keep the full
+                    // scientific records in the main thread instead of cloning
+                    // their metadata into the worker at every catalog setup.
+                    // Returned IDs are rebound to those canonical records in
+                    // handleWorkerMessage before any route reaches the UI.
+                    starData: this.fullStarData.map(star => ({id:star.id,x:star.x,y:star.y,z:star.z})),
                     octreeData: octreeData
                 },
                 id: this.workerDataMessageId
