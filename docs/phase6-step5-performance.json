@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "recordedAt": "2026-11-23T07:24:56.525Z",
+  "candidateVersion": "1.5.0",
+  "criteria": {
+    "file": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\docs\\phase6-acceptance-plan.json",
+    "sha256": "9b9375f1e754d3e9de7695d1a8d97cbba796ee36abeb1875d12d14a22634ef94"
+  },
+  "checks": [
+    {
+      "name": "record-1-passed",
+      "passed": true,
+      "detail": {
+        "status": "passed",
+        "error": null
+      }
+    },
+    {
+      "name": "record-1-version",
+      "passed": true,
+      "detail": {
+        "actual": "1.5.0",
+        "expected": "1.5.0"
+      }
+    },
+    {
+      "name": "record-1-criteria",
+      "passed": true,
+      "detail": "Measurements must use the predeclared limits and conditions"
+    },
+    {
+      "name": "record-1-same-target",
+      "passed": true,
+      "detail": {
+        "actual": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar",
+        "fullTarget": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar"
+      }
+    },
+    {
+      "name": "record-1-same-archive",
+      "passed": true,
+      "detail": {
+        "actual": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+        "fullArchive": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6"
+      }
+    },
+    {
+      "name": "record-1-same-electron",
+      "passed": true,
+      "detail": {
+        "actual": "31.7.7",
+        "fullElectron": "31.7.7"
+      }
+    },
+    {
+      "name": "record-1-hashes-after-measurements",
+      "passed": true,
+      "detail": "Archive/source hashing must follow the recorded timing and memory samples"
+    },
+    {
+      "name": "record-2-passed",
+      "passed": true,
+      "detail": {
+        "status": "passed",
+        "error": null
+      }
+    },
+    {
+      "name": "record-2-version",
+      "passed": true,
+      "detail": {
+        "actual": "1.5.0",
+        "expected": "1.5.0"
+      }
+    },
+    {
+      "name": "record-2-criteria",
+      "passed": true,
+      "detail": "Measurements must use the predeclared limits and conditions"
+    },
+    {
+      "name": "record-2-same-target",
+      "passed": true,
+      "detail": {
+        "actual": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar",
+        "fullTarget": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar"
+      }
+    },
+    {
+      "name": "record-2-same-archive",
+      "passed": true,
+      "detail": {
+        "actual": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+        "fullArchive": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6"
+      }
+    },
+    {
+      "name": "record-2-same-electron",
+      "passed": true,
+      "detail": {
+        "actual": "31.7.7",
+        "fullElectron": "31.7.7"
+      }
+    },
+    {
+      "name": "record-2-hashes-after-measurements",
+      "passed": true,
+      "detail": "Archive/source hashing must follow the recorded timing and memory samples"
+    },
+    {
+      "name": "record-3-passed",
+      "passed": true,
+      "detail": {
+        "status": "passed",
+        "error": null
+      }
+    },
+    {
+      "name": "record-3-version",
+      "passed": true,
+      "detail": {
+        "actual": "1.5.0",
+        "expected": "1.5.0"
+      }
+    },
+    {
+      "name": "record-3-criteria",
+      "passed": true,
+      "detail": "Measurements must use the predeclared limits and conditions"
+    },
+    {
+      "name": "record-3-same-target",
+      "passed": true,
+      "detail": {
+        "actual": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar",
+        "fullTarget": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar"
+      }
+    },
+    {
+      "name": "record-3-same-archive",
+      "passed": true,
+      "detail": {
+        "actual": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+        "fullArchive": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6"
+      }
+    },
+    {
+      "name": "record-3-same-electron",
+      "passed": true,
+      "detail": {
+        "actual": "31.7.7",
+        "fullElectron": "31.7.7"
+      }
+    },
+    {
+      "name": "record-3-hashes-after-measurements",
+      "passed": true,
+      "detail": "Archive/source hashing must follow the recorded timing and memory samples"
+    },
+    {
+      "name": "record-4-passed",
+      "passed": true,
+      "detail": {
+        "status": "passed",
+        "error": null
+      }
+    },
+    {
+      "name": "record-4-version",
+      "passed": true,
+      "detail": {
+        "actual": "1.5.0",
+        "expected": "1.5.0"
+      }
+    },
+    {
+      "name": "record-4-criteria",
+      "passed": true,
+      "detail": "Measurements must use the predeclared limits and conditions"
+    },
+    {
+      "name": "record-4-same-target",
+      "passed": true,
+      "detail": {
+        "actual": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar",
+        "fullTarget": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\dist\\phase6-release-1.5.0-v3\\win-unpacked\\resources\\app.asar"
+      }
+    },
+    {
+      "name": "record-4-same-archive",
+      "passed": true,
+      "detail": {
+        "actual": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+        "fullArchive": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6"
+      }
+    },
+    {
+      "name": "record-4-same-electron",
+      "passed": true,
+      "detail": {
+        "actual": "31.7.7",
+        "fullElectron": "31.7.7"
+      }
+    },
+    {
+      "name": "record-4-hashes-after-measurements",
+      "passed": true,
+      "detail": "Archive/source hashing must follow the recorded timing and memory samples"
+    },
+    {
+      "name": "three-fresh-ready-processes",
+      "passed": true,
+      "detail": [
+        "2026-11-23T07:00:00.029Z",
+        "2026-11-23T07:00:01.866Z",
+        "2026-11-23T07:00:03.642Z"
+      ]
+    },
+    {
+      "name": "startup-median",
+      "passed": true,
+      "detail": {
+        "actualMs": 1457.43,
+        "limitMs": 2500
+      }
+    },
+    {
+      "name": "startup-maximum",
+      "passed": true,
+      "detail": {
+        "actualMs": 1514.0132999999998,
+        "limitMs": 3500
+      }
+    },
+    {
+      "name": "six-distinct-sustained-modes",
+      "passed": true,
+      "detail": [
+        "sun:scientific",
+        "sun:artistic",
+        "moon:scientific",
+        "moon:artistic",
+        "earth:scientific",
+        "earth:artistic"
+      ]
+    },
+    {
+      "name": "measured-mixed-cycles",
+      "passed": true,
+      "detail": {
+        "actual": 24,
+        "required": 24
+      }
+    },
+    {
+      "name": "full-unmeasured-warmup-quartet",
+      "passed": true,
+      "detail": [
+        "sun",
+        "moon",
+        "earth",
+        "sirius"
+      ]
+    }
+  ],
+  "sourceRecords": {
+    "ready": [
+      {
+        "file": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\final-ready-1\\acceptance.json",
+        "sha256": "1990522cbde1e78ba7e91a26c7dc423f6b3d185423d0dc842681ef4c76e81323"
+      },
+      {
+        "file": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\final-ready-2\\acceptance.json",
+        "sha256": "36ec5dbb6a664df54f6e748e38455101437910425943c37f3cb54fde4ed44c42"
+      },
+      {
+        "file": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\final-ready-3\\acceptance.json",
+        "sha256": "392334845065a7807dde050b291c2877101b181c15a8237b3484f6fc581d0243"
+      }
+    ],
+    "full": {
+      "file": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\final-full-3\\acceptance.json",
+      "sha256": "286a6f903ccccc234002c1a863a46382bbea12e04144ba610384abeac4c37eff"
+    }
+  },
+  "startup": {
+    "samplesMs": [
+      1457.43,
+      1424.8865,
+      1514.0132999999998
+    ],
+    "medianMs": 1457.43,
+    "maxMs": 1514.0132999999998,
+    "baselineMedianMs": 1669.8936,
+    "medianChangeMs": -212.46360000000004,
+    "readyWorkingSetMiB": [
+      709.19921875,
+      705.65625,
+      709.54296875
+    ],
+    "method": "Host timer starts immediately before require(main.js), ends after production initialization and two observed real atlas render calls. Native Electron process creation excluded. Each run uses a fresh Chromium profile; OS/GPU caches are uncontrolled. This matches the retained Phase6 baseline timer."
+  },
+  "firstAndRepeatLoads": [
+    {
+      "kind": "sun",
+      "visit": "first",
+      "loadReadyMs": 244.29999995231628,
+      "usableTwoFramesMs": 247.69999998807907
+    },
+    {
+      "kind": "moon",
+      "visit": "first",
+      "loadReadyMs": 642.1999999880791,
+      "usableTwoFramesMs": 648.6999999880791
+    },
+    {
+      "kind": "earth",
+      "visit": "first",
+      "loadReadyMs": 288.60000002384186,
+      "usableTwoFramesMs": 295
+    },
+    {
+      "kind": "sun",
+      "visit": "repeat",
+      "loadReadyMs": 29.69999998807907,
+      "usableTwoFramesMs": 37.799999952316284
+    },
+    {
+      "kind": "moon",
+      "visit": "repeat",
+      "loadReadyMs": 606.5999999642372,
+      "usableTwoFramesMs": 612.8000000119209
+    },
+    {
+      "kind": "earth",
+      "visit": "repeat",
+      "loadReadyMs": 211.10000002384186,
+      "usableTwoFramesMs": 222.9000000357628
+    }
+  ],
+  "sustained": [
+    {
+      "kind": "sun",
+      "mode": "scientific",
+      "requestedDurationMs": 60000,
+      "observedFrameSpanMs": 59992,
+      "frames": 7200,
+      "p95Ms": 8.400000035762787,
+      "p99Ms": 8.5,
+      "maxMs": 19,
+      "framesPerSecond": 119.99933324443259,
+      "intervalsOver33_333ms": 0,
+      "intervalsOver50ms": 0,
+      "hiddenFrames": 0,
+      "unfocusedFrames": 0,
+      "viewport": {
+        "width": 1584,
+        "height": 835
+      },
+      "drawingBuffer": {
+        "width": 1194,
+        "height": 749
+      }
+    },
+    {
+      "kind": "sun",
+      "mode": "artistic",
+      "requestedDurationMs": 60000,
+      "observedFrameSpanMs": 59992.10000002384,
+      "frames": 7200,
+      "p95Ms": 8.400000035762787,
+      "p99Ms": 8.5,
+      "maxMs": 9.399999976158142,
+      "framesPerSecond": 119.9991332191595,
+      "intervalsOver33_333ms": 0,
+      "intervalsOver50ms": 0,
+      "hiddenFrames": 0,
+      "unfocusedFrames": 0,
+      "viewport": {
+        "width": 1584,
+        "height": 835
+      },
+      "drawingBuffer": {
+        "width": 1194,
+        "height": 749
+      }
+    },
+    {
+      "kind": "moon",
+      "mode": "scientific",
+      "requestedDurationMs": 60000,
+      "observedFrameSpanMs": 59991.799999952316,
+      "frames": 7199,
+      "p95Ms": 8.5,
+      "p99Ms": 8.5,
+      "maxMs": 27.400000035762787,
+      "framesPerSecond": 119.9830643522235,
+      "intervalsOver33_333ms": 0,
+      "intervalsOver50ms": 0,
+      "hiddenFrames": 0,
+      "unfocusedFrames": 0,
+      "viewport": {
+        "width": 1584,
+        "height": 835
+      },
+      "drawingBuffer": {
+        "width": 1194,
+        "height": 749
+      }
+    },
+    {
+      "kind": "moon",
+      "mode": "artistic",
+      "requestedDurationMs": 60000,
+      "observedFrameSpanMs": 59992.09999996424,
+      "frames": 7199,
+      "p95Ms": 8.5,
+      "p99Ms": 8.5,
+      "maxMs": 27.5,
+      "framesPerSecond": 119.98246435787864,
+      "intervalsOver33_333ms": 0,
+      "intervalsOver50ms": 0,
+      "hiddenFrames": 0,
+      "unfocusedFrames": 0,
+      "viewport": {
+        "width": 1584,
+        "height": 835
+      },
+      "drawingBuffer": {
+        "width": 1194,
+        "height": 749
+      }
+    },
+    {
+      "kind": "earth",
+      "mode": "scientific",
+      "requestedDurationMs": 60000,
+      "observedFrameSpanMs": 59992.10000002384,
+      "frames": 7200,
+      "p95Ms": 8.5,
+      "p99Ms": 8.5,
+      "maxMs": 8.899999976158142,
+      "framesPerSecond": 119.9991332191595,
+      "intervalsOver33_333ms": 0,
+      "intervalsOver50ms": 0,
+      "hiddenFrames": 0,
+      "unfocusedFrames": 0,
+      "viewport": {
+        "width": 1584,
+        "height": 835
+      },
+      "drawingBuffer": {
+        "width": 1194,
+        "height": 749
+      }
+    },
+    {
+      "kind": "earth",
+      "mode": "artistic",
+      "requestedDurationMs": 60000,
+      "observedFrameSpanMs": 59992,
+      "frames": 7200,
+      "p95Ms": 8.400000035762787,
+      "p99Ms": 8.5,
+      "maxMs": 8.700000047683716,
+      "framesPerSecond": 119.99933324443259,
+      "intervalsOver33_333ms": 0,
+      "intervalsOver50ms": 0,
+      "hiddenFrames": 0,
+      "unfocusedFrames": 0,
+      "viewport": {
+        "width": 1584,
+        "height": 835
+      },
+      "drawingBuffer": {
+        "width": 1194,
+        "height": 749
+      }
+    }
+  ],
+  "navigation": {
+    "cycles": 24,
+    "warmup": [
+      "sun",
+      "moon",
+      "earth",
+      "sirius"
+    ],
+    "loadTrend": {
+      "sun": {
+        "firstTwoMedianMs": 38.64999997615814,
+        "lastTwoMedianMs": 34.150000005960464,
+        "limitMs": 148.31249997019768
+      },
+      "moon": {
+        "firstTwoMedianMs": 625.3500000238419,
+        "lastTwoMedianMs": 621.6500000059605,
+        "limitMs": 881.6875000298023
+      },
+      "earth": {
+        "firstTwoMedianMs": 202.9500000178814,
+        "lastTwoMedianMs": 211.34999999403954,
+        "limitMs": 353.68750002235174
+      }
+    },
+    "finalResources": {
+      "inspectorOpen": false,
+      "activeKind": null,
+      "closeupCanvases": 0,
+      "adapters": {
+        "sun": {
+          "isOpen": false,
+          "renderer": false,
+          "scene": false,
+          "canvas": false,
+          "model": false,
+          "geometry": false,
+          "lastRelease": {
+            "geometries": 6,
+            "materials": 6,
+            "textures": 0,
+            "contextLossRequested": true
+          }
+        },
+        "moon": {
+          "isOpen": false,
+          "renderer": false,
+          "scene": false,
+          "canvas": false,
+          "model": false,
+          "geometry": false,
+          "lastRelease": {
+            "geometries": 1,
+            "materials": 1,
+            "textures": 2,
+            "imageBitmaps": 2
+          }
+        },
+        "earth": {
+          "isOpen": false,
+          "renderer": false,
+          "scene": false,
+          "canvas": false,
+          "model": false,
+          "geometry": false,
+          "lastRelease": {
+            "geometries": 1,
+            "materials": 3,
+            "textures": 3,
+            "imageBitmaps": 3,
+            "contextLossRequested": true
+          }
+        }
+      },
+      "map": {
+        "atlas": {
+          "geometries": 3,
+          "textures": 14
+        },
+        "exploration": {
+          "geometries": 6,
+          "textures": 0
+        }
+      },
+      "jsHeap": {
+        "usedJSHeapSize": 286000000,
+        "totalJSHeapSize": 304000000,
+        "jsHeapSizeLimit": 3760000000
+      }
+    }
+  },
+  "memoryTrend": {
+    "comparison": "First and last complete post-warmup Sun/Moon/Earth/Sirius quartet, sampled 500ms after close; no forced GC.",
+    "earlyCycles": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "lateCycles": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "workingSetMiB": {
+      "firstMedian": 802.341796875,
+      "lastMedian": 802.560546875,
+      "growth": 0.21875,
+      "limit": 128
+    },
+    "privateMiB": {
+      "firstMedian": 1191.25390625,
+      "lastMedian": 1184.791015625,
+      "growth": -6.462890625,
+      "limit": 128
+    },
+    "jsHeapUsedMiB": {
+      "firstMedian": 272.7508544921875,
+      "lastMedian": 272.7508544921875,
+      "growth": 0,
+      "limit": 32
+    }
+  },
+  "memoryPeaks": {
+    "workingSetMiB": 1311.734375,
+    "privateMiB": 2067.65625,
+    "rendererJSHeapMiB": 272.7508544921875,
+    "meaning": "Observed sample maxima, not continuous peaks, allocation totals or VRAM."
+  },
+  "remoteRequests": 0,
+  "remoteResources": 0,
+  "targetHashes": {
+    "package.json": "95f57bb6228493e8350e580917ecd16ecce7dcfc941ffee5596d22cabb1e2856",
+    "main.js": "373ef5e475e65386af63b35a41ff73ff3235603fe8688b475562dfdf30f41d60",
+    "script.js": "88b5aca22ade66aa802a5e616bf9f3014c7f2c1b9189f96e63f0876c83344cb7",
+    "modules/UnifiedInspector.js": "2e3376306dff2b0b87af7d5f79aaf0deeb263c21ccca27e0367e4eff6f8d182e",
+    "modules/NarrationController.js": "2f033e3b7922765d56228121da6b0416d0fd1db48fd5182d6181d77759c1c92b",
+    "modules/EarthAssetTrial.js": "28a613f9565ece7d96d2d1fbd1b7cfed65eacf23e3a0d832631c2d09bc3f2cc0",
+    "modules/SunAssetTrial.js": "df2862de2c95fa0f9b641ab9263999635d91fe30a2a7209ce50e26ab32f6c0b0",
+    "modules/MoonAssetTrial.js": "8c3f090e1aafc64db939d67ac874dcfb0e490f4f7476072fd8148119bef15e78"
+  },
+  "archiveSha256": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+  "limits": [
+    "This summary covers measured application behavior. Installed-executable launch, regression checks and actual audible/offline speech need their separate records.",
+    "Working sets can double-count shared pages; private bytes and JS heap are separate estimates, not VRAM.",
+    "Frame intervals are real render-call cadence, not GPU execution or compositor presentation.",
+    "Screenshots and source hashes were deferred until after performance and memory measurements."
+  ]
+}

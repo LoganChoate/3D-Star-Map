@@ -2,7 +2,7 @@
 
 The live Earth renderer uses the three exact packed maps from the approved Blender master. It renders separate geographic surface, cloud and atmosphere meshes in Three.js. Cloud drift and shape variation, globe rotation, night-side lights and the passive camera run live; the viewer does not play the review MP4.
 
-This implements the Earth portion of Phase 6 Step 4. The historical visual approval is recorded in `earth-visual-approval.json`; that record remains unchanged. Integration checks belong to the current test evidence. Sustained performance, repeated-navigation memory and installed offline acceptance remain the Step 5 gate.
+This implements the Earth portion of Phase 6 Step 4. The historical visual approval is recorded in `earth-visual-approval.json`; that record remains unchanged. Current sustained performance, repeated-navigation memory and installed offline results are in [Phase 6 Step 5 acceptance](phase6-step5-acceptance.md), including the remaining Windows-enforced narration check.
 
 ## Provenance and reproduction
 

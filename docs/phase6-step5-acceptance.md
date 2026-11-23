@@ -1,10 +1,11 @@
 # Phase 6 Step 5 acceptance
 
-**IN PROGRESS — 1.5.0 is a release candidate, not an accepted installed release.**
-Updated November 23, 2026 (America/Denver). The revised candidate passes startup,
-all ten regression suites, packaged-source integrity and the controlled sustained
-acceptance run. Earlier failures remain below. Installed offline behavior and audible
-narration remain separate gates.
+**INSTALLED CHECKPOINT — 1.5.0 is installed; Step 5 remains incomplete.**
+Updated November 23, 2026 (America/Denver). Startup, all ten regression suites,
+package/installation identity, controlled sustained acceptance and actual installed
+offline application checks pass. Strict installed-app audio capture also passes within
+its app-session-only scope. Windows-level offline narration approval and human critique
+remain open. Earlier failures and measurement limits remain below.
 
 ## Fixed criteria
 
@@ -23,7 +24,7 @@ the results.
 | Cleanup and behavior | No retained close-up renderer/scene/model/geometry/canvas references; recovery, visibility resume, catalog identity and map return must pass |
 | Release acceptance | Functional regressions, exact packaged integrity, installed executable offline checks and local narration verification |
 
-## Current candidate: verified results
+## Verified build and performance
 
 The immutable candidate is
 `dist/phase6-release-1.5.0-v3/win-unpacked/resources/app.asar`, version **1.5.0**,
@@ -83,6 +84,50 @@ diagnostic `prevent-display-sleep` request was active at start and explicitly re
 at finish (`active:false`, `released:true`); no saved power settings changed.
 These results establish the recorded quiet-workstation condition, not performance
 under arbitrary competing work or unlimited-session stability.
+
+## Installed application checkpoint
+
+`installation.json` records successful installation of **1.5.0**, installer exit code
+zero, and the registered launch command for
+`C:\Users\logan\AppData\Local\Programs\3D Star Map Explorer\3D Star Map Explorer.exe`.
+The installed `resources/app.asar` has the exact verified SHA-256 above, and the
+executable product version is 1.5.0.0. The previous 1.4.2 installation is preserved
+under `rollback-1.4.2/` in the evidence directory.
+
+`installed-offline.json` passed using that actual installed executable, rather than
+only the external measurement host. It covers the existing map/filter/route behavior,
+22 map-return checks, unified Sun/Moon/Earth inspection and all 14 Earth checks.
+The bundled updater 6.6.2 loads; the explicit offline branch skips update requests.
+There were zero ordinary application network requests and no remote resources. Both
+intentional renderer/session network probes were blocked. This proves the installed
+application's offline behavior within its Electron session; OS speech networking is
+outside that interception.
+
+The Windows administrator prompt for the separate OS-level audio isolation check
+was canceled before the helper launched (no helper PID or `installed-audio-1/`
+output directory). No network rules were created. That approval-dependent gate
+remains pending; it must not be recorded as a tested firewall block.
+
+The strict installed-app recording in `installed-audio-app-only-2/` passed its
+`audio-analysis.json` checks for pre-play silence, playing, paused silence, resumed
+playing and stopped silence. It used the actual installed executable, native controls
+and a real local WebSpeech voice; process-tree-only WASAPI captured no microphone or
+other applications' output. The installed archive hash was unchanged.
+
+Recorder lifetime was verified across every observation window: 792,036 frames,
+1,796 packets, zero discontinuities, requested-stop completion and recorder/app exit
+codes zero. Playing and resumed RMS were 0.0946 and 0.1103, versus approximately
+0.0000146 during silence. The recording SHA-256 is
+`7d3ea05d527862f6fe5ad04ec5b46f2fd7cffb62a3ce43c522ccc9397f55977f`.
+The review clip is `installed-audio-app-only-2/sirius-narration-sample.wav`.
+
+The local recognizer corroborated intelligible speech but produced imperfect text
+(including "Serious" for Sirius); this is not pronunciation approval. Digital output
+does not confirm physical speaker volume or the user's listening quality. Loaded
+SAPI/MSTTS modules and local-service voice metadata support the observed speech path,
+but app-session blocking does not prove Windows-level egress isolation. The first
+restricted launch attempt in `installed-audio-app-only-1/` produced no capture and
+remains retained. The separate administrator-dependent check is still required.
 
 ## Retained final-build failures
 
@@ -161,15 +206,19 @@ packaged evidence, not final installed acceptance.
 
 ## Remaining gates
 
-Before acceptance, record all of the following against the revised build:
+The installed checkpoint can be saved through a PR without marking Step 5 or Phase 6
+complete. The remaining acceptance gates are:
 
-- Verify the final installed executable's offline behavior and identity against the
-  accepted archive, with audible local narration and explicit network/capture limits.
-  Save the accepted result and dashboard evidence through GitHub.
+- Complete the approval-dependent Windows-level narration isolation verification,
+  recording exact executable scope, actual capture/listening results and cleanup.
+  An application-session-only recording does not close this gate.
+- Obtain the user's critique of the installed experience and narration before further
+  expansion. Save the checkpoint and its actual status in GitHub and the dashboard.
 
 The initial startup records predate per-run archive fingerprints and remain unchanged;
 the final summary uses only matching, individually fingerprinted startup/full records.
-No final installation or audible-narration pass is claimed here yet.
+The current installation and app-session offline pass do not establish Windows-level
+offline narration acceptance.
 Phase 7 remains outside this acceptance work.
 
 ## Measurement conditions and limits

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "status": "pending-os-audio",
+  "recordedAt": "2026-11-23T07:42:49.684Z",
+  "version": "1.5.0",
+  "archiveSha256": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+  "summary": "Installed, source-matched and measured checkpoint. Windows-enforced exact-app narration isolation remains pending because the administrator prompt was canceled before helper launch.",
+  "checks": {
+    "regressionSuites": 10,
+    "packagedProjectFiles": 112,
+    "startupMedianMs": 1457.43,
+    "startupMaxMs": 1514.0132999999998,
+    "sustainedModes": 6,
+    "largestP95Ms": 8.5,
+    "navigationVisits": 24,
+    "memoryGrowth": {
+      "comparison": "First and last complete post-warmup Sun/Moon/Earth/Sirius quartet, sampled 500ms after close; no forced GC.",
+      "earlyCycles": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "lateCycles": [
+        21,
+        22,
+        23,
+        24
+      ],
+      "workingSetMiB": {
+        "firstMedian": 802.341796875,
+        "lastMedian": 802.560546875,
+        "growth": 0.21875,
+        "limit": 128
+      },
+      "privateMiB": {
+        "firstMedian": 1191.25390625,
+        "lastMedian": 1184.791015625,
+        "growth": -6.462890625,
+        "limit": 128
+      },
+      "jsHeapUsedMiB": {
+        "firstMedian": 272.7508544921875,
+        "lastMedian": 272.7508544921875,
+        "growth": 0,
+        "limit": 32
+      }
+    },
+    "installedOffline": "passed",
+    "ordinaryRemoteRequests": 0,
+    "remoteResources": 0,
+    "narrationWindows": 5,
+    "recorderLifetimeVerified": true,
+    "windowsFirewallNarration": "pending-user-windows-approval"
+  },
+  "records": {
+    "performance": "final-performance-summary.json",
+    "regressions": "final-regression-suites.json",
+    "package": "final-package-source-match.json",
+    "installation": "installation.json",
+    "offline": "installed-offline.json",
+    "audioHost": "installed-audio-app-only-2/audio-host.json",
+    "audioAnalysis": "installed-audio-app-only-2/audio-analysis.json",
+    "audioRecognition": "installed-audio-app-only-2/recognition.json",
+    "windowsApproval": "windows-approval.json",
+    "inertiaBefore": "inertia-before-2/inspection-inertia.json",
+    "inertiaAfter": "inertia-after/inspection-inertia.json",
+    "displayInterrupted": "final-full/acceptance.json",
+    "foregroundFailure": "final-full-2/acceptance.json",
+    "controlledConditions": "final-full-3/run-conditions.json",
+    "merge": "github-merge.json"
+  },
+  "evidenceSha256": {
+    "performance": "3b82c7ea155b39998e475f57174efa683ff0a9fad8baa811bf2e0cacef7e92b0",
+    "regressions": "53e722f51b46625c37962191a4391886281167bbff587087ae7d0c37f02e0c86",
+    "package": "993150d6d9696ff052633ef64dddab467ebce43a5074ef931fc572a914c0f116",
+    "installation": "e4c94956e4b9b0343892e6dfe9697638ce26c7c92387830d46369a679f4c2583",
+    "offline": "331c0fc96bc69d475d9a2c735f6043b84e6304873170b821826d3c1fe00ffda9",
+    "audioHost": "58a48a118e75d43a882bd4e510e7fc464ac006e401b616eaa6c163e3e6c3ca63",
+    "audioAnalysis": "be9e3daffdfad69f8fe4aa4f75e2edc331aa1f9d6a8177545af1feb25044a043",
+    "audioRecognition": "762d40a86a70768ab769694766845b297e604e906d28ac46e4b5ba9efcf601fc",
+    "windowsApproval": "21f2743b23b1618fda5fa10dab4a96588299cd7eeeda46f0f4030a5a435df5f6",
+    "inertiaBefore": "46a62d62df7a37348be432c9874fb303c2d64301044e32cc156b88798442fd22",
+    "inertiaAfter": "de8dc037e4d80a189e78fe08552b2969bb71befe22e5fd70f1314cc0ea5f1e1e",
+    "displayInterrupted": "630e9f4b0f9eaf567d0ce05c5b5099a0f7ee59b1628903e9fccbb2d874cb7722",
+    "foregroundFailure": "990b200ba90a678b34e6d43df8134fde775438138e0f8c9aee495bb56a85dcc0",
+    "controlledConditions": "03413f75d67dc2039bee8acb5f11a2b777985e1a4422caae5fa2eb089681fbd8"
+  },
+  "audioSample": "installed-audio-app-only-2/sirius-narration-sample.wav",
+  "measurementDirectory": "final-full-3",
+  "scope": {
+    "performance": "One controlled complete run with all other task build/test/audio/browser jobs stopped; same artifact and frozen limits. Earlier valid foreground Sun p95 failure 33.6ms retained; overlapping CPU activity does not establish its full cause.",
+    "audio": "Actual installed app with application-session network blocking, process-tree-only WASAPI, no microphone/other-app audio. No Windows Firewall rule was created, so operating-system speech networking remains unverified.",
+    "review": "Physical-speaker volume, pronunciation and subjective listening quality remain user critique.",
+    "assets": "Approved Blender masters and NASA sources remain unchanged and local. GitHub backup contains code, diagnostics, runtime assets, manifests and result documentation, not the large source masters."
+  },
+  "next": "When the user is ready to approve Windows elevation, run the reviewed external-capture firewall workflow, verify positive/block/recovery controls and cleanup, update this checkpoint, then collect critique before Phase 7.",
+  "evidenceDirectory": "../evidence/phase6/step5",
+  "dashboard": "https://galaxy-map-execution.loganvchoategmail-com.chatgpt.site/evidence/phase6/step5-acceptance"
+}

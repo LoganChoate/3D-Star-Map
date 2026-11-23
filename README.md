@@ -1,6 +1,6 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. The 1.5.0 candidate brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Current release acceptance is recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.5.0 brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Current installed results and the remaining Windows-level narration check are recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
 
 ## Execution tracker
 
