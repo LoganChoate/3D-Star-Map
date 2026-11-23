@@ -12,4 +12,6 @@ User preference recorded 2026-11-21 (America/Denver): check remaining weekly Cod
 
 ## Current resume target
 
-Phase 6 Step 3: Earth. Moon and Sun are approved in app 1.4.2. The Earth proof is saved, its six render checks pass, and live Rendered playback has been observed. Collect user critique of cloud motion, atmosphere and city lights before revising or integrating it. The installed app remains 1.4.2. Phase 7 mobile follows Phase 6 and is planned only. Consult the current dashboard and Earth workflow file for exact artifact paths and validation limits.
+Phase 6 Step 4: unified inspection. The approved scope is shared information and narration for catalog objects, with detailed visuals only for Sun and Moon. Version 1.5.0-preview.1 is the review checkpoint; the installed app remains 1.4.2. Consult `unified-inspection.md` and the current dashboard for actual validation results. Collect user critique before Step 5 sustained loading, animation, memory, repeated-navigation and installed offline acceptance. Phase 7 mobile remains planned only.
+
+Earth stays paused at its saved Blender review checkpoint: six render checks passed and live Rendered playback was observed, but user visual critique and integration remain outstanding. Its catalog information may appear in the unified inspector; its proof asset is not integrated. The later reusable stellar illustration system remains a separate extension. Consult the Earth workflow file for artifact paths and limits.

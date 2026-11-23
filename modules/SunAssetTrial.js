@@ -138,8 +138,9 @@ void main() {
 
 /** Live procedural Sun illustration, with shared Blender appearance parameters. */
 export class SunAssetTrial {
-    constructor({mount=document.body,onOpen=()=>{},onClose=()=>{}}={}) {
+    constructor({mount=document.body,onOpen=()=>{},onClose=()=>{},embedded=false,controlsMount=null,onRequestClose=null}={}) {
         this.mount=mount;this.onOpen=onOpen;this.onClose=onClose;
+        this.embedded=embedded;this.controlsMount=controlsMount;this.onRequestClose=onRequestClose;this.suspended=false;
         this.isOpen=false;this.status='closed';this.ready=Promise.resolve(false);
         this.generation=0;this.completedLoads=0;this.cancelledLoads=0;this.disposed=false;
         this.lastRelease=null;
@@ -150,18 +151,21 @@ export class SunAssetTrial {
         if(this.isOpen)return this.ready;
         this.startedAt=performance.now();this.body=body;this.isOpen=true;this.status='loading';
         const generation=++this.generation;
-        this.abort=new AbortController();this.returnFocus=document.activeElement;
-        this.inertElements=[...this.mount.children].map(element=>[element,element.inert]);
-        this.inertElements.forEach(([element])=>{element.inert=true;});
-        this.previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
+        this.abort=new AbortController();
+        if(!this.embedded){
+            this.returnFocus=document.activeElement;
+            this.inertElements=[...this.mount.children].map(element=>[element,element.inert]);
+            this.inertElements.forEach(([element])=>{element.inert=true;});
+            this.previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
+        }
         this.buildShell();this.onOpen(body);
         this.ready=this.load(generation,this.abort.signal);
         return this.ready;
     }
     buildShell() {
         const element=this.element=document.createElement('section');
-        element.id='sol-trial';element.className='sol-trial';element.setAttribute('role','dialog');
-        element.setAttribute('aria-modal','true');element.setAttribute('aria-labelledby','sol-trial-title');
+        element.id='sol-trial';element.className=`sol-trial${this.embedded?' inspection-embedded':''}`;
+        if(!this.embedded){element.setAttribute('role','dialog');element.setAttribute('aria-modal','true');element.setAttribute('aria-labelledby','sol-trial-title');}
         element.innerHTML=`<header class="sol-trial-header"><div><span class="sol-trial-eyebrow">STELLAR STUDY</span><h2 id="sol-trial-title">Sun <span>· Sol</span></h2></div><button id="sol-trial-close">← Return to map</button></header>
           <div class="sol-trial-layout"><div id="sol-trial-stage" class="sol-trial-stage">
           <canvas id="sol-trial-canvas" tabindex="0" aria-label="Interactive Sun. Drag to orbit, scroll or plus and minus to zoom, Home to reset, Space to pause, Escape to return."></canvas>
@@ -180,6 +184,14 @@ export class SunAssetTrial {
           </aside></div>`;
         this.mount.append(element);
         this.elements=Object.fromEntries([...element.querySelectorAll('[id]')].map(item=>[item.id,item]));
+        if(this.embedded&&this.controlsMount){
+            this.panel=element.querySelector('.sol-trial-panel');this.controlsMount.append(this.panel);
+            const reference=document.createElement('details'),label=document.createElement('summary'),note=document.createElement('p');
+            label.textContent='Visual reference parameters';
+            note.className='sol-trial-note';note.textContent='Reference values used by this illustration are listed separately from measurements retained in the selected catalog record.';
+            reference.append(label,note,this.elements['sol-trial-facts']);
+            this.panel.insertBefore(reference,this.elements['sol-trial-description']);
+        }
         const listen=(id,type,handler)=>this.elements[id].addEventListener(type,handler,{signal:this.abort.signal});
         listen('sol-trial-close','click',()=>this.close());
         listen('sol-trial-home','click',()=>this.resetView());
@@ -196,7 +208,7 @@ export class SunAssetTrial {
             this.updateTime();
         });
         element.addEventListener('keydown',event=>this.handleKey(event),{signal:this.abort.signal});
-        this.elements['sol-trial-close'].focus({preventScroll:true});
+        if(!this.embedded)this.elements['sol-trial-close'].focus({preventScroll:true});
     }
     async load(generation,signal) {
         const current=()=>this.isOpen&&this.generation===generation&&!signal.aborted;
@@ -219,9 +231,9 @@ export class SunAssetTrial {
             this.firstRenderedFrameMs=performance.now()-this.startedAt;
             this.status='ready';this.completedLoads++;
             this.elements['sol-trial-message'].hidden=true;
-            this.element.querySelectorAll('button:disabled,input:disabled').forEach(control=>{control.disabled=false;});
+            Object.values(this.elements).filter(control=>control.matches('button:disabled,input:disabled')).forEach(control=>{control.disabled=false;});
             this.elements['sol-trial-eruption'].disabled=!appearance.modes[this.mode].activityVisible;
-            this.canvas.focus({preventScroll:true});
+            if(!this.embedded)this.canvas.focus({preventScroll:true});
             this.previousFrameTime=performance.now();this.animate(this.previousFrameTime);
             return true;
         } catch(error) {
@@ -285,6 +297,15 @@ export class SunAssetTrial {
         this.paused=!!value;this.elements['sol-trial-pause'].textContent=this.paused?'Resume activity':'Pause activity';
         this.elements['sol-trial-pause'].setAttribute('aria-pressed',String(this.paused));
     }
+    setSuspended(value) {
+        this.suspended=!!value;cancelAnimationFrame(this.animationFrame);this.previousFrameTime=performance.now();
+        if(!this.suspended&&this.isOpen&&this.status==='ready')this.animate(this.previousFrameTime);
+    }
+    reduceMotion() {
+        if(!this.elements)return;
+        this.setPaused(true);
+        if(this.controls){this.stopCameraMotion();this.controls.enableDamping=false;}
+    }
     setSpeed(value) {
         if(!this.appearance||!Number.isFinite(value))return;
         this.speed=THREE.MathUtils.clamp(value,this.appearance.time.minimumSpeed,this.appearance.time.maximumSpeed);
@@ -333,7 +354,7 @@ export class SunAssetTrial {
         }
     }
     animate(now) {
-        if(!this.isOpen||this.status!=='ready')return;
+        if(!this.isOpen||this.status!=='ready'||this.suspended)return;
         const delta=Math.min(Math.max(0,(now-this.previousFrameTime)/1000),0.1);this.previousFrameTime=now;
         if(!this.paused)this.elapsed+=delta*this.speed;this.updateTime();this.controls.update(delta);
         const start=performance.now();this.renderer.render(this.scene,this.camera);const end=performance.now();
@@ -341,8 +362,8 @@ export class SunAssetTrial {
         this.frameCount++;this.animationFrame=requestAnimationFrame(time=>this.animate(time));
     }
     handleKey(event) {
-        if(event.key==='Escape'){event.preventDefault();event.stopPropagation();this.close();return;}
-        if(event.key==='Tab') {
+        if(!this.embedded&&event.key==='Escape'){event.preventDefault();event.stopPropagation();this.close();return;}
+        if(!this.embedded&&event.key==='Tab') {
             const available=[...this.element.querySelectorAll('button:not(:disabled),input:not(:disabled),summary,a[href],canvas')].filter(element=>element.getClientRects().length);
             const first=available[0],last=available.at(-1);
             if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
@@ -365,11 +386,12 @@ export class SunAssetTrial {
         this.scene?.clear();this.scene=this.camera=this.renderer=this.controls=this.canvas=this.surface=this.halo=this.resizeObserver=null;
         this.surfaceUniforms=this.haloUniforms=this.appearance=null;this.frameSamples=[];this.appearanceInfo=null;
     }
-    close() {
+    close({fromHost=false}={}) {
+        if(this.isOpen&&this.embedded&&!fromHost&&this.onRequestClose){this.onRequestClose();return;}
         if(!this.isOpen)return;this.isOpen=false;this.generation++;this.abort.abort();this.releaseScene();
-        this.element.remove();this.element=this.elements=null;this.inertElements.forEach(([element,previous])=>{element.inert=previous;});this.inertElements=[];
-        document.body.style.overflow=this.previousOverflow;this.status='closed';this.onClose(this.body);
+        this.element.remove();this.panel?.remove();this.panel=null;this.element=this.elements=null;this.inertElements?.forEach(([element,previous])=>{element.inert=previous;});this.inertElements=[];
+        if(!this.embedded)document.body.style.overflow=this.previousOverflow;this.status='closed';this.onClose(this.body);
         if(this.returnFocus?.isConnected)this.returnFocus.focus({preventScroll:true});this.returnFocus=null;
     }
-    dispose(){this.close();this.disposed=true;}
+    dispose(){this.close({fromHost:true});this.disposed=true;}
 }
