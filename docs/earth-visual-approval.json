@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "recordedDate": "2026-11-22",
+  "timezone": "America/Denver",
+  "recordedAtLocal": "2026-11-22T22:35:29-07:00",
+  "phase": 6,
+  "step": 3,
+  "body": "Earth",
+  "status": "user-approved-visual-proof",
+  "approvalSource": "Explicit user message in the Galaxy Map project conversation following publication of the Earth preview cards and animation clip.",
+  "userStatement": "I approve the earth renders. The cloud coverage, the movement speed, and the camera rotation all feels good to me. Well done. Go ahead and accept and proceed with those. Save that data, merge it into the GitHub repository, and then let me know what's next on our roadmap",
+  "approved": [
+    "Rendered Earth appearance shown in the preview cards",
+    "Cloud coverage",
+    "Movement speed",
+    "Passive review-camera rotation"
+  ],
+  "permissionToProceed": true,
+  "applicationIntegration": "authorized, not yet implemented",
+  "acceptanceLimits": [
+    "This is approval of the existing Blender visual proof, not a claim that Earth is integrated into the desktop application.",
+    "The Earth-specific approval does not establish approval of the unified inspector layout or narration behavior.",
+    "Application loading, animation performance, sustained memory, repeated navigation, installed offline operation and audible offline speech still require final acceptance.",
+    "Historical NASA composites and invented cloud motion remain illustrative; this approval does not establish current weather, calibrated cloud density or physical atmospheric accuracy."
+  ],
+  "approvedArtifacts": [
+    {
+      "role": "editable master",
+      "path": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\asset-projects\\earth\\earth-v1.blend",
+      "sha256": "622911d103859db842220bc5eadf2d7a23497ffd972ebbf96857557824889b39"
+    },
+    {
+      "role": "saved live-review project",
+      "path": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\asset-projects\\earth\\earth-v1-review.blend",
+      "sha256": "399f35069cdcd7042a893ce51321d4176477e7b62293fa6fd6676e4fe29e39c0"
+    },
+    {
+      "role": "reviewed animation clip",
+      "path": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\earth-motion-review\\earth-review.mp4",
+      "sha256": "de85235c20fdd60c601d749ad9afd8fd16b8d7212c6460e122e3fd0af1b29110",
+      "durationSeconds": 24,
+      "resolution": [1280, 720],
+      "fps": 24,
+      "frames": 576,
+      "audio": false
+    }
+  ],
+  "hashVerification": {
+    "verifiedOn": "2026-11-22",
+    "method": "Read-only SHA-256 of both saved Blender files and the MP4, compared with the prior render/encode record.",
+    "result": "All three files match the hashes of the reviewed checkpoint. No Blender project or clip was changed for approval."
+  },
+  "appearanceReference": "assets/earth/appearance.json",
+  "sourceManifest": "assets/earth/source-manifest.json",
+  "acceptedSettings": {
+    "illustrationSpeed": 1,
+    "bodyRotationDegreesPerSecond": 3,
+    "bodyFullTurnSeconds": 120,
+    "additionalCloudDriftDegreesPerSecond": 0.65,
+    "cloudEvolutionRate": 0.085,
+    "cloudUvWarp": 0.006,
+    "scientificCloudOpacity": 0.9,
+    "artisticCloudOpacity": 0.96,
+    "reviewCamera": {
+      "firstChapterSeconds": [0, 8],
+      "firstChapter": "Camera and surface held still while the original cloud drift and evolution advance.",
+      "orbitChapterSeconds": [8, 24],
+      "orbitDegrees": 110,
+      "orbitChapter": "Original globe/cloud timeline restarts at frame 1 and advances while the camera eases around the globe.",
+      "purpose": "Accepted viewing reference for passive camera movement; not a physical spacecraft trajectory or an exact future app camera implementation."
+    }
+  },
+  "historicalEvidence": [
+    "docs/earth-proof-validation.json",
+    "../evidence/phase6/earth-motion-review/earth-review.json",
+    "../evidence/phase6/earth-motion-review/render-manifest.json"
+  ],
+  "githubBackupScope": "This approval record, source manifest, appearance contract, generators, review helpers and documentation. Packed Blender projects, NASA source JPEGs and the MP4 remain local; the review media are also published on the private dashboard.",
+  "nextWork": [
+    "Implement Earth in the unified live inspector using the approved appearance and motion as the comparison reference.",
+    "Review live integration and retain the outstanding unified information/narration experience gate.",
+    "Complete Phase 6 loading, animation, memory, repeated-navigation and installed offline acceptance before Phase 7."
+  ]
+}

@@ -1,6 +1,6 @@
 # Earth motion review clip
 
-This is a review of the existing Artistic Blender proof. It does not approve, rebuild or integrate Earth into the application. The saved master and live-review project remain unchanged.
+The user approved the rendered Earth appearance, cloud coverage, movement speed and passive camera rotation on November 22, 2026 (America/Denver), after reviewing the preview cards and this clip. The exact approval and approved artifact hashes are retained in `docs/earth-visual-approval.json`. The saved master and live-review project remain unchanged. Application integration is authorized to proceed and remains unimplemented; this visual approval does not establish application performance or offline acceptance.
 
 The 24-second, 1280 × 720, 24 fps silent video has two labeled chapters:
 
