@@ -1,0 +1,105 @@
+{
+  "status": "step-4-implementation-verified",
+  "recordedAt": "2026-11-23T06:11:25.811Z",
+  "version": "1.5.0-preview.2",
+  "installedVersion": "1.4.2",
+  "userRuntimeReview": "pending",
+  "scope": "Shared full-window Sun/Moon/Earth visuals, scientific/artistic presentation, retained catalog information and manual local-voice narration. Other bodies remain information views.",
+  "sourceRun": "runtime-4",
+  "packagedRun": "packaged-1",
+  "regressionSuites": 9,
+  "catalogCases": 10,
+  "narrationCases": 23,
+  "bundledProjectFiles": 110,
+  "archiveSha256": "f17d4a6d32221540c0ff4a740bfba61a8ec434b93f75cf5ee5f83fac01c86ad0",
+  "earthChecks": [
+    "nativeSelection",
+    "appearance",
+    "cloudMotion",
+    "surfaceRotation",
+    "passiveCamera",
+    "pause",
+    "manualViewWhilePaused",
+    "visibility",
+    "release",
+    "layouts",
+    "retryRelease",
+    "missingTextureAndRetry",
+    "supersededLoad",
+    "reducedMotion"
+  ],
+  "earthTextures": {
+    "sha256": "3c26c5c952d92e369af40c4eb9e29b379a8d491d7c824077e0598d5e2bd11fa7",
+    "bytes": 3695,
+    "appearanceSha256": "9faf21f1334645385081b49342d1c453c804433ad9fec620b5b43597591f8f3a",
+    "textures": [
+      {
+        "role": "day-surface",
+        "sha256": "23ec42d7aa1a53738d08a771d34a160f6022aa8303780f46803e14748569aa3b",
+        "bytes": 5352782,
+        "width": 4096,
+        "height": 2048
+      },
+      {
+        "role": "night-lights",
+        "sha256": "4d2158f59123dadf0696a1cf8909c45018a1de8d0daab40da04122a5aa7f27c6",
+        "bytes": 365655,
+        "width": 3600,
+        "height": 1800
+      },
+      {
+        "role": "clouds",
+        "sha256": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793",
+        "bytes": 829367,
+        "width": 2048,
+        "height": 1024
+      }
+    ]
+  },
+  "appRemoteRequests": 0,
+  "appRemoteResources": 0,
+  "localVoices": 3,
+  "narrationPlayback": "local-start-pause-resume-stop-observed",
+  "approvedArtifacts": [
+    {
+      "role": "editable master",
+      "path": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\asset-projects\\earth\\earth-v1.blend",
+      "sha256": "622911d103859db842220bc5eadf2d7a23497ffd972ebbf96857557824889b39",
+      "actualSha256": "622911d103859db842220bc5eadf2d7a23497ffd972ebbf96857557824889b39"
+    },
+    {
+      "role": "saved live-review project",
+      "path": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\asset-projects\\earth\\earth-v1-review.blend",
+      "sha256": "399f35069cdcd7042a893ce51321d4176477e7b62293fa6fd6676e4fe29e39c0",
+      "actualSha256": "399f35069cdcd7042a893ce51321d4176477e7b62293fa6fd6676e4fe29e39c0"
+    },
+    {
+      "role": "reviewed animation clip",
+      "path": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\earth-motion-review\\earth-review.mp4",
+      "sha256": "de85235c20fdd60c601d749ad9afd8fd16b8d7212c6460e122e3fd0af1b29110",
+      "durationSeconds": 24,
+      "resolution": [
+        1280,
+        720
+      ],
+      "fps": 24,
+      "frames": 576,
+      "audio": false,
+      "actualSha256": "de85235c20fdd60c601d749ad9afd8fd16b8d7212c6460e122e3fd0af1b29110"
+    }
+  ],
+  "limits": [
+    "User approval of the Blender proof is retained; live app integration awaits critique.",
+    "Live cloud noise and transparent-layer blending approximate Blender; cloud/rim appearance is slightly darker. Camera orbit is continuous, not the reference clip’s eased animation.",
+    "Source and packaged payload tests used external Electron with actual main/renderer and native input. The unpacked preview is not installed.",
+    "Application-session network blocking does not prove operating-system-level offline speech. Speech events do not confirm audible output or listening quality.",
+    "Step 5 sustained loading, frame performance, memory, at least 20 mixed cycles and installed offline acceptance remain pending.",
+    "Blender masters and original source downloads remain local. GitHub backs up code, manifests, runtime maps and documentation, not the full source masters."
+  ],
+  "retainedFailures": [
+    "runtime-1",
+    "runtime-2",
+    "runtime-3"
+  ],
+  "diagnosticAdjustment": "Initial paused-image diagnostics rejected sparse one-code raster rounding despite exact motion state. Final checks require exact clocks/body/camera/quaternion, exact alpha, maximum 1/255 RGB change on at most 0.1% of pixels, across three delayed comparisons. No renderer pause bug or visual change was needed."
+}

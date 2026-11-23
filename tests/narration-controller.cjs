@@ -10,6 +10,12 @@ const local = {voiceURI:'local-en', name:'Local English', lang:'en-US', localSer
 const second = {voiceURI:'local-en-2', name:'Second local English', lang:'en-GB', localService:true};
 const remote = {voiceURI:'remote-en', name:'Remote English', lang:'en-US', localService:false, default:true};
 class FakeUtterance { constructor(text) { this.text = text; } }
+class FakeVisibility {
+    constructor(hidden = false) { this.hidden = hidden; this.listeners = new Set(); }
+    addEventListener(name, listener) { assert.equal(name, 'visibilitychange'); this.listeners.add(listener); }
+    removeEventListener(name, listener) { assert.equal(name, 'visibilitychange'); this.listeners.delete(listener); }
+    setHidden(hidden) { this.hidden = hidden; for (const listener of [...this.listeners]) listener(); }
+}
 class FakeSynth {
     constructor(voices = [remote, local]) {
         this.voices = voices; this.listeners = new Set(); this.spoken = [];
@@ -39,9 +45,9 @@ async function main() {
     const {NarrationController} = await import(pathToFileURL(path.join(root, 'modules/NarrationController.js')).href);
     const {TourController} = await import(pathToFileURL(path.join(root, 'modules/TourController.js')).href);
     const {UIManager} = await import(pathToFileURL(path.join(root, 'modules/UIManager.js')).href);
-    const make = voices => {
+    const make = (voices, visibilitySource) => {
         const synth = new FakeSynth(voices);
-        const controller = new NarrationController({synth, Utterance:FakeUtterance});
+        const controller = new NarrationController({synth, Utterance:FakeUtterance, visibilitySource});
         return {synth, controller};
     };
     const test = (name, fn) => {
@@ -285,7 +291,42 @@ async function main() {
         assert.equal(c.snapshot().status,'error');
         c.dispose();
     });
-    const withTour = fn => {
+    test('Hiding the app cancels atlas speech and returning never resumes it', () => {
+        const visibility = new FakeVisibility();
+        const {synth, controller:c} = make(undefined, visibility);
+        c.setContent({id:'hyg:32263', text:'Sirius catalog transcript.'}); c.play();
+        const old = synth.active;
+        old.onstart();
+        visibility.setHidden(true);
+        assert.equal(synth.active, null);
+        assert.equal(c.snapshot().status, 'stopped');
+        assert.equal(c.snapshot().started, false);
+        old.onstart(); old.onend();
+        assert.equal(c.snapshot().status, 'stopped');
+        assert.equal(c.play(), false);
+        assert.equal(synth.spoken.length, 1);
+        visibility.setHidden(false);
+        assert.equal(synth.spoken.length, 1);
+        assert.equal(c.play(), true);
+        assert.equal(synth.spoken.length, 2);
+        c.dispose();
+        assert.equal(visibility.listeners.size, 0);
+    });
+    test('Starting with a hidden app never enqueues speech', () => {
+        const visibility = new FakeVisibility(true);
+        const {synth, controller:c} = make(undefined, visibility);
+        c.setContent({id:'solar:earth', text:'Earth catalog transcript.'});
+        assert.equal(c.play(), false);
+        assert.equal(synth.spoken.length, 0);
+        visibility.setHidden(false);
+        assert.equal(synth.spoken.length, 0);
+        assert.equal(c.play(), true);
+        c.pause(); visibility.setHidden(true);
+        assert.equal(c.resume(), false);
+        assert.equal(synth.active, null);
+        c.dispose();
+    });
+    const withTour = (fn, visibilitySource) => {
         const previous = {window:global.window,gsap:global.gsap,CustomEvent:global.CustomEvent,setTimeout:global.setTimeout,clearTimeout:global.clearTimeout};
         const timers=new Map(), events=[], flights=[]; let nextTimer=1;
         global.window={gsap:{killTweensOf(){}},dispatchEvent:event=>events.push(event)};
@@ -293,7 +334,7 @@ async function main() {
         global.CustomEvent=class {constructor(type,options){this.type=type;this.detail=options.detail;}};
         global.setTimeout=fn=>{const id=nextTimer++;timers.set(id,fn);return id;};
         global.clearTimeout=id=>timers.delete(id);
-        const {synth,controller}=make();
+        const {synth,controller}=make(undefined, visibilitySource);
         const renderer={camera:{position:{}},controls:{target:{}},activeControls:{enabled:true},
             frameObjectInView:(star,done)=>flights.push({star,done}),updateSelectionHighlight(){}};
         const tour=new TourController(renderer,{showError:message=>{throw Error(message);},showWarning(){}});
@@ -338,6 +379,20 @@ async function main() {
         assert.equal(timers.size,0);
         assert.equal(flights.length,2);
     }));
+    test('Tour arrival after hiding cannot start narration or resume it on return', () => {
+        const visibility = new FakeVisibility();
+        withTour(({tour,synth,flights,timers}) => {
+            tour.start();
+            visibility.setHidden(true);
+            flights[0].done();
+            assert.equal(synth.spoken.length, 0);
+            assert.equal(tour.getState().state, 'paused');
+            assert.equal(timers.size, 0);
+            visibility.setHidden(false);
+            assert.equal(synth.spoken.length, 0);
+            assert.equal(tour.getState().state, 'paused');
+        }, visibility);
+    });
     test('Production atlas inspection preserves map framing and respects route/tour selection', () => withTour(() => {
         let routeActive=false,tourActive=false;
         const frames=[],inspections=[];

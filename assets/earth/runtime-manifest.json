@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "bodyId": "solar:earth",
+  "approvedMasterSha256": "622911d103859db842220bc5eadf2d7a23497ffd972ebbf96857557824889b39",
+  "appearanceSha256": "9faf21f1334645385081b49342d1c453c804433ad9fec620b5b43597591f8f3a",
+  "textures": [
+    {
+      "role": "day-surface",
+      "file": "day-surface.png",
+      "mime": "image/png",
+      "width": 4096,
+      "height": 2048,
+      "colorSpace": "srgb",
+      "bytes": 5352782,
+      "sha256": "23ec42d7aa1a53738d08a771d34a160f6022aa8303780f46803e14748569aa3b",
+      "sourceId": "day-surface",
+      "sourceSha256": "99f5faad74efe985fbf1714c8be7296ca9999759a1215b65f99b7f1df278dde5",
+      "epoch": "January 2004 monthly composite",
+      "credit": "NASA Earth Observatory; Reto Stockli",
+      "sourcePage": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-map/"
+    },
+    {
+      "role": "night-lights",
+      "file": "night-lights.jpg",
+      "mime": "image/jpeg",
+      "width": 3600,
+      "height": 1800,
+      "colorSpace": "linear",
+      "bytes": 365655,
+      "sha256": "4d2158f59123dadf0696a1cf8909c45018a1de8d0daab40da04122a5aa7f27c6",
+      "sourceId": "night-lights",
+      "sourceSha256": "4d2158f59123dadf0696a1cf8909c45018a1de8d0daab40da04122a5aa7f27c6",
+      "epoch": "2016 annual composite",
+      "credit": "NASA Earth Observatory; Black Marble / Suomi NPP VIIRS",
+      "sourcePage": "https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/"
+    },
+    {
+      "role": "clouds",
+      "file": "clouds.jpg",
+      "mime": "image/jpeg",
+      "width": 2048,
+      "height": 1024,
+      "colorSpace": "linear",
+      "bytes": 829367,
+      "sha256": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793",
+      "sourceId": "cloud-opacity",
+      "sourceSha256": "daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793",
+      "epoch": "Blue Marble 2002 publication; three-day composite, exact acquisition dates not specified on the publisher page",
+      "credit": "NASA Goddard Space Flight Center; cloud imagery by Reto Stockli; compositing/enhancements by Robert Simmon; MODIS team",
+      "sourcePage": "https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/"
+    }
+  ],
+  "preparation": "Exact byte extraction of the three packed maps from the approved Blender master. No additional resampling or re-encoding.",
+  "geometry": {
+    "radius": 1,
+    "segments": 192,
+    "rings": 96,
+    "northAxis": "+Z",
+    "greenwichAxis": "+X",
+    "east90Axis": "+Y",
+    "uv": "u=(longitude+180)/360, v=(latitude+90)/180"
+  },
+  "runtime": {
+    "defaultMode": "scientific",
+    "defaultPaused": false,
+    "defaultSpeed": 1,
+    "minSpeed": 0,
+    "maxSpeed": 2,
+    "defaultOrbit": true,
+    "orbitDegreesPerSecond": -6.875,
+    "cameraLongitudeDeg": 20,
+    "cameraLatitudeDeg": 16,
+    "verticalFovDeg": 36.244,
+    "sunLongitudeDeg": -35,
+    "sunLatitudeDeg": 25,
+    "sunEnergy": 2.3,
+    "exposure": 0.9012504626108302
+  },
+  "limits": [
+    "Historical NASA composites from different dates; no live weather or current Earth orientation.",
+    "The cloud warp is a GPU noise approximation of Blender's procedural noise, not a bit-identical Blender shader.",
+    "Cloud drift, evolution, altitude, atmosphere and accelerated rotation are illustrative.",
+    "The review clip's eased 110-degree orbit becomes a continuous 6.875-degree/second viewer orbit; manual drag and pause remain available.",
+    "Scientific/artistic choices alter presentation only, never the retained catalog record."
+  ]
+}

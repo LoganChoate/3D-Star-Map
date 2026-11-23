@@ -1,5 +1,6 @@
 import { MoonAssetTrial } from './MoonAssetTrial.js';
 import { SunAssetTrial } from './SunAssetTrial.js';
+import { EarthAssetTrial } from './EarthAssetTrial.js';
 
 const text = value => value == null || value === '' ? 'Unknown · not supplied' : String(value);
 const safeSource = value => { try { return new URL(value).protocol === 'https:'; } catch { return false; } };
@@ -19,6 +20,7 @@ export class UnifiedInspector {
         const options = {embedded:true,onRequestClose:() => this.close()};
         this.moonTrial = new MoonAssetTrial(options);
         this.sunTrial = new SunAssetTrial(options);
+        this.earthTrial = new EarthAssetTrial(options);
     }
 
     open(body, dossier) {
@@ -45,7 +47,8 @@ export class UnifiedInspector {
             this.onOpen(body);
         }
         this.visualKind = body.id === 'sol' && dossier.visualKind === 'sun' ? 'sun'
-            : body.id === 'solar:moon' && dossier.visualKind === 'moon' ? 'moon' : null;
+            : body.id === 'solar:moon' && dossier.visualKind === 'moon' ? 'moon'
+            : body.id === 'solar:earth' && dossier.visualKind === 'earth' ? 'earth' : null;
         this.element.dataset.bodyId = body.id;
         this.element.dataset.visual = this.visualKind || 'information';
         this.elements['inspection-toggle-info'].hidden = !this.visualKind;
@@ -66,17 +69,17 @@ export class UnifiedInspector {
             const eyebrow = document.createElement('p'), title = document.createElement('h2'), note = document.createElement('p');
             eyebrow.className = 'inspection-eyebrow';
             eyebrow.textContent = 'CATALOG EXPLORATION';
-            title.textContent = body.id === 'solar:earth' ? 'Earth visual review is paused' : 'No reviewed close-up appearance';
+            title.textContent = 'No reviewed close-up appearance';
             note.textContent = dossier.visualNote || 'A reviewed close-up asset is not available for this object. Explore its retained catalog information alongside this view.';
             placeholder.append(eyebrow,title,note);
             this.elements['inspection-visual'].append(placeholder);
             this.ready = Promise.resolve(true);
         } else {
             this.status = 'loading';
-            const trial = this.activeTrial = this.visualKind === 'sun' ? this.sunTrial : this.moonTrial;
+            const trial = this.activeTrial = {sun:this.sunTrial,moon:this.moonTrial,earth:this.earthTrial}[this.visualKind];
             trial.mount = this.elements['inspection-visual'];
             trial.controlsMount = this.elements['inspection-controls'];
-            trial.controlsMount.classList.add(this.visualKind === 'sun' ? 'sol-trial' : 'moon-trial');
+            trial.controlsMount.classList.add({sun:'sol-trial',moon:'moon-trial',earth:'earth-trial'}[this.visualKind]);
             trial.setSuspended(document.hidden);
             this.ready = this.loadVisual(trial,body,generation);
         }
@@ -146,8 +149,7 @@ export class UnifiedInspector {
         },options);
         document.addEventListener('visibilitychange',() => {
             this.activeTrial?.setSuspended(document.hidden);
-            // Returning to the app never starts speech without another user action.
-            if (document.hidden) this.narration?.stop();
+            // NarrationController owns stop-on-hide across inspector, atlas and tours.
         },options);
         const motionChanged = () => {
             this.elements['inspection-motion-note'].hidden = !this.motionPreference.matches;
@@ -278,6 +280,6 @@ export class UnifiedInspector {
     }
 
     dispose() {
-        this.close();this.moonTrial.dispose();this.sunTrial.dispose();this.disposed = true;
+        this.close();this.moonTrial.dispose();this.sunTrial.dispose();this.earthTrial.dispose();this.disposed = true;
     }
 }
