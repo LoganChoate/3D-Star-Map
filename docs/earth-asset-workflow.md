@@ -1,10 +1,17 @@
 # Earth animated Blender proof
 
-Recorded November 21, 2026 (America/Denver). Earth is next in Phase 6 Step 3.
-The editable Earth proof is saved and open in Blender for critique. Six render
-checks and fresh-open image/animation checks passed. Live Rendered playback was
-observed at frames 12 and 103 with changing globe and cloud patterns. User approval
-and application integration remain pending; installed version 1.4.2 is unchanged.
+Earth's rendered appearance is approved as of November 22, 2026 (America/Denver).
+The user accepted the cloud coverage, movement speed and passive camera rotation
+after reviewing the cards and 24-second clip. The approved files, settings and exact
+approval are recorded in `docs/earth-visual-approval.json`. The saved Blender masters
+remain unchanged. Earth application integration is authorized to proceed but has
+not been implemented or accepted; installed version 1.4.2 is unchanged.
+
+The original proof was recorded November 21. Six render checks and fresh-open
+image/animation checks passed. Live Rendered playback was observed at frames 12
+and 103 with changing globe and cloud patterns. Those historical results remain
+in `docs/earth-proof-validation.json`; their pending-review status describes that
+earlier checkpoint and is superseded only for Earth visual approval by the new record.
 
 ## Retained sources
 
@@ -132,8 +139,9 @@ The first audit attempts exposed dependency-update ordering and Blender's reset 
 Solid viewport shading. They were corrected or documented before final acceptance.
 A pale night-side rim was isolated to illuminated cloud backfaces; culling those
 faces fixed it in both scenes. Earlier attempts and diagnostic renders are preserved
-under the local evidence/asset directories. Resume with user critique of cloud
-motion, atmosphere thickness and city-light balance before changing or integrating Earth.
+under the local evidence/asset directories. Preserve the now-approved appearance
+when implementing Earth's live app renderer, and compare it with the approved
+cards and clip before including it in installed application acceptance.
 
 ## Remote review clip
 
@@ -165,5 +173,6 @@ cloud density and not application performance acceptance.
 The resulting H.264/yuv420p MP4 is 1280 × 720, 24 fps, 576 frames and 24 seconds,
 with silent playback and progressive-download metadata. It is retained with its
 poster and render record under `../evidence/phase6/earth-motion-review/` and is shown
-on the private dashboard alongside the Sun/Moon review. User critique and Earth app
-integration remain pending.
+on the private dashboard alongside the Sun/Moon review. The user approved the
+rendered Earth appearance, cloud coverage, movement speed and camera rotation on
+November 22. Earth app integration and application acceptance remain pending.

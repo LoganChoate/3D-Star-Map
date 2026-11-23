@@ -1,5 +1,13 @@
 # Phase 6 unified inspection checkpoint
 
+Current update, November 22, 2026: the user approved Earth's preview renders, cloud
+coverage, movement speed and passive camera rotation. The visual review pause has
+ended; Earth runtime integration is authorized and is the next implementation task.
+See `earth-visual-approval.json`. The preview below still has detailed visuals only
+for Sun and Moon. This Earth approval does not close the remaining unified-experience
+review or Step 5 acceptance gates. Earlier scope and test results below are retained
+as the record of what was actually built and verified.
+
 Scope approved November 22, 2026 (America/Denver): unified information and narration
 for catalog objects, detailed animated visuals limited to Sun and Moon. Earth stays
 at its saved Blender review checkpoint. Reusable stellar illustrations are a later,
