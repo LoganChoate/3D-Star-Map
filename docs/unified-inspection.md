@@ -1,30 +1,42 @@
 # Phase 6 unified inspection checkpoint
 
-Current update, November 22, 2026: the user approved Earth's preview renders, cloud
-coverage, movement speed and passive camera rotation. The visual review pause has
-ended; Earth runtime integration is authorized and is the next implementation task.
-See `earth-visual-approval.json`. The preview below still has detailed visuals only
-for Sun and Moon. This Earth approval does not close the remaining unified-experience
-review or Step 5 acceptance gates. Earlier scope and test results below are retained
-as the record of what was actually built and verified.
+Current implementation, November 22, 2026 (America/Denver): **1.5.0-preview.2** adds
+Earth to the shared full-window inspector alongside Sun and Moon. The user approved
+Earth's rendered appearance, cloud coverage, movement speed and passive camera
+rotation; `earth-visual-approval.json` preserves that visual approval. Step 4
+implementation and functional verification are complete: both the source app and
+packaged preview passed the current checks. User critique of the runtime experience
+is pending. Step 5 acceptance has not been performed.
 
-Scope approved November 22, 2026 (America/Denver): unified information and narration
-for catalog objects, detailed animated visuals limited to Sun and Moon. Earth stays
-at its saved Blender review checkpoint. Reusable stellar illustrations are a later,
-separately reviewed extension. Phase 7 remains queued after the two current workstreams.
+Earth uses live surface, cloud and atmosphere shaders with the three exact packed
+maps extracted from the approved Blender master. Cloud drift and evolving shapes,
+globe rotation, night-side lights and the automatic camera run interactively rather
+than playing a movie. The globe can be held still to inspect independent cloud
+motion; Pause freezes all automatic motion while manual exploration remains usable.
+Scientific/artistic modes change presentation without changing catalog information
+or narration. See `earth-runtime.md` for the map hashes, controls and shader limits.
+
+The approved Blender projects and appearance contract remain unchanged. Historical
+NASA composites and illustrative motion do not represent live weather or Earth's
+current orientation. Other catalog bodies retain information and narration only;
+no Sun-like appearance is substituted for another star. A reusable stellar
+illustration system remains a separately reviewed extension. Installed version
+**1.4.2 is unchanged**; the normal dashboard launch action still opens that version.
 
 ## Sequence and review gates
 
-1. Measure unchanged installed 1.4.2 before implementation on this workstation.
-2. Unify inspection navigation, visual controls, catalog information and narration.
-3. Verify production behavior and publish review evidence; request user critique.
-4. After that critique, perform final repeated-navigation/memory/performance/offline
-   acceptance and package/install the accepted result. Request critique before expansion.
+1. Source and packaged-preview functional verification are complete. Retain the
+   current results below with the runtime review checkpoint.
+2. Collect user critique of that runtime experience. Earth visual-proof approval
+   does not by itself establish application acceptance.
+3. Proceed to Step 5: baseline measurements, sustained loading/animation/memory,
+   repeated navigation and installed offline acceptance, then install the accepted
+   result. Request critique before further expansion. Phase 7 mobile follows these gates.
 
 Normal explicit object picks, list clicks and confirmed searches open inspection.
 Programmatic selections and tour/route/measurement actions keep their map semantics.
-The return action preserves map camera and selection; no new Earth visual is loaded.
-Sun and Moon reuse their approved renderers; other objects show readable information
+The return action preserves map camera and selection. Sun and Moon reuse their
+approved renderers; Earth uses its new live adapter. Other objects show readable information
 with an explicit detailed-visual-unavailable label. Scientific/artistic controls affect
 appearance only; the Moon's artistic mode changes inspection lighting, not terrain.
 
@@ -47,11 +59,59 @@ resume; report retained resource counts and process-memory trends separately fro
 Network-blocked installed acceptance includes information, visuals, speech, missing
 asset recovery and existing identity/navigation/route regressions.
 
-Baseline results and current implementation evidence live on the execution dashboard.
-No final acceptance, user approval or Earth completion is implied by an implementation
-checkpoint. Save coherent work through a PR and preserve the current usage reserve.
+Baseline results and implementation evidence belong on the execution dashboard.
+Record current verification results separately from the historical results below.
+An implementation checkpoint does not close runtime review or final acceptance.
+Save coherent work through a PR and preserve the current usage reserve.
 
-## Review checkpoint: 1.5.0-preview.1
+## Current verification: 1.5.0-preview.2
+
+Functional verification completed November 22, 2026 (America/Denver):
+
+- All nine regression suites passed, including 10 catalog projection cases and
+  23 narration/controller/tour cases. Narration now stops on hidden-window events
+  at the shared controller, including speech outside the inspector. Delayed tour
+  arrival cannot start speech while hidden, and returning visible never autoplays.
+- The source application and packaged preview both passed the shared inspector
+  harness, covering native selection/return, focus, catalog identity, narration
+  controls and the existing Sun/Moon appearance, animation and navigation checks.
+- Each run records 14 Earth checks: native selection, scientific/artistic appearance,
+  isolated cloud motion, surface rotation, passive camera, pause, manual viewing
+  while paused, hidden-window suspension, resource release, expanded/narrow layouts
+  and map return, failed-load release, missing-map retry, superseded loading and
+  reduced motion. These exercise the production shaders and renderer.
+- Both runs blocked application-session HTTP/HTTPS/WS/WSS traffic and recorded
+  **zero network requests and zero remote resources**. This verifies bundled
+  application behavior; it does not establish operating-system speech network
+  behavior or audible offline narration quality.
+- All **110 packaged project files** match the tested source byte-for-byte. The
+  updater dependency is present and the packaged version is **1.5.0-preview.2**.
+  The tested `app.asar` SHA-256 is
+  `f17d4a6d32221540c0ff4a740bfba61a8ec434b93f75cf5ee5f83fac01c86ad0`.
+
+Raw current results and screenshots are retained in the workspace at
+`evidence/phase6/step4-earth/runtime-4/unified-inspection.json` and
+`evidence/phase6/step4-earth/packaged-1/unified-inspection.json`.
+
+Source attempts 1–3 are retained. Their pause-image comparisons rejected sparse
+one-code-value graphics rounding even though the animation state stayed fixed;
+they did not reveal a pause-motion defect. The final comparison requires exact
+clocks, surface/cloud rotation, camera position/target/quaternion and alpha across
+three paused samples. RGB differences may be at most **1/255 per channel on 0.1%
+of pixels**; larger or more widespread changes still fail. Both final runs passed
+this documented check. No pause-motion implementation change was needed.
+
+This is a verified preview checkpoint, not an installed release or Step 5 acceptance.
+Installed 1.4.2 and the approved Blender files remain unchanged. User runtime critique,
+sustained loading/animation performance, memory trends over at least 20 mixed cycles,
+and installed offline acceptance including audible narration remain outstanding.
+
+## Historical review checkpoint: 1.5.0-preview.1
+
+The following records the earlier Sun/Moon-only implementation and its executed
+checks. Earth remained at its saved Blender checkpoint during that implementation;
+its later visual approval and preview.2 integration supersede that earlier scope.
+These results do not establish that the new Earth runtime or preview.2 has passed.
 
 The shared full-window inspector is implemented. Sun and Moon retain their approved
 assets and animations, with scientific/artistic controls and a collapsible information
@@ -83,10 +143,10 @@ Validation on November 22, 2026:
   were blocked and no remote resources were requested. This establishes the bundled
   payload's functional behavior, not installed-release or operating-system audio acceptance.
 
-The review preview is under `dist/inspection-preview-1.5.0-preview.1/win-unpacked/`.
-It is not installed or publicly released. The normal dashboard launch button continues
-to open installed 1.4.2. Close that app before manually opening the preview executable;
-launch with `--offline` to suppress the optional update check.
+That historical preview is under `dist/inspection-preview-1.5.0-preview.1/win-unpacked/`.
+It was not installed or publicly released. Installed 1.4.2 remains unchanged. Close
+that app before manually opening a preview executable; launch with `--offline` to
+suppress the optional update check. Do not use preview.1 to review the new Earth adapter.
 
 Raw results and screenshots are retained in the workspace's
 `evidence/phase6/step4-unified/` folder and summarized on the private dashboard.

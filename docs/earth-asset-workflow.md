@@ -4,8 +4,43 @@ Earth's rendered appearance is approved as of November 22, 2026 (America/Denver)
 The user accepted the cloud coverage, movement speed and passive camera rotation
 after reviewing the cards and 24-second clip. The approved files, settings and exact
 approval are recorded in `docs/earth-visual-approval.json`. The saved Blender masters
-remain unchanged. Earth application integration is authorized to proceed but has
-not been implemented or accepted; installed version 1.4.2 is unchanged.
+remain unchanged. Earth application integration is now implemented in
+**1.5.0-preview.2**. Step 4 implementation and functional verification are complete:
+the source and packaged preview both passed. User runtime critique and Step 5
+acceptance remain outstanding. Installed version
+**1.4.2 is unchanged**.
+
+## Current application integration
+
+The shared full-window inspector now provides live Earth visuals alongside Sun
+and Moon, with the same catalog information, explicit unknown fields, source links
+and manual local-voice narration. Other stars and bodies remain information-only
+views without an invented close-up appearance.
+
+The runtime uses the three exact packed maps extracted from the approved Blender
+master: its 4096 × 2048 day derivative, 3600 × 1800 night image and 2048 × 1024 cloud
+map. Surface, cloud and atmosphere shaders animate in the application; the review
+movie is not used as the renderer. Globe rotation can be held independently from
+cloud drift and evolving shapes. Scientific/artistic modes, an automatic camera,
+manual orbit/zoom and Pause provide the review controls. Pause freezes all automatic
+motion while manual exploration remains available.
+
+See `docs/earth-runtime.md` and `assets/earth/runtime-manifest.json` for extraction,
+hashes and the differences between Blender materials and the live shaders. The
+approved `.blend` files, appearance contract and historical proof evidence have
+not been rewritten. The appearance contract's proof-only wording records its
+original authoring scope; the new runtime manifest describes this integration.
+Current source and packaged results each include 14 Earth records covering real
+appearance changes, cloud/globe/camera motion, pause, manual navigation, layout,
+visibility suspension, cleanup, failed/superseded loading and reduced motion. Both
+runs recorded zero application network requests; all 110 packaged project files
+match the tested source. See `docs/unified-inspection.md` for the exact archive hash,
+evidence paths, retained diagnostic failures and documented pause-pixel tolerance.
+Collect user runtime critique before Step 5 sustained performance, memory, repeated
+navigation and installed offline acceptance, including audible narration. Visual
+approval and these functional checks do not establish Step 5 acceptance.
+
+## Historical proof verification
 
 The original proof was recorded November 21. Six render checks and fresh-open
 image/animation checks passed. Live Rendered playback was observed at frames 12
@@ -22,7 +57,9 @@ C:\Users\logan\OneDrive\Documents\ChatGPT\Galaxy Map Project\assets-source\earth
 ```
 
 The versioned `assets/earth/source-manifest.json` records exact URLs, dimensions,
-byte counts, SHA-256 hashes, epochs and credits. The JPEG binaries are not committed.
+byte counts, SHA-256 hashes, epochs and credits. Original downloads remain in that
+source directory. The application repository now also contains the three runtime
+maps extracted from the approved proof, including its packed cloud/night JPEGs.
 To restore missing inputs from the repository root:
 
 ```powershell
@@ -117,8 +154,9 @@ timeline pause holds the current frame.
 
 Actual render checks, retained failed attempts, live-review status and final hashes
 are recorded in `docs/earth-proof-validation.json`. A Blender proof does not establish
-app performance or portable glTF material equivalence. App integration follows user
-critique; the installed app stays at 1.4.2 during this authoring checkpoint.
+app performance or portable glTF material equivalence. The current live integration
+is described above; its runtime review and acceptance are separate from these
+historical authoring checks. The installed app stays at 1.4.2.
 
 ## Saved review checkpoint
 
@@ -131,16 +169,18 @@ C:\Users\logan\OneDrive\Documents\ChatGPT\Galaxy Map Project\asset-projects\eart
 
 The review copy was saved in the UI before playback. Its checksum differs from the
 generated copy because Blender saved the review layout. The master remains unchanged.
-GitHub contains the generator, appearance contract, source manifest and validation;
-the packed Blender projects and original NASA JPEGs remain local. Rendering and
-fresh-open checks do not constitute a full desktop/mobile application regression.
+The repository retains the generator, appearance contract, source manifest and
+validation, and now includes the extracted runtime maps. The packed Blender
+projects and original source downloads remain local; committing a manifest does
+not back up those masters to GitHub. Rendering and fresh-open checks do not
+constitute a full desktop/mobile application regression.
 
 The first audit attempts exposed dependency-update ordering and Blender's reset to
 Solid viewport shading. They were corrected or documented before final acceptance.
 A pale night-side rim was isolated to illuminated cloud backfaces; culling those
 faces fixed it in both scenes. Earlier attempts and diagnostic renders are preserved
 under the local evidence/asset directories. Preserve the now-approved appearance
-when implementing Earth's live app renderer, and compare it with the approved
+in Earth's live app renderer, and compare it with the approved
 cards and clip before including it in installed application acceptance.
 
 ## Remote review clip
@@ -175,4 +215,6 @@ with silent playback and progressive-download metadata. It is retained with its
 poster and render record under `../evidence/phase6/earth-motion-review/` and is shown
 on the private dashboard alongside the Sun/Moon review. The user approved the
 rendered Earth appearance, cloud coverage, movement speed and camera rotation on
-November 22. Earth app integration and application acceptance remain pending.
+November 22. Earth app integration and source/packaged functional verification are
+complete in preview.2. User runtime critique and Step 5 application acceptance
+remain pending; the approved Blender files and installed 1.4.2 remain unchanged.

@@ -40,8 +40,8 @@ export function createInspectionDossier(input, {catalog = null, canonicalStar = 
     if (Number.isFinite(body.radiusKm)) summaryParts.push(`Its ${body.radiusDefinition || 'catalog radius'} is ${number(body.radiusKm,'kilometers',1)}.`);
     if (!isSolar) summaryParts.push('Measurement uncertainty and current surface activity are not available in the loaded catalog.');
     else summaryParts.push('Map positions are historical, not live.');
-    const visualKind = input.id === 'sol' ? 'sun' : input.id === 'solar:moon' ? 'moon' : null;
-    const visualNote = input.id === 'solar:earth' ? 'Earth visual review is paused. The saved Blender proof has not been integrated.'
+    const visualKind = input.id === 'sol' ? 'sun' : input.id === 'solar:moon' ? 'moon' : input.id === 'solar:earth' ? 'earth' : null;
+    const visualNote = input.id === 'solar:earth' ? 'Historical NASA map composites with illustrative cloud evolution, accelerated globe rotation and a review camera. This is not live weather or the current orientation of Earth.'
         : visualKind ? 'Inspection appearance and motion do not represent a live observation.'
         : 'Detailed visual unavailable. This is a catalog information view; no surface appearance is inferred.';
     const rawSources = [...(body.sources || []),...(isSolar ? catalog?.solar?.sources || [] : catalog?.nearby?.sources || [{label:'HYG catalog documentation',url:'https://github.com/astronexus/HYG-Database/blob/main/hyg/README.md'}])];

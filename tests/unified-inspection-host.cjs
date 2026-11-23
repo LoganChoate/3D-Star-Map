@@ -22,6 +22,7 @@ async function run(win){
   win.show();win.focus();win.webContents.focus();win.setContentSize(1400,900);
   record.targetVersion=JSON.parse(fs.readFileSync(path.join(target,'package.json'),'utf8')).version;
   await win.webContents.executeJavaScript('document.fonts.ready.then(()=>true)');
+  await win.webContents.executeJavaScript(fs.readFileSync(path.join(__dirname,'earth-inspection-runtime.js'),'utf8'));
   await win.webContents.executeJavaScript(fs.readFileSync(path.join(__dirname,'unified-inspection-runtime.js'),'utf8'));
   let done=false,result,problem;
   win.webContents.executeJavaScript('window.__verifyUnifiedInspection()').then(r=>{result=r;done=true;},e=>{problem=e;done=true;});
@@ -32,6 +33,14 @@ async function run(win){
       else if(request.kind==='resize'){assert(request.width>=400&&request.width<=4000&&request.height>=400&&request.height<=4000);win.setContentSize(request.width,request.height);await delay(100);}
       else if(request.kind==='screenshot'){assert.match(request.name,/^[a-z-]+$/);const file=path.join(output,request.name+'.png');fs.writeFileSync(file,(await win.webContents.capturePage()).toPNG());record.screenshots[request.name]=file;}
       else if(request.kind==='media'){if(!win.webContents.debugger.isAttached())win.webContents.debugger.attach('1.3');await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:request.reduce?'reduce':'no-preference'}]});}
+      else if(request.kind==='visibility'){
+        assert(request.durationMs>=100&&request.durationMs<=1000,'Visibility diagnostic must remain bounded');
+        const sample=()=>win.webContents.executeJavaScript('({hidden:document.hidden,visual:window.galaxyMap.inspector.activeTrial?.snapshot(),narration:window.galaxyMap.narration.snapshot()})');
+        let hiddenStart,hiddenEnd;
+        try{win.hide();await delay(100);hiddenStart=await sample();await delay(request.durationMs);hiddenEnd=await sample();}
+        finally{win.show();win.focus();win.webContents.focus();}
+        await win.webContents.executeJavaScript('window.__unifiedHostResult='+JSON.stringify({hiddenStart,hiddenEnd}));
+      }
       else throw new Error('Unexpected native test request');
       await win.webContents.executeJavaScript('window.__unifiedRequest=null');
     }

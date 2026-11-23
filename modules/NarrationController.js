@@ -4,9 +4,10 @@
  * This class never starts speech in response to selection or voiceschanged.
  */
 export class NarrationController {
-    constructor({synth = globalThis.speechSynthesis, Utterance = globalThis.SpeechSynthesisUtterance} = {}) {
+    constructor({synth = globalThis.speechSynthesis, Utterance = globalThis.SpeechSynthesisUtterance, visibilitySource = globalThis.document} = {}) {
         this.synth = synth;
         this.Utterance = Utterance;
+        this.visibilitySource = visibilitySource;
         this.contentId = null;
         this.text = '';
         this.rate = 0.9;
@@ -25,6 +26,10 @@ export class NarrationController {
         this.voices = [];
         this.voiceCount = 0;
         this.voiceReadFailed = false;
+        // Speech ownership covers the atlas and tours as well as the inspector.
+        // Hiding any of those views stops audio; returning never resumes it.
+        this._visibilityListener = () => { if (this.visibilitySource?.hidden === true) this.stop(); };
+        visibilitySource?.addEventListener?.('visibilitychange', this._visibilityListener);
         this._voiceListener = () => this._refreshVoices();
         if (synth?.addEventListener) {
             synth.addEventListener('voiceschanged', this._voiceListener);
@@ -153,6 +158,9 @@ export class NarrationController {
 
     play() {
         this._assertActive();
+        // A tour can arrive after the app was hidden. Its delayed arrival must
+        // not enqueue new speech while no visible playback control is available.
+        if (this.visibilitySource?.hidden === true) { this.stop(); return false; }
         this._refreshVoices(false);
         const [status, message] = this._availability();
         if (status !== 'ready') {
@@ -294,6 +302,7 @@ export class NarrationController {
         if (this.disposed) return;
         this._cancel();
         this.disposed = true;
+        this.visibilitySource?.removeEventListener?.('visibilitychange', this._visibilityListener);
         if (this.synth?.removeEventListener) this.synth.removeEventListener('voiceschanged', this._voiceListener);
         else if (this.synth?.onvoiceschanged === this._voiceListener) this.synth.onvoiceschanged = this._previousVoiceListener || null;
         this.status = 'disposed';

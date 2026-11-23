@@ -17,13 +17,18 @@ async function main() {
         assert.deepEqual(a,b); assert.equal(a.visualKind,'sun');
         assert.equal(allFields(a).find(f=>f.label.startsWith('Body-center')).value,'0 AU');
     });
-    test('Only exact Sun and Moon IDs dispatch visuals; Earth stays paused',()=>{
+    test('Only exact approved Sun, Moon and Earth IDs dispatch visuals',()=>{
         for(const body of catalog.solar.objects){
             const d=build(body,{catalog});
-            assert.equal(d.visualKind,body.id==='sol'?'sun':body.id==='solar:moon'?'moon':null);
-            if(body.id==='solar:earth')assert.match(d.visualNote,/paused/);
+            assert.equal(d.visualKind,body.id==='sol'?'sun':body.id==='solar:moon'?'moon':body.id==='solar:earth'?'earth':null);
+            if(body.id==='solar:earth') {
+                assert.match(d.visualNote,/Historical NASA/);
+                assert.match(d.visualNote,/not live weather/);
+                assert.ok(!/paused/.test(d.visualNote));
+            }
         }
         assert.equal(build({id:'unknown',name:'Moon'}).visualKind,null);
+        assert.equal(build({id:'unknown',name:'Earth'}).visualKind,null);
     });
     test('Unresolved distance never becomes a real distance in speech or coordinates',()=>{
         const d=build({id:'hyg:test',name:'Unresolved',dist:100000,x:90000,y:1,z:1,spect:'K2'});
