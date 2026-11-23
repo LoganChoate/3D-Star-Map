@@ -232,7 +232,7 @@ export class ExplorationController {
         this.elements['ex-labels'].replaceChildren();
         this.labels=this.objects.map(body=>{
             const label=document.createElement('button');label.className='ex-point-label';label.textContent=nearbyDisplayLabel(body);label.dataset.objectId=body.id;label.setAttribute('aria-label',`Select ${nearbyDisplayLabel(body)}`);
-            label.addEventListener('click',()=>this.selectObject(body.id,{focus:false}));this.elements['ex-labels'].append(label);
+            label.addEventListener('click',()=>this.selectObject(body.id,{focus:false,inspect:true}));this.elements['ex-labels'].append(label);
             return {body,element:label,width:label.offsetWidth,height:label.offsetHeight};
         });
     }
@@ -244,7 +244,7 @@ export class ExplorationController {
         this.elements['ex-nearby-selection-note'].textContent=this.nearbyCollection==='5pc'?'56 retained stars plus the Sun, selected by catalog distance up to 5 pc. Not a complete census.':'Twelve selected nearby stars plus the Sun.';
         this.elements['ex-nearby-selection-details'].textContent=this.nearbyCollectionInfo.selectionNote;
         this.elements['ex-object-list'].innerHTML=this.objects.map(body=>`<button class="ex-object-row${nearbyDisplayLabel(body)!==body.name?' ex-object-disambiguated':''}" data-object-id="${escape(body.id)}" title="${escape(nearbyDisplayLabel(body))}"><span class="ex-object-dot" style="background:${COLORS[body.id] || '#c3dcff'}"></span><span>${escape(nearbyDisplayLabel(body))}</span><small>${escape(body.kind || 'Star')}</small></button>`).join('');
-        this.elements['ex-object-list'].querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>this.selectObject(button.dataset.objectId)));
+        this.elements['ex-object-list'].querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>this.selectObject(button.dataset.objectId,{inspect:true})));
         const options='<option value="">Choose an object…</option>'+this.objects.map(body=>`<option value="${escape(body.id)}">${escape(nearbyDisplayLabel(body))}</option>`).join('');
         this.elements['ex-measure-from'].innerHTML=options;this.elements['ex-measure-to'].innerHTML=options;
         this.elements['ex-view-title'].textContent=this.currentMode==='solar'?'SOLAR SYSTEM':'THE SOLAR NEIGHBORHOOD';
@@ -265,16 +265,16 @@ export class ExplorationController {
         if(!key)return [];
         const matches=this.allObjects.filter(body=>normalized(body.name).includes(key)||normalized(body.id)===key||(body.catalogName&&normalized(body.catalogName).includes(key)));
         const exact=matches.filter(body=>normalized(body.name)===key||normalized(body.id)===key||normalized(body.catalogName)===key);
-        if(selectExact && exact.length===1) {this.selectObject(exact[0].id);return exact;}
+        if(selectExact && exact.length===1) {this.selectObject(exact[0].id,{inspect:true});return exact;}
         if(!matches.length) {results.textContent='No match in these collections. Use Star atlas for the full catalog.';return [];}
         matches.slice(0,12).forEach(body=>{
             const button=document.createElement('button');button.dataset.searchObjectId=body.id;button.textContent=`${nearbyDisplayLabel(body)} · ${body.space==='solar'?'Solar System':'Nearby stars'}`;
-            button.addEventListener('click',()=>this.selectObject(body.id));results.append(button);
+            button.addEventListener('click',()=>this.selectObject(body.id,{inspect:true}));results.append(button);
         });
         return matches;
     }
 
-    selectObject(id,{focus=true}={}) {
+    selectObject(id,{focus=true,inspect=false}={}) {
         let body=this.objects.find(object=>object.id===id) || this.allObjects.find(object=>object.id===id);
         if(!body) return false;
         if(this.currentMode!==body.space){this.setMode(body.space);body=this.objects.find(object=>object.id===id);}
@@ -283,7 +283,9 @@ export class ExplorationController {
         this.elements['ex-object-list'].querySelectorAll('[data-object-id]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.objectId===id)));
         const size=this.points.geometry.getAttribute('markerSize');this.objects.forEach((object,i)=>size.setX(i,object.id===id?17:(object.id==='sol'?13:9)));size.needsUpdate=true;
         this.renderInfo();
-        if(focus)this.focusObject(body);
+        const openInspection = inspect && !this.measurement.from && !this.measurement.to && this.onInspectBody;
+        if(openInspection)this.onInspectBody(body);
+        else if(focus)this.focusObject(body);
         return true;
     }
 
@@ -305,10 +307,10 @@ export class ExplorationController {
         const stellar=body.space==='nearby'&&body.id!=='sol'?`${body.spectralType?`<dt>Spectral type</dt><dd>${escape(body.spectralType)}</dd>`:''}${Number.isFinite(body.apparentMagnitude)?`<dt>Apparent magnitude</dt><dd>${escape(body.apparentMagnitude)}</dd>`:''}${Number.isFinite(body.distancePc)?`<dt>Catalog distance</dt><dd>${escape(body.distancePc)} pc</dd>`:''}`:'';
         panel.innerHTML=`<span class="ex-eyebrow">${escape(body.kind || 'Star')}</span><h3 id="ex-object-name" data-object-id="${escape(body.id)}">${escape(body.name)}</h3><p class="ex-description">${escape(body.description || 'Position from the bundled star catalog.')}</p><dl><dt>Catalog identity</dt><dd>${escape(body.id)}</dd>${radius}${stellar}<dt>Coordinate separation from Sun</dt><dd>${escape(distance.primary)}<small>${escape(distance.secondary)}</small></dd><dt>Reference</dt><dd>${escape(body.space==='solar'?this.catalog.solar.epochLabel:'Bundled HYG catalog positions')}</dd></dl><div class="ex-selection-actions"><button id="ex-focus-selected">Focus view</button><button id="ex-measure-selected">Measure from here</button></div><details class="ex-provenance"><summary>Coordinates & sources</summary><p>${escape(body.space==='solar'?this.catalog.solar.frame:(this.catalog.nearby.frame || 'HYG heliocentric catalog frame, rotated by the atlas renderer'))}</p><p class="ex-coordinates">${body.position.map(value=>Number(value).toPrecision(9)).join(' · ')} ${body.space==='solar'?'AU':'pc'}</p>${sources.map(source=>`<a href="${escape(source.url)}" target="_blank" rel="noopener noreferrer">${escape(source.label || 'Data source')} ↗</a>`).join('')}</details>`;
         panel.querySelector('#ex-object-name').textContent=nearbyDisplayLabel(body);
-        if(['solar:moon','sol'].includes(body.id) && this.onInspectBody) {
+        if(this.onInspectBody) {
             const inspect=document.createElement('button');
-            inspect.id=body.id==='sol'?'ex-inspect-sol':'ex-inspect-moon';
-            inspect.textContent=body.id==='sol'?'Explore Sun surface':'Explore Moon surface';
+            inspect.id=body.id==='sol'?'ex-inspect-sol':body.id==='solar:moon'?'ex-inspect-moon':'ex-inspect-object';
+            inspect.textContent=['sol','solar:moon'].includes(body.id)?'Open immersive close-up':'Open information and narration';
             inspect.addEventListener('click',()=>this.onInspectBody(body));
             panel.querySelector('.ex-selection-actions').append(inspect);
         }
@@ -402,7 +404,7 @@ export class ExplorationController {
             const distance=Math.hypot(clientX-x,clientY-y);
             if(distance<best){best=distance;chosen=body;}
         }
-        if(chosen){this.selectObject(chosen.id,{focus:false});return chosen.id;}
+        if(chosen){this.selectObject(chosen.id,{focus:false,inspect:true});return chosen.id;}
         this.clearSelection();return false;
     }
 

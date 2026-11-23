@@ -44,10 +44,14 @@ function releaseObject(root) {
 
 /** A bounded, object-centered inspection of the actual exported Moon asset. */
 export class MoonAssetTrial {
-    constructor({ mount = document.body, onOpen = () => {}, onClose = () => {} } = {}) {
+    constructor({ mount = document.body, onOpen = () => {}, onClose = () => {}, embedded = false, controlsMount = null, onRequestClose = null } = {}) {
         this.mount = mount;
         this.onOpen = onOpen;
         this.onClose = onClose;
+        this.embedded = embedded;
+        this.controlsMount = controlsMount;
+        this.onRequestClose = onRequestClose;
+        this.suspended = false;
         this.isOpen = false;
         this.ready = Promise.resolve(false);
         this.status = 'closed';
@@ -69,11 +73,13 @@ export class MoonAssetTrial {
         this.body = body;
         this.generation++;
         this.abort = new AbortController();
-        this.returnFocus = document.activeElement;
-        this.inertElements = [...this.mount.children].map(element => [element,element.inert]);
-        this.inertElements.forEach(([element]) => { element.inert = true; });
-        this.previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
+        if (!this.embedded) {
+            this.returnFocus = document.activeElement;
+            this.inertElements = [...this.mount.children].map(element => [element,element.inert]);
+            this.inertElements.forEach(([element]) => { element.inert = true; });
+            this.previousOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+        }
         this.buildShell();
         this.onOpen(body);
         const generation = this.generation;
@@ -84,10 +90,12 @@ export class MoonAssetTrial {
     buildShell() {
         this.element = document.createElement('section');
         this.element.id = 'moon-trial';
-        this.element.className = 'moon-trial';
-        this.element.setAttribute('role','dialog');
-        this.element.setAttribute('aria-modal','true');
-        this.element.setAttribute('aria-labelledby','moon-trial-title');
+        this.element.className = `moon-trial${this.embedded ? ' inspection-embedded' : ''}`;
+        if (!this.embedded) {
+            this.element.setAttribute('role','dialog');
+            this.element.setAttribute('aria-modal','true');
+            this.element.setAttribute('aria-labelledby','moon-trial-title');
+        }
         this.element.innerHTML = `
           <header class="moon-trial-header"><div><span class="moon-trial-eyebrow">SURFACE STUDY</span><h2 id="moon-trial-title">Moon</h2></div><button id="moon-trial-close">← Return to map</button></header>
           <div class="moon-trial-layout"><div id="moon-trial-stage" class="moon-trial-stage">
@@ -96,6 +104,8 @@ export class MoonAssetTrial {
             <div class="moon-trial-stage-footer"><p>Drag to orbit · Scroll to zoom · Home to reset</p><p id="moon-trial-motion-note">Inspection view — lighting and camera motion are demonstrations, not a live lunar phase or orbital simulation.</p></div>
           </div><aside class="moon-trial-panel" aria-label="Moon appearance and inspection controls">
             <p class="moon-trial-lead">Explore the surface from any angle. Move the light to reveal the terrain.</p>
+            <fieldset class="moon-trial-modes"><legend>Appearance</legend><button id="moon-trial-scientific" aria-pressed="true" disabled>Scientific</button><button id="moon-trial-artistic" aria-pressed="false" disabled>Artistic</button></fieldset>
+            <p id="moon-trial-mode-note" class="moon-trial-note"></p>
             <div class="moon-trial-controls"><button id="moon-trial-home" disabled>Reset view</button><button id="moon-trial-turntable" aria-pressed="false" disabled>Turntable camera</button></div>
             <label for="moon-trial-light">Inspection light <output id="moon-trial-light-value">−30°</output></label><input id="moon-trial-light" type="range" min="-180" max="180" step="1" value="-30" disabled>
             <button id="moon-trial-sweep" aria-pressed="false" disabled>Sweep light</button>
@@ -105,9 +115,19 @@ export class MoonAssetTrial {
           </aside></div>`;
         this.mount.append(this.element);
         this.elements = Object.fromEntries([...this.element.querySelectorAll('[id]')].map(element => [element.id,element]));
+        if (this.embedded && this.controlsMount) {
+            this.panel = this.element.querySelector('.moon-trial-panel');
+            this.controlsMount.append(this.panel);
+            const reference = document.createElement('details'), label = document.createElement('summary');
+            label.textContent = 'Visual reference parameters';
+            reference.append(label,this.elements['moon-trial-facts']);
+            this.panel.insertBefore(reference,this.elements['moon-trial-processing']);
+        }
         const options = {signal:this.abort.signal};
         this.elements['moon-trial-close'].addEventListener('click', () => this.close(), options);
         this.elements['moon-trial-home'].addEventListener('click', () => this.resetView(), options);
+        this.elements['moon-trial-scientific'].addEventListener('click', () => this.setMode('scientific'), options);
+        this.elements['moon-trial-artistic'].addEventListener('click', () => this.setMode('artistic'), options);
         this.elements['moon-trial-turntable'].addEventListener('click', () => {
             this.controls.autoRotate = !this.controls.autoRotate;
             this.elements['moon-trial-turntable'].setAttribute('aria-pressed',String(this.controls.autoRotate));
@@ -123,7 +143,7 @@ export class MoonAssetTrial {
             this.updateLight();
         }, options);
         this.element.addEventListener('keydown', event => this.handleKey(event), options);
-        this.elements['moon-trial-close'].focus({preventScroll:true});
+        if (!this.embedded) this.elements['moon-trial-close'].focus({preventScroll:true});
     }
 
     async load(generation, signal) {
@@ -170,8 +190,8 @@ export class MoonAssetTrial {
             this.loadingStage = null;
             this.completedLoads++;
             this.elements['moon-trial-message'].hidden = true;
-            this.element.querySelectorAll('button:disabled,input:disabled').forEach(control => { control.disabled = false; });
-            this.elements['moon-trial-canvas'].focus({preventScroll:true});
+            Object.values(this.elements).filter(control => control.matches('button:disabled,input:disabled')).forEach(control => { control.disabled = false; });
+            if (!this.embedded) this.elements['moon-trial-canvas'].focus({preventScroll:true});
             this.previousFrameTime = performance.now();
             this.animate(this.previousFrameTime);
             return true;
@@ -242,7 +262,9 @@ export class MoonAssetTrial {
         this.controls.autoRotateSpeed = 0.7;
         this.keyLight = new THREE.DirectionalLight(0xffffff,3);
         this.scene.add(this.keyLight);
-        this.scene.add(new THREE.AmbientLight(0xffffff,0.035));
+        this.fillLight = new THREE.AmbientLight(0xffffff,0.035);
+        this.scene.add(this.fillLight);
+        this.setMode('scientific');
         this.lightAzimuth = -30;
         this.sweep = false;
         this.updateLight();
@@ -316,8 +338,42 @@ export class MoonAssetTrial {
         this.elements['moon-trial-light-value'].value = `${Math.round(this.lightAzimuth)}°`;
     }
 
+    setMode(mode) {
+        if (!['scientific','artistic'].includes(mode) || !this.keyLight) return;
+        this.mode = mode;
+        const artistic = mode === 'artistic';
+        // Presentation only: keep the approved mesh, relief, maps and radius intact.
+        this.keyLight.color.set(artistic ? '#fff0d8' : '#ffffff');
+        this.keyLight.intensity = artistic ? 3.5 : 3;
+        this.fillLight.color.set(artistic ? '#aac9ff' : '#ffffff');
+        this.fillLight.intensity = artistic ? 0.16 : 0.035;
+        this.elements['moon-trial-scientific'].setAttribute('aria-pressed',String(!artistic));
+        this.elements['moon-trial-artistic'].setAttribute('aria-pressed',String(artistic));
+        this.elements['moon-trial-mode-note'].textContent = artistic
+            ? 'Artistic lighting adds a warm key light and brighter blue fill. The NASA-derived surface, physical relief and catalog values are unchanged.'
+            : 'Scientific presentation uses neutral inspection light and physical relief at 1× scale. The illumination is adjustable, not a prediction of the current lunar phase.';
+        this.element.dataset.appearance = mode;
+    }
+
+    setSuspended(value) {
+        this.suspended = !!value;
+        cancelAnimationFrame(this.animationFrame);
+        this.previousFrameTime = performance.now();
+        if (!this.suspended && this.isOpen && this.status === 'ready') this.animate(this.previousFrameTime);
+    }
+
+    reduceMotion() {
+        if (this.controls) {
+            this.controls.autoRotate = false;
+            this.controls.enableDamping = false;
+            this.elements['moon-trial-turntable'].setAttribute('aria-pressed','false');
+        }
+        this.sweep = false;
+        if (this.elements) this.elements['moon-trial-sweep'].setAttribute('aria-pressed','false');
+    }
+
     animate(now) {
-        if (!this.isOpen || this.status !== 'ready') return;
+        if (!this.isOpen || this.status !== 'ready' || this.suspended) return;
         const delta = Math.min((now-this.previousFrameTime)/1000,0.1);
         this.previousFrameTime = now;
         if (this.sweep) {
@@ -331,8 +387,8 @@ export class MoonAssetTrial {
     }
 
     handleKey(event) {
-        if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); this.close(); return; }
-        if (event.key === 'Tab') {
+        if (!this.embedded && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); this.close(); return; }
+        if (!this.embedded && event.key === 'Tab') {
             const focusable = [...this.element.querySelectorAll('button:not(:disabled),input:not(:disabled),summary,a[href],canvas')].filter(element => element.getClientRects().length);
             const first = focusable[0], last = focusable.at(-1);
             if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -354,6 +410,7 @@ export class MoonAssetTrial {
     snapshot() {
         return {
             status:this.status, isOpen:this.isOpen, objectId:this.isOpen ? this.body?.id : null,
+            mode:this.mode || null, suspended:this.suspended,
             loadingStage:this.loadingStage || null,
             completedLoads:this.completedLoads, discardedLoads:this.discardedLoads,
             geometry:this.geometryInfo ? {...this.geometryInfo} : null,
@@ -380,7 +437,7 @@ export class MoonAssetTrial {
             this.renderer.forceContextLoss();
         }
         this.scene?.clear();
-        this.model = this.scene = this.camera = this.controls = this.keyLight = this.renderer = this.canvas = this.resizeObserver = null;
+        this.model = this.scene = this.camera = this.controls = this.keyLight = this.fillLight = this.renderer = this.canvas = this.resizeObserver = null;
         this.manifest = null;
         this.geometryInfo = null;
         this.assetInfo = null;
@@ -388,17 +445,20 @@ export class MoonAssetTrial {
         this.sweep = false;
     }
 
-    close() {
+    close({fromHost = false} = {}) {
         if (!this.isOpen) return;
+        if (this.embedded && !fromHost && this.onRequestClose) { this.onRequestClose(); return; }
         this.isOpen = false;
         this.generation++;
         this.abort.abort();
         this.releaseScene();
         this.element.remove();
+        this.panel?.remove();
+        this.panel = null;
         this.element = this.elements = null;
-        this.inertElements.forEach(([element,previous]) => { element.inert = previous; });
+        this.inertElements?.forEach(([element,previous]) => { element.inert = previous; });
         this.inertElements = [];
-        document.body.style.overflow = this.previousOverflow;
+        if (!this.embedded) document.body.style.overflow = this.previousOverflow;
         this.status = 'closed';
         this.loadingStage = null;
         this.onClose(this.body);
@@ -407,7 +467,7 @@ export class MoonAssetTrial {
     }
 
     dispose() {
-        this.close();
+        this.close({fromHost:true});
         this.disposed = true;
     }
 }

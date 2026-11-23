@@ -29,6 +29,9 @@ export class UIManager {
         // UI state
         this.selectedStar = null;
         this.originalNarrationText = '';
+        this.narration = null;
+        this.dossierFor = null;
+        this.onInspectObject = null;
         
         // Search state
         this.autocompleteVisible = false;
@@ -154,7 +157,7 @@ export class UIManager {
             this.elements.searchInput.addEventListener('keydown', event => {
                 if (event.key === 'Enter') {
                     event.preventDefault();
-                    this.searchByName(this.elements.searchInput.value);
+                    this.searchByName(this.elements.searchInput.value, {inspect:true});
                 }
             });
         }
@@ -260,6 +263,51 @@ export class UIManager {
         this.setActiveStarData(activeStarData);
     }
 
+    setNarration(narration, dossierFor) {
+        this.unsubscribeNarration?.();
+        this.narration = narration;
+        this.dossierFor = dossierFor;
+        const panel = document.getElementById('selection-info');
+        if (panel && !this.elements.inspectObjectButton) {
+            const button = document.createElement('button');
+            button.id = 'inspect-selected-object';
+            button.type = 'button';
+            button.className = 'custom-button';
+            button.textContent = 'Open information and narration';
+            button.addEventListener('click', () => this.inspectSelectedObject());
+            panel.append(button);
+            this.elements.inspectObjectButton = button;
+        }
+        if (this.elements.starDescriptionContainer && !this.elements.narrationStatus) {
+            const status = document.createElement('p');
+            status.id = 'atlas-narration-status';
+            status.setAttribute('role','status');
+            this.elements.starDescriptionContainer.append(status);
+            this.elements.narrationStatus = status;
+        }
+        this.unsubscribeNarration = narration.subscribe(state => {
+            const matches = state.contentId === this.selectedStar?.id;
+            const active = matches && ['speaking','paused'].includes(state.status);
+            if (this.elements.narrateButton) this.elements.narrateButton.textContent = active ? 'Stop narration' : 'Narrate';
+            if (this.elements.narrationStatus) this.elements.narrationStatus.textContent = matches ? state.message : '';
+            // The common transcript is rendered as text, including any markup-like
+            // catalog strings. Word boundaries never become HTML in this view.
+            if (matches && this.elements.starDescription && this.elements.starDescription.textContent !== state.text) this.elements.starDescription.textContent = state.text;
+        });
+        if (this.selectedStar) this.showHeroStar(this.selectedStar);
+        this.updateUI();
+    }
+
+    canInspectObject() {
+        return typeof this.onInspectObject === 'function' && !this.routeManager?.isActive() && !this.tourController?.isActive();
+    }
+
+    inspectSelectedObject() {
+        if (!this.selectedStar || !this.canInspectObject()) return false;
+        this.onInspectObject(this.selectedStar);
+        return true;
+    }
+
     setActiveStarData(activeStarData) {
         // Keep the exact same ordering as the newly built Points geometry.
         this.activeStarData = activeStarData || [];
@@ -313,7 +361,7 @@ export class UIManager {
                 if (index !== undefined && this.activeStarData && this.activeStarData[index]) {
                     const star = this.activeStarData[index];
                     const shouldFrame = !(this.routeManager && this.routeManager.isActive());
-                    this.selectStar(star, { focusCamera: shouldFrame });
+                    this.selectStar(star, { focusCamera: shouldFrame, inspect:true });
                 }
             } else {
                 this.deselectStar();
@@ -335,7 +383,8 @@ export class UIManager {
             return false;
         }
 
-        const { focusCamera = false, suppressEvent = false, eventSource = 'UIManager' } = options;
+        const { focusCamera = false, suppressEvent = false, eventSource = 'UIManager', inspect = false } = options;
+        const shouldInspect = inspect && this.canInspectObject();
         this.selectedStar = star;
         if (this.routeManager?.routePlanner) this.routeManager.routePlanner.currentSelection = star;
         this.showSearchMessage('');
@@ -343,7 +392,7 @@ export class UIManager {
         this.updateInfoPanel(star);
         this.updateUI();
 
-        if (focusCamera) {
+        if (focusCamera && !shouldInspect) {
             this.starRenderer.frameObjectInView(star);
         }
 
@@ -352,6 +401,7 @@ export class UIManager {
                 detail: { type: 'selected', star: star, source: eventSource }
             }));
         }
+        if (shouldInspect) this.inspectSelectedObject();
         return true;
     }
 
@@ -401,7 +451,8 @@ export class UIManager {
         if (this.elements.starDescription) this.elements.starDescription.textContent = '';
         this.elements.routeButtonsContainer?.classList.add('hidden');
         if (this.elements.narrateButton) this.elements.narrateButton.textContent = '▶ Narrate';
-        if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+        this.narration?.stop();
+        if (this.elements.narrationStatus) this.elements.narrationStatus.textContent = '';
         for (const id of ['star-name', 'star-dist', 'star-mag', 'star-spect', 'star-coords','star-identifiers','star-quality','star-equatorial']) {
             const element = document.getElementById(id);
             if (element) {
@@ -422,10 +473,12 @@ export class UIManager {
             this.elements.routeButtonsContainer?.classList.add('hidden');
         }
 
-        const description = this.lookup?.describe(star)?.description || '';
+        const dossier = this.dossierFor?.(star);
+        const description = dossier ? dossier.narrationText : this.lookup?.describe(star)?.description || '';
         this.originalNarrationText = description;
         if (this.elements.starDescription) this.elements.starDescription.textContent = description;
         this.elements.starDescriptionContainer?.classList.toggle('hidden', !description);
+        if (this.narration && dossier) this.narration.setContent({id:star.id,text:description});
     }
 
     showSearchMessage(message) {
@@ -454,7 +507,7 @@ export class UIManager {
                 this.elements.searchInput.value = star.name;
                 container.classList.add('hidden');
                 this.autocompleteVisible = false;
-                this.searchById(star.id);
+                this.searchById(star.id, {inspect:true});
             };
             container.appendChild(button);
         }
@@ -467,21 +520,21 @@ export class UIManager {
         this.renderSearchMatches(this.lookup?.search(this.elements.searchInput.value) || []);
     }
 
-    searchById(id) {
+    searchById(id, {inspect = false} = {}) {
         const star = this.lookup?.byId.get(id);
         if (!star) {
             this.deselectStar();
             this.showSearchMessage('Star not found.');
             return false;
         }
-        return this.selectStar(star, { focusCamera: true });
+        return this.selectStar(star, { focusCamera: true, inspect });
     }
 
-    searchByName(name) {
+    searchByName(name, {inspect = false} = {}) {
         const matches = this.lookup?.find(name) || [];
         if (matches.length === 1) {
             this.renderSearchMatches([]);
-            return this.searchById(matches[0].id);
+            return this.searchById(matches[0].id, {inspect});
         }
         this.deselectStar();
         if (matches.length > 1) {
@@ -501,73 +554,17 @@ export class UIManager {
     }
 
     handleNarration() {
-        // Check if we have a selected star with description
-        const text = this.originalNarrationText;
-        if (!text) {
-            console.warn('No narration text available for selected star');
-            return;
+        if (!this.narration || !this.selectedStar || !this.dossierFor) return false;
+        const state = this.narration.snapshot();
+        if (state.contentId === this.selectedStar.id && ['speaking','paused'].includes(state.status)) {
+            return this.narration.stop();
         }
-
-        // Stop any existing speech synthesis
-        speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        
-        // Configure speech synthesis
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
-        // Implement karaoke-style word highlighting
-        utterance.onboundary = (event) => {
-            if (event.name === 'word' && this.elements.starDescription) {
-                const wordStart = event.charIndex;
-                let wordEnd = text.indexOf(' ', wordStart);
-                if (wordEnd === -1) wordEnd = text.length;
-
-                const before = text.substring(0, wordStart);
-                const word = text.substring(wordStart, wordEnd);
-                const after = text.substring(wordEnd);
-
-                // Update the description with highlighted word
-                this.elements.starDescription.innerHTML = before + 
-                    '<span style="background-color: #7DF9FF; color: #000; padding: 0 2px; border-radius: 2px;">' + 
-                    word + '</span>' + after;
-
-                // Auto-scroll to keep highlighted word visible
-                const highlightedElement = this.elements.starDescription.querySelector('span');
-                if (highlightedElement) {
-                    highlightedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        };
-
-        // Reset text when narration ends
-        utterance.onend = () => {
-            if (this.elements.starDescription) {
-                this.elements.starDescription.textContent = this.originalNarrationText;
-            }
-            if (this.elements.narrateButton) {
-                this.elements.narrateButton.textContent = '▶ Narrate';
-            }
-        };
-
-        // Handle narration errors
-        utterance.onerror = (event) => {
-            console.error('Speech synthesis error:', event.error);
-            if (this.elements.starDescription) {
-                this.elements.starDescription.textContent = this.originalNarrationText;
-            }
-            if (this.elements.narrateButton) {
-                this.elements.narrateButton.textContent = '▶ Narrate';
-            }
-        };
-
-        // Update button state and start narration
-        if (this.elements.narrateButton) {
-            this.elements.narrateButton.textContent = '⏸ Stop';
-        }
-        speechSynthesis.speak(utterance);
+        // A manual replay takes ownership from an automated tour.
+        this.tourController?.interrupt();
+        const text = this.dossierFor(this.selectedStar).narrationText;
+        this.originalNarrationText = text;
+        this.narration.setContent({id:this.selectedStar.id,text});
+        return this.narration.play();
     }
 
     // Control mode toggle
@@ -792,6 +789,7 @@ export class UIManager {
     }
 
     updateUI() {
+        if (this.elements.inspectObjectButton) this.elements.inspectObjectButton.disabled = !this.selectedStar || !this.canInspectObject();
         // Update star count display
         if (this.elements.starCountDisplay && this.activeStarData) {
             this.elements.starCountDisplay.textContent = this.activeStarData.length.toLocaleString();
@@ -832,6 +830,7 @@ export class UIManager {
 
     // Event handlers for module events
     onRoutePlannerUpdate(event) {
+        this.updateUI();
         const { activeRoute, currentJumpIndex, isFollowingRoute } = event.detail;
         
         // Update route UI elements
@@ -850,6 +849,7 @@ export class UIManager {
     }
 
     onStellarTourUpdate(event) {
+        this.updateUI();
         const { type, state } = event.detail;
         
         if (this.elements.stellarTourButton) {
@@ -872,7 +872,7 @@ export class UIManager {
         }
 
         if (type === 'selected' && star) {
-            const focusCamera = source !== 'UIManager';
+            const focusCamera = source !== 'UIManager' && source !== 'TourController';
             this.selectStar(star, { focusCamera, suppressEvent: true, eventSource: source });
         } else if (type === 'deselected') {
             this.deselectStar({ suppressEvent: true, eventSource: source });
@@ -880,6 +880,8 @@ export class UIManager {
     }
 
     dispose() {
+        this.unsubscribeNarration?.();
+        this.unsubscribeNarration = null;
         // Remove event listeners and clean up
         window.removeEventListener('resize', this.onWindowResize.bind(this));
         

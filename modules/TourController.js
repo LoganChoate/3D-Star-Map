@@ -8,7 +8,7 @@ export class TourController {
         // Tour state
         this.stellarTour = {
             active: false,
-            state: 'stopped', // 'stopped', 'traveling', 'paused', 'narrating'
+            state: 'stopped', // stopped, traveling, paused, narrating, waiting
             currentStar: null,
             visitedStars: [],
             pauseDuration: 8000, // 8 seconds at each star
@@ -23,7 +23,10 @@ export class TourController {
         
         // Narration state
         this.originalNarrationText = '';
-        this.currentUtterance = null;
+        this.narration = null;
+        this.dossierFor = null;
+        this.visitGeneration = 0;
+        this.narrating = null;
         
         // UI elements (will be set externally)
         this.starDescription = null;
@@ -49,6 +52,56 @@ export class TourController {
         this.starDescriptionContainer = starDescriptionContainer;
     }
 
+    setNarration(narration, dossierFor) {
+        if (this.stellarTour.active) this.stop();
+        this.unsubscribeNarration?.();
+        this.narration = narration;
+        this.dossierFor = dossierFor;
+        this.unsubscribeNarration = narration.subscribe(state => this.onNarrationState(state));
+    }
+
+    onNarrationState(state) {
+        const expected = this.narrating;
+        if (!expected || !this.stellarTour.active || expected.generation !== this.visitGeneration) return;
+        if (state.contentId !== expected.id) {
+            // Another view took speech ownership. Its completion cannot advance us.
+            this.narrating = null;
+            this.stellarTour.state = 'paused';
+            this.dispatchTourEvent('paused');
+            return;
+        }
+        if (this.starDescription) this.starDescription.textContent = state.text;
+        if (state.status === 'ended') {
+            this.narrating = null;
+            if (this.stellarTour.state !== 'paused') this.scheduleNext(2000, expected);
+        } else if (['error','unavailable','loading-voices'].includes(state.status)) {
+            this.narrating = null;
+            if (this.stellarTour.state !== 'paused') this.scheduleNext(this.stellarTour.pauseDuration, expected);
+        } else if (['stopped','ready','idle','disposed'].includes(state.status)) {
+            this.narrating = null;
+            this.stellarTour.state = 'paused';
+            this.dispatchTourEvent('paused');
+        }
+    }
+
+    clearNextTimeout() {
+        if (this.stellarTour.currentTimeout !== null) clearTimeout(this.stellarTour.currentTimeout);
+        this.stellarTour.currentTimeout = null;
+    }
+
+    scheduleNext(delay, expected = {generation:this.visitGeneration,id:this.stellarTour.currentStar?.id}) {
+        this.clearNextTimeout();
+        if (!this.stellarTour.active || this.stellarTour.state === 'paused') return;
+        this.stellarTour.state = 'waiting';
+        const timeout = setTimeout(() => {
+            if (this.stellarTour.currentTimeout !== timeout) return;
+            this.stellarTour.currentTimeout = null;
+            if (this.stellarTour.active && this.stellarTour.state === 'waiting' &&
+                this.visitGeneration === expected.generation && this.stellarTour.currentStar?.id === expected.id) this.selectNextTourStar();
+        }, delay);
+        this.stellarTour.currentTimeout = timeout;
+    }
+
     toggle() {
         if (this.stellarTour.active) {
             this.stop();
@@ -59,6 +112,7 @@ export class TourController {
     }
 
     start() {
+        if (this.stellarTour.active) return true;
         if (!this.fullStarData || this.fullStarData.length === 0) {
             this.errorHandler.showError('No star data available for tour');
             return false;
@@ -76,20 +130,17 @@ export class TourController {
     }
 
     stop() {
+        this.visitGeneration++;
+        this.narrating = null;
         this.stellarTour.active = false;
         this.stellarTour.state = 'stopped';
         this.stellarTour.currentStar = null;
 
         // Cancel any pending timeouts
-        if (this.stellarTour.currentTimeout) {
-            clearTimeout(this.stellarTour.currentTimeout);
-            this.stellarTour.currentTimeout = null;
-        }
+        this.clearNextTimeout();
 
         // Stop any active speech synthesis
-        if (speechSynthesis.speaking) {
-            speechSynthesis.cancel();
-        }
+        this.narration?.stop();
 
         // Kill any active GSAP animations on the camera and controls
         if (window.gsap) {
@@ -107,28 +158,30 @@ export class TourController {
     }
 
     pause() {
-        if (this.stellarTour.state === 'traveling' || this.stellarTour.state === 'narrating') {
+        if (this.stellarTour.active && this.stellarTour.state !== 'paused') {
+            this.pausedFrom = this.stellarTour.state;
             this.stellarTour.state = 'paused';
-            
-            if (this.stellarTour.currentTimeout) {
-                clearTimeout(this.stellarTour.currentTimeout);
-                this.stellarTour.currentTimeout = null;
+            this.clearNextTimeout();
+            if (this.pausedFrom === 'traveling') {
+                this.visitGeneration++;
+                window.gsap?.killTweensOf(this.starRenderer.camera.position);
+                window.gsap?.killTweensOf(this.starRenderer.controls.target);
             }
-            
-            if (speechSynthesis.speaking) {
-                speechSynthesis.pause();
-            }
+            if (this.narration?.snapshot().contentId === this.stellarTour.currentStar?.id) this.narration.pause();
             
             this.dispatchTourEvent('paused');
         }
     }
 
     resume() {
-        if (this.stellarTour.state === 'paused') {
+        if (this.stellarTour.active && this.stellarTour.state === 'paused') {
             this.stellarTour.state = 'traveling';
-            
-            if (speechSynthesis.paused) {
-                speechSynthesis.resume();
+            const narration = this.narration?.snapshot();
+            if (narration?.status === 'paused' && narration.contentId === this.stellarTour.currentStar?.id) {
+                this.stellarTour.state = 'narrating';
+                this.narration.resume();
+            } else if (this.pausedFrom === 'traveling' && this.stellarTour.currentStar) {
+                this.initiateTourFlight(this.stellarTour.currentStar, () => this.handleTourArrival());
             } else {
                 this.selectNextTourStar();
             }
@@ -138,7 +191,12 @@ export class TourController {
     }
 
     selectNextTourStar() {
-        if (!this.stellarTour.active || !this.fullStarData) return;
+        if (!this.stellarTour.active || !this.fullStarData || this.stellarTour.state === 'paused') return;
+        this.clearNextTimeout();
+        this.visitGeneration++;
+        this.narrating = null;
+        this.narration?.stop();
+        this.stellarTour.state = 'traveling';
 
         // Filter out already visited stars and get stars with descriptions
         const availableStars = (this.activeStarData || []).filter(star => {
@@ -186,8 +244,11 @@ export class TourController {
             return;
         }
 
+        const generation = this.visitGeneration;
         // Frame the star in view with animation
         this.starRenderer.frameObjectInView(star, () => {
+            if (!this.stellarTour.active || this.stellarTour.state !== 'traveling' ||
+                this.visitGeneration !== generation || this.stellarTour.currentStar?.id !== star.id) return;
             // Update selection highlight
             this.starRenderer.updateSelectionHighlight(star);
             
@@ -199,7 +260,7 @@ export class TourController {
     }
 
     handleTourArrival() {
-        if (!this.stellarTour.active || !this.stellarTour.currentStar) return;
+        if (!this.stellarTour.active || !this.stellarTour.currentStar || this.stellarTour.state !== 'traveling') return;
 
         this.stellarTour.state = 'narrating';
         
@@ -208,94 +269,21 @@ export class TourController {
             // Narration will handle the next step
         } else {
             // No narration available, just pause
-            this.stellarTour.currentTimeout = setTimeout(() => {
-                if (this.stellarTour.active) {
-                    this.selectNextTourStar();
-                }
-            }, this.stellarTour.pauseDuration);
+            this.scheduleNext(this.stellarTour.pauseDuration);
         }
     }
 
     handleTourNarration() {
-        if (!this.stellarTour.currentStar || !this.starDetails) return false;
-
-        const starInfo = this.lookup?.describe(this.stellarTour.currentStar);
-        
-        if (!starInfo || !starInfo.description) return false;
-
-        const text = starInfo.description;
+        const star = this.stellarTour.currentStar;
+        if (!star || !this.narration || !this.dossierFor) return false;
+        const text = this.dossierFor(star).narrationText;
+        if (!text) return false;
         this.originalNarrationText = text;
-
-        // Update UI
-        if (this.starDescription && this.starDescriptionContainer) {
-            this.starDescription.textContent = text;
-            this.starDescriptionContainer.classList.remove('hidden');
-        }
-
-        // Start speech synthesis
-        speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
-        // Implement karaoke-style word highlighting
-        utterance.onboundary = (event) => {
-            if (event.name === 'word' && this.starDescription) {
-                const wordStart = event.charIndex;
-                let wordEnd = text.indexOf(' ', wordStart);
-                if (wordEnd === -1) wordEnd = text.length;
-
-                const before = text.substring(0, wordStart);
-                const word = text.substring(wordStart, wordEnd);
-                const after = text.substring(wordEnd);
-
-                this.starDescription.innerHTML = `${before}<span class="highlight-word">${word}</span>${after}`;
-
-                const highlightSpan = this.starDescription.querySelector('.highlight-word');
-                if (highlightSpan) {
-                    highlightSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        };
-
-        utterance.onend = () => {
-            if (this.starDescription) {
-                this.starDescription.textContent = this.originalNarrationText;
-            }
-            
-            // Continue tour after narration
-            if (this.stellarTour.active) {
-                this.stellarTour.currentTimeout = setTimeout(() => {
-                    if (this.stellarTour.active) {
-                        this.selectNextTourStar();
-                    }
-                }, 2000); // 2 second pause after narration
-            }
-        };
-
-        utterance.onerror = (event) => {
-            console.error('Tour narration error:', event.error);
-            if (this.starDescription) {
-                this.starDescription.textContent = this.originalNarrationText;
-            }
-            
-            // Continue tour despite narration error
-            if (this.stellarTour.active) {
-                this.stellarTour.currentTimeout = setTimeout(() => {
-                    if (this.stellarTour.active) {
-                        this.selectNextTourStar();
-                    }
-                }, this.stellarTour.pauseDuration);
-            }
-        };
-
-        this.currentUtterance = utterance;
-        speechSynthesis.speak(utterance);
-        
-        console.log(`Tour: narrating ${this.stellarTour.currentStar.name}`);
-        return true;
+        if (this.starDescription) this.starDescription.textContent = text;
+        this.starDescriptionContainer?.classList.remove('hidden');
+        this.narration.setContent({id:star.id,text});
+        this.narrating = {generation:this.visitGeneration,id:star.id};
+        return this.narration.play();
     }
 
     interrupt() {
@@ -362,10 +350,8 @@ export class TourController {
     dispose() {
         this.stop();
         
-        if (this.currentUtterance) {
-            speechSynthesis.cancel();
-            this.currentUtterance = null;
-        }
+        this.unsubscribeNarration?.();
+        this.unsubscribeNarration = null;
         
         this.originalNarrationText = '';
     }

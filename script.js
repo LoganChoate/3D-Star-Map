@@ -8,8 +8,9 @@ import { Octree, Box3D } from './utils/SpatialIndex.js';
 import { filterStars } from './utils/StarFilters.js';
 import { buildStarIndex } from './utils/StarIdentity.js';
 import { ExplorationController } from './modules/ExplorationController.js';
-import { MoonAssetTrial } from './modules/MoonAssetTrial.js';
-import { SunAssetTrial } from './modules/SunAssetTrial.js';
+import { UnifiedInspector } from './modules/UnifiedInspector.js';
+import { NarrationController } from './modules/NarrationController.js';
+import { createInspectionDossier } from './utils/InspectionDossier.js';
 import { attachCatalogMetadata, verifyCatalogBytes, hasUnresolvedDistance } from './utils/CatalogMetadata.js';
 
 // Import external data modules
@@ -33,6 +34,17 @@ let uiManager = null;
 let explorer = null;
 let moonTrial = null;
 let sunTrial = null;
+let inspector = null;
+let narration = null;
+let inspectionMapState = null;
+
+function dossierFor(body) {
+    return createInspectionDossier(body, {catalog:explorer?.catalog, canonicalStar:uiManager?.lookup?.byId.get(body.id)});
+}
+
+function inspectObject(body) {
+    return inspector.open(body, dossierFor(body));
+}
 
 // DEBUG: Expose to window
 window.starRenderer = null;
@@ -212,28 +224,50 @@ async function init() {
 
         const inspectionCallbacks = {
             onOpen: () => {
+                tourController.interrupt();
+                if (routeManager.routePlanner.isFollowingRoute) {
+                    routeManager.stopFollowRoute();
+                    routeManager.updateRouteDisplay();
+                }
+                // A framing tween temporarily disables atlas controls. Cancelling
+                // it also cancels its onComplete, so restore its intended state.
+                const interruptedFraming = explorer.currentMode === 'atlas' &&
+                    (window.gsap?.isTweening(starRenderer.camera.position) || window.gsap?.isTweening(starRenderer.controls.target));
+                inspectionMapState = {explorerSuspended:explorer.suspended, explorerControls:explorer.controls.enabled, atlasControls:starRenderer.activeControls.enabled || !!interruptedFraming};
+                window.gsap?.killTweensOf(starRenderer.camera.position);
+                window.gsap?.killTweensOf(starRenderer.controls.target);
                 explorer.suspended = true;
                 explorer.controls.enabled = false;
-                window.speechSynthesis?.cancel();
+                starRenderer.activeControls.enabled = false;
+                const flight = starRenderer.flyControls;
+                for (const key of Object.keys(flight.moveState)) flight.moveState[key] = 0;
+                flight.status = 0; flight.movementSpeedMultiplier = 1;
+                flight.updateMovementVector(); flight.updateRotationVector();
+                narration.stop();
             },
             onClose: () => {
-                explorer.suspended = false;
-                explorer.controls.enabled = explorer.currentMode !== 'atlas';
+                explorer.suspended = inspectionMapState?.explorerSuspended ?? false;
+                explorer.controls.enabled = inspectionMapState?.explorerControls ?? explorer.currentMode !== 'atlas';
+                starRenderer.activeControls.enabled = inspectionMapState?.atlasControls ?? explorer.currentMode === 'atlas';
+                starRenderer.clock.getDelta();
+                inspectionMapState = null;
                 explorer.resize();
             }
         };
-        moonTrial = new MoonAssetTrial(inspectionCallbacks);
-        sunTrial = new SunAssetTrial(inspectionCallbacks);
+        narration = new NarrationController();
+        inspector = new UnifiedInspector({...inspectionCallbacks, narration});
+        moonTrial = inspector.moonTrial;
+        sunTrial = inspector.sunTrial;
         explorer = new ExplorationController({
             mount: document.getElementById('exploration-root'),
-            onInspectBody: body => body.id === 'sol' ? sunTrial.open(body) : moonTrial.open(body),
+            onInspectBody: inspectObject,
             onModeChange: mode => {
                 if (mode !== 'atlas') {
                     if (tourController.isActive()) tourController.stop();
                     routeManager.stopFollowRoute();
                     window.gsap?.killTweensOf(starRenderer.camera.position);
                     window.gsap?.killTweensOf(starRenderer.controls.target);
-                    window.speechSynthesis?.cancel();
+                    narration.stop();
                     // Disabled FlyControls ignore key releases, so discard held
                     // input before another view takes over the keyboard.
                     const flight = starRenderer.flyControls;
@@ -251,11 +285,14 @@ async function init() {
             }
         });
         await explorer.initialize(fullStarData);
+        uiManager.onInspectObject = inspectObject;
+        uiManager.setNarration(narration, dossierFor);
+        tourController.setNarration(narration, dossierFor);
 
         // Start animation loop
         animate();
 
-        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, moonTrial, sunTrial, catalogAudit });
+        window.galaxyMap = Object.freeze({ renderer: starRenderer, ui: uiManager, routes: routeManager, tour: tourController, explorer, moonTrial, sunTrial, inspector, narration, inspectObject, dossierFor, catalogAudit });
         console.log('3D Star Map Explorer initialized successfully');
 
     } catch (error) {
@@ -785,7 +822,7 @@ function getRGBfromCI(ci) {
 function animate() {
     requestAnimationFrame(animate);
 
-    if (starRenderer && (!explorer || explorer.currentMode === 'atlas')) {
+    if (starRenderer && !inspector?.isOpen && (!explorer || explorer.currentMode === 'atlas')) {
         starRenderer.render();
     }
 }

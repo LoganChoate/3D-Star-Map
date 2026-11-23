@@ -31,6 +31,8 @@ async function main() {
         {name:'Measured nearby collection and stable identities',script:path.join(__dirname,'nearby-catalog.cjs')},
         {name:'Scientific catalog pipeline and quality policy',script:path.join(__dirname,'scientific-pipeline.cjs')},
         {name:'Bundled assets',script:path.join(__dirname,'offline-assets.cjs')},
+        {name:'Inspection catalog projection',script:path.join(__dirname,'inspection-dossier.cjs')},
+        {name:'Narration state and cancellation',script:path.join(__dirname,'narration-controller.cjs')},
         {name:'Production shader GPU pixels',command:electron,script:path.join(__dirname,'marker-rendering.cjs')}
     ];
     const result = await runSuites(suites);

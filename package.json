@@ -1,6 +1,6 @@
 {
   "name": "3d-star-map",
-  "version": "1.4.2",
+  "version": "1.5.0-preview.1",
   "description": "Interactive 3D Star Map Explorer",
   "main": "main.js",
   "scripts": {
@@ -16,6 +16,9 @@
     "test:exploration": "node tests/exploration-math.cjs",
     "test:nearby": "node tests/nearby-catalog.cjs",
     "test:sol": "electron tests/sol-trial-host.cjs",
+    "test:inspection-data": "node tests/inspection-dossier.cjs",
+    "test:narration": "node tests/narration-controller.cjs",
+    "test:inspection": "electron tests/unified-inspection-host.cjs",
     "benchmark": "electron tests/phase5-benchmark.cjs",
     "test:pipeline": "node tests/scientific-pipeline.cjs",
     "data:build": "python scripts/build_scientific_catalog.py",
@@ -37,7 +40,7 @@
   "build": {
     "appId": "com.loganstarmap.explorer",
     "productName": "3D Star Map Explorer",
-    "copyright": "Copyright © 2024 Logan",
+    "copyright": "Copyright \u00c2\u00a9 2024 Logan",
     "protocols": [
       {
         "name": "Galaxy Map",
@@ -57,6 +60,7 @@
       "exploration.css",
       "moon-trial.css",
       "sol-trial.css",
+      "inspection.css",
       "assets/moon/**/*",
       "assets/sol/**/*",
       "data/**/*",
