@@ -8,7 +8,8 @@
     "catalogSize": "Large source-backed catalogs from the start, with bounded rendering and explicit coverage limits.",
     "physicalDetails": "Most granular publicly supported physical/orbital data and freshest validated position estimates.",
     "pluto": "Required selectable Solar System body, correctly labeled dwarf planet, with all cataloged moons.",
-    "mobile": "Move independent Android/iPhone exploration to final Phase 14."
+    "mobile": "Move independent Android/iPhone exploration to final Phase 14.",
+    "dataReadiness": "Complete the separate data-readiness and searchable-catalog prerequisite before Phase 7 modeling; preserve phase numbers and keep mobile last."
   },
   "sharedPolicy": [
     "Comprehensive means every eligible record in named, dated public source snapshots. Publish imported, excluded, unresolved and unavailable counts. No finite catalog proves that every physical object is known.",
@@ -93,12 +94,12 @@
       "title": "Planets, moons and their surroundings",
       "subtitle": "Planned · research, review, integration and measured acceptance",
       "status": "planned",
-      "summary": "Complete Mercury, Venus, Mars, Jupiter, Saturn, Uranus and Neptune, their rings, every publicly cataloged major and minor moon, and known nearby natural companions. Start with the shared data, time and scale foundation needed by all later populations. Existing planet positions are historical J2000 snapshots; only Sun, Earth and Moon have reviewed detailed visuals.",
+      "summary": "Complete Mercury, Venus, Mars, Jupiter, Saturn, Uranus and Neptune, their rings, every publicly cataloged major and minor moon, and known nearby natural companions. Begin only after the data-readiness prerequisite is accepted; integrate its catalog and scientific data contract into the live scene. Existing planet positions are historical J2000 snapshots; only Sun, Earth and Moon have reviewed detailed visuals.",
       "checks": [
         {
           "id": "p7-1",
-          "label": "Catalog coverage and time-aware data foundation are verified",
-          "detail": "Inventory every moon and relevant companion in the selected authoritative public sources. Record stable identities, aliases, parent systems, classifications, source versions and exclusions. Add time-dependent positions with explicit epochs, frames, time scales, validity and source freshness; missing ephemerides remain unavailable rather than fabricated.",
+          "label": "Accepted catalogs and time-aware data are integrated",
+          "detail": "Use the accepted pre-Phase-7 catalog release, identity map and numerical validation results. Connect selectable planetary/moon records to supported time-dependent positions with explicit epochs, frames, time scales, validity and freshness. Verify scene placement, parent offsets and missing-data behavior; do not repeat source discovery or fabricate unavailable ephemerides.",
           "status": "pending",
           "evidence": [
             {
@@ -110,7 +111,7 @@
         {
           "id": "p7-2",
           "label": "Large-catalog architecture meets fixed budgets",
-          "detail": "Benchmark the current installed baseline, then prove indexed and partitioned loading, worker processing, bounded visible objects/labels, demand-loaded textures, local coordinate origins and atomic updates. A comprehensive searchable catalog must not require every object or texture to be resident or rendered at once. Freeze limits before measurements and retain failures.",
+          "detail": "Build on the accepted indexed search/data contracts. Benchmark the installed baseline and prove bounded visible objects/labels, worker processing, demand-loaded textures and local coordinate origins in the renderer. Freeze scene-specific GPU, picking, memory and navigation limits before measurements; data-workbench success alone cannot establish rendering performance.",
           "status": "pending",
           "evidence": [
             {
@@ -161,9 +162,12 @@
         "Some cataloged moons have uncertain or unavailable public ephemerides, shapes, composition or surface maps."
       ],
       "nextActions": [
-        "Build the shared catalog/time/scale foundation before mass asset production.",
+        "Accept the separate data-readiness prerequisite before new planet/moon modeling and scene placement.",
         "Publish the moon/companion coverage audit and staged planet-system review order.",
         "Review each bounded asset batch, then integrate and verify the installed release."
+      ],
+      "dependsOn": [
+        "data-readiness"
       ]
     },
     {
@@ -699,7 +703,7 @@
       "blockers": [
         "No verified connection to either physical phone exists yet. Android automation needs device setup; the documented iPhone Safari automation route requires a connected Mac, or a suitable device-testing service/manual evidence.",
         "Browser emulation does not measure a physical phone GPU, heat or battery. Those acceptance checks remain open until device evidence exists.",
-        "Expanded catalogs and assets need measured phone download, storage, rendering and memory tiers. The Phase 7 shared data/scale foundation must be accepted first; no catalog or texture-size assumption establishes phone compatibility.",
+        "Expanded catalogs and assets need measured phone download, storage, rendering and memory tiers. The pre-Phase-7 data foundation and Phase 7 scene-scale integration must be accepted first; no catalog or texture-size assumption establishes phone compatibility.",
         "Phone cache storage can be evicted. Offline availability must be shown and missing downloads recoverable; permanent storage is not promised."
       ],
       "nextActions": [
@@ -709,5 +713,111 @@
         "Publish measured results and obtain user critique before accepting the mobile release."
       ]
     }
-  ]
+  ],
+  "prerequisite": {
+    "id": "data-readiness",
+    "kind": "prerequisite",
+    "navLabel": "DATA",
+    "displayLabel": "BEFORE PHASE 7",
+    "title": "Data readiness and searchable catalogs",
+    "subtitle": "Planned prerequisite · seven acceptance steps before new modeling",
+    "status": "planned",
+    "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
+    "checks": [
+      {
+        "id": "data-1",
+        "label": "Source register and coverage contract",
+        "detail": "Identify the authoritative public sources for every Phase 7–13 population and each required data type before new modeling. Record exact inclusion queries, available fields, coverage dates/counts, access and reuse conditions, refresh limits, alternative sources, and unresolved gaps. Use free public sources first; flag account-required sources for review. Define the bounded archive collections to index, rather than claiming to index every available dataset on the internet.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      },
+      {
+        "id": "data-2",
+        "label": "Canonical identities and scientific records",
+        "detail": "Define one stable identity and source-qualified alias system, preserving existing sol, solar:* and HYG IDs through an explicit compatibility map. Separate identities, parent/companion relationships, orbit solutions, physical assertions and asset products. Store units, uncertainties, observation method, source references and conflicts. Preserve measured, estimated, modeled and unknown facts distinctly.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      },
+      {
+        "id": "data-3",
+        "label": "Reproducible acquisition and complete selected imports",
+        "detail": "Build a controlled acquisition process and deterministic importers. Retain immutable raw inputs, source/query manifests, retrieval times, source/parser versions and hashes. Prefer documented bulk snapshots; use bounded, resumable transfers, caching and source-specific throttling. Import the full eligible structured record population in each selected source, not a demonstration handful.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      },
+      {
+        "id": "data-4",
+        "label": "Indexed catalog and searchable review workbench",
+        "detail": "Deliver a working local, read-only catalog browser before new 3D content. Search the complete accepted import by name, stable ID, designation and alias; filter by population, parent, orbit validity/freshness, physical information and asset availability. Use paged results and on-demand dossiers that expose sources and unknowns. Select the storage technology through a bounded comparison, keeping future mobile exports portable.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      },
+      {
+        "id": "data-5",
+        "label": "Position, time and asset metadata validation",
+        "detail": "Validate the scientific data contract independently of the renderer. Keep source observation/update time, solution epoch, selected display time, center, coordinate frame, time scale, units, method and validity interval separate. Compare representative cases and boundaries for every orbit family with authoritative reference outputs. Audit asset metadata so radar, enhanced color, elevation and natural-color imagery cannot be confused.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      },
+      {
+        "id": "data-6",
+        "label": "Safe updates, storage and offline recovery",
+        "detail": "Stage each new data release, validate it and switch atomically only after acceptance. Retain a last-known-good release, explicit rollback and a change report for renamed, removed, revised and decayed records. Set freshness and offline validity per source/model. Measure storage/transfer costs and a disk reserve before bulk acquisition; separate reproducible catalogs, source masters, caches and code backups.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      },
+      {
+        "id": "data-7",
+        "label": "Scale acceptance and modeling handoff",
+        "detail": "Measure the workstation baseline and full selected import before accepting readiness. Freeze performance budgets before acceptance runs, publish exact counts and sizes, and keep correctness failures visible. Produce a per-body/family readiness ledger and a reviewable first modeling batch. The user reviews the milestone before Phase 7 asset production and scene placement begin.",
+        "status": "pending",
+        "evidence": [
+          {
+            "label": "Planned deliverables and acceptance",
+            "url": "evidence/data-readiness.html"
+          }
+        ]
+      }
+    ],
+    "blockers": [
+      "All seven implementation checks remain pending; this is the saved plan, not an accepted data release.",
+      "Completeness is relative to named, dated public sources and bounded archive collections. Unknown observations and unavailable access remain explicit.",
+      "Accounts, paid data and mass image/terrain downloads are outside the selected initial approach."
+    ],
+    "nextActions": [
+      "Verify the source register and bounded coverage contract for every planned population.",
+      "Define identities and scientific records, then build complete selected imports and the searchable workbench.",
+      "Pass scientific, scale and recovery checks; review the modeling-readiness ledger before Phase 7."
+    ]
+  }
 }
