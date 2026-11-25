@@ -8,7 +8,7 @@ User preference recorded 2026-11-21 (America/Denver): check remaining weekly Cod
 - Usage is account-wide and other chats may consume it between reads. The tool reports snapshots, not a hard real-time cutoff. If readings are unavailable, stop at the next small saved checkpoint rather than claiming the 5% reserve is protected.
 - Do not consume credits, request a reset or purchase extra capacity to continue this task without user direction. Do not create a recurring/background quota monitor implicitly.
 - Keep editable Blender projects and source masters in the established asset-projects and assets-source directories. GitHub contains generators, manifests, source provenance, necessary runtime assets and reviewable code/docs. Large source masters or .blend files are not backed up to GitHub merely because their manifest is committed; say exactly which artifacts were pushed.
-- Preserve unsaved edits before closing approved Blender projects or task-owned terminal windows. Keep review checkpoints between Phase 6 stages.
+- Preserve unsaved edits before closing approved Blender projects or task-owned terminal windows. Keep review checkpoints between body/system batches and roadmap phases.
 
 ## Current resume target
 
@@ -20,4 +20,4 @@ Use `phase6-step5-acceptance.md`, `phase6-step5-performance.json`, `phase6-step5
 
 The completed proof is in `evidence/phase6/step5/installed-audio-1/`: `network-isolation.json`, `watchdog-cleanup.json` and the `capture/` host, waveform analysis, recognition and review WAV. Positive/block/recovery controls passed; the rule remained active after capture, and both wrapper and watchdog confirmed removal. Actual app and recorder exits were zero. The installed archive remains `b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6`. No product rebuild is needed for this evidence update. Preserve the existing 1.4.2 rollback under `evidence/phase6/step5/rollback-1.4.2`.
 
-Approved Blender masters and NASA sources remain unchanged in their established local folders. Other stars retain information and narration without invented detailed visuals. The next gate is user critique of the installed experience and narration before Phase 7 independent Android/iPhone work. No Phase 7 implementation or physical-device acceptance has started.
+Approved Blender masters and NASA sources remain unchanged in their established local folders. Other stars retain information and narration without invented detailed visuals. The user approved work to date on November 25. The next planned task is Phase 7 shared catalog/time/scale foundations, then remaining planets and all cataloged moons. Phases 8–13 cover natural NEOs, satellites/stations, debris, the main belt, Kuiper/Pluto and the inferred Oort cloud. Independent Android/iPhone work is last in Phase 14. See solar-system-expansion-plan.md and mobile-phase14-plan.md. No expansion implementation or physical-device acceptance has started.
