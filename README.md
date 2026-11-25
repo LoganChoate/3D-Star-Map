@@ -1,6 +1,8 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.5.0 brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Step 5 technical acceptance is complete, including recorded narration under a temporary Windows-enforced exact-app network block with verified cleanup. Installed results and the remaining human critique gate are recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.5.0 brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Step 5 technical acceptance is complete, including recorded narration under a temporary Windows-enforced exact-app network block with verified cleanup. Installed results are recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
+
+The user approved the completed Phase 6 work. The [current expansion plan](docs/solar-system-expansion-plan.md) places comprehensive Solar System coverage in Phases 7–13 and independent mobile exploration last, in [Phase 14](docs/mobile-phase14-plan.md).
 
 ## Execution tracker
 

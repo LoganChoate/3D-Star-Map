@@ -1,0 +1,14 @@
+{
+  "clientDate": "2026-11-25",
+  "status": "approved-work-to-date",
+  "userStatement": "ok i approve of the work you have done so far, well done. tell me what remains on the roadmap please",
+  "scope": "User accepts work to date following completed Phase 6 Step 5 technical acceptance on installed Galaxy Map 1.5.0.",
+  "acceptedCheckpoint": {
+    "applicationVersion": "1.5.0",
+    "applicationArchiveSha256": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+    "githubPullRequest": "https://github.com/LoganChoate/3D-Star-Map/pull/15",
+    "githubMergeCommit": "56c0391a0373160f0d526fa4f1c56f814eb3c4b1"
+  },
+  "next": "Present the remaining roadmap. Phase 7 independent Android/iPhone implementation has not started.",
+  "limits": "This records the user's general approval; it does not invent a separate listening session or physical-phone test result."
+}
