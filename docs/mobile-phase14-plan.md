@@ -8,7 +8,7 @@ After Phases 7–13, support both Android and iPhone, running independently of t
 
 Start by testing an HTTPS, installable progressive web app (PWA) using the existing browser rendering core. Retain Electron for the Windows app. Native app-store packaging is a later decision, based on demonstrated needs rather than a prerequisite. Phone platform versions, specific physical devices, hosting/access and distribution details are decisions for the Phase 14 kickoff.
 
-The renderer already uses browser ES modules, relative asset fetches, Three.js/WebGL and web workers. The Electron main process owns desktop startup, updates and launching. This makes shared rendering and data plausible, but does not establish phone compatibility. The accepted desktop baseline eagerly loads about 26.7 MB of star records plus 37.5 MB of metadata. Phase 7 must establish scalable shared loading; expanded phone catalogs require measured content tiers. Do not ship the entire desktop catalog merely to obtain the nearby subset.
+The renderer already uses browser ES modules, relative asset fetches, Three.js/WebGL and web workers. The Electron main process owns desktop startup, updates and launching. This makes shared rendering and data plausible, but does not establish phone compatibility. The accepted desktop baseline eagerly loads about 26.7 MB of star records plus 37.5 MB of metadata. The data-readiness prerequisite establishes indexed, portable catalog contracts; Phase 7 must then prove scalable scene integration; expanded phone catalogs require measured content tiers. Do not ship the entire desktop catalog merely to obtain the nearby subset.
 
 ## Milestones and acceptance
 

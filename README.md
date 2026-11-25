@@ -2,7 +2,7 @@
 
 Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.5.0 brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Step 5 technical acceptance is complete, including recorded narration under a temporary Windows-enforced exact-app network block with verified cleanup. Installed results are recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
 
-The user approved the completed Phase 6 work. The [current expansion plan](docs/solar-system-expansion-plan.md) places comprehensive Solar System coverage in Phases 7–13 and independent mobile exploration last, in [Phase 14](docs/mobile-phase14-plan.md).
+The user approved the completed Phase 6 work. The [data-readiness prerequisite](docs/data-readiness-plan.md) now comes before new modeling. The [current expansion plan](docs/solar-system-expansion-plan.md) places comprehensive Solar System coverage in Phases 7–13 and independent mobile exploration last, in [Phase 14](docs/mobile-phase14-plan.md).
 
 ## Execution tracker
 
@@ -45,7 +45,7 @@ Drag to orbit, scroll or use plus/minus to zoom, and choose Scientific or Artist
 
 The surface uses NASA CGI Moon Kit color and LOLA heights at 1× vertical scale. Color is processed and filled at the poles; lighting is illustrative inspection lighting, not a current lunar phase. The app uses bounded derivatives of retained full-resolution sources. Fine normal-map detail changes shading but does not add silhouettes or small-ridge shadows. Source information remains visible in the view. The editable Blender workflow, dimensions and reproduction commands are documented in [docs/moon-asset-workflow.md](docs/moon-asset-workflow.md).
 
-Earth uses the historical NASA day, night and cloud maps from the approved Blender proof. Cloud evolution, atmosphere, accelerated rotation and camera motion are illustrative, not live weather. The Sun's activity is a procedural illustration, not a current solar observation. See [Earth runtime notes](docs/earth-runtime.md), [Sun asset workflow](docs/sun-asset-workflow.md) and [unified inspection](docs/unified-inspection.md) for provenance and controls. Phase 7 independent Android/iPhone support remains planned separately.
+Earth uses the historical NASA day, night and cloud maps from the approved Blender proof. Cloud evolution, atmosphere, accelerated rotation and camera motion are illustrative, not live weather. The Sun's activity is a procedural illustration, not a current solar observation. See [Earth runtime notes](docs/earth-runtime.md), [Sun asset workflow](docs/sun-asset-workflow.md) and [unified inspection](docs/unified-inspection.md) for provenance and controls. Independent Android/iPhone support remains planned last, in Phase 14.
 
 ## Scientific catalog pipeline
 
