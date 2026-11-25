@@ -145,11 +145,52 @@ before debugger readiness and produced no audio; it remains preserved.
   remain matters for human critique.
 
 Local-service voice selection and observed in-process SAPI/MSTTS DLLs support
-the tested local speech path. This is a passed installed app-only output/control
-check, not OS-enforced app egress isolation. The Windows elevation request for
-the separate firewall check was canceled before its helper launched; no rule was
-created. That final OS-isolation gate awaits Windows approval. Do not retry the
-elevation request without the user's response.
+the tested local speech path. This is a passed historical installed app-only
+output/control check, not OS-enforced app egress isolation. The first Windows
+elevation request for the separate firewall check was canceled before its helper
+launched; no rule was created at that time. The later approved run below closes
+the technical gate without relabeling these earlier recordings.
+
+## Completed installed Windows isolation run
+
+Updated November 25, 2026 (America/Denver). The user returned to the workstation
+and approved Windows elevation. Fresh evidence is in
+`evidence/phase6/step5/installed-audio-1/`. The reviewed wrapper used external
+capture: only rule/probes/watchdog ran elevated, while the actual GUI and
+process-tree recorder ran at normal user permissions.
+
+`network-isolation.json` reports `passed`. The same installed executable connected
+before isolation (19 ms), received `EACCES` during the rule (2 ms), and connected
+after removal (22 ms), with zero-payload controls to `1.1.1.1:443`. All three
+profiles were enabled and the Program filter matched the exact installed path.
+The capture started after the ready handshake and finished before its completion
+signal; the rule was still active after capture. Wrapper `cleanupConfirmed:true`
+and watchdog `removed:true` both confirm cleanup without lookup errors.
+
+The recorded installed archive hash before/after remains
+`b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6`;
+the recorder before/after hash remains
+`0742815595f1ebb1489836afdabf87ca88cba2402387c53947947ed2d0a80087`.
+The wrapper's saved host hash matches `capture/audio-host.json`:
+`e133a2c100d996203636e244bbab7cc99a50aca5b425d1283bd0ccc741dae18e`.
+Actual app and recorder exits are zero, with close events recorded.
+
+`capture/audio-analysis.json` passes all five windows with
+`recorderLifetimeVerified:true`: 797,769 frames, 1,809 packets, zero discontinuities
+and requested-stop completion covering the final window. Playing/resumed RMS is
+0.09465/0.11022; the three silent windows are approximately 0.00001462 RMS.
+The existing 650 ms control drain and 100 ms edge trim still apply, so this does
+not establish zero-latency cancellation. Raw WAV SHA-256 is
+`574df671b2f1b00a7be20111412e5c20264bdd32af91be8f653aadd94d59addf`.
+The current review clip is `capture/sirius-narration-sample.wav`.
+
+Three local-service voices and in-process SAPI/OneCore modules were recorded.
+Local free dictation recognized the opening at approximately 0.777 confidence,
+including "Serious" for Sirius; the end-of-input exception is retained after the
+recognized results. This corroborates recognizable digital speech, not approved
+pronunciation or physical speaker output. The exact-app Windows isolation scope
+above still applies: other executable paths and Windows services were not globally
+disconnected. Human critique remains required before Phase 7.
 
 ## Final installed-run recipe
 
@@ -187,9 +228,10 @@ imply Windows administrator rights.
    listening critique. Confirm the test app, recorder and debugger closed and
    the one temporary rule is absent before releasing the test slot.
 
-The final installed Windows Firewall run remains pending until those artifacts
-exist. Neither candidate nor installed app-only waveform success or machine
-recognition substitutes for that OS-isolation run or a listener's quality review.
+The completed installed Windows Firewall run above supplies those artifacts.
+Neither earlier candidate/app-only waveform success nor machine recognition
+substitutes for the isolated run or a listener's quality review. Future reruns must
+use fresh directories and retain the same capture, cleanup and scope requirements.
 
 ## Primary references
 

@@ -1,0 +1,714 @@
+{
+  "status": "captured",
+  "startedAt": "2026-11-25T07:14:40.110Z",
+  "exe": "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\3D Star Map Explorer.exe",
+  "exeSha256": "3a05c2712624d13ec3293888a77d439fc6a712bc180fec27b7453c91da55df96",
+  "appAsarPath": "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\resources\\app.asar",
+  "appAsarSha256Before": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+  "events": [
+    {
+      "type": "pause-click",
+      "unixMs": 1795590890292
+    },
+    {
+      "type": "resume-click",
+      "unixMs": 1795590892757
+    },
+    {
+      "type": "stop-click",
+      "unixMs": 1795590897769
+    }
+  ],
+  "segments": [
+    {
+      "name": "before-play-silence",
+      "startUnixMs": 1795590882103,
+      "endUnixMs": 1795590883910,
+      "state": {
+        "status": "ready",
+        "contentId": "hyg:32263",
+        "text": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+        "message": "Ready. Press Play to hear this object.",
+        "errorCode": null,
+        "boundaryIndex": null,
+        "boundaryLength": 0,
+        "started": false,
+        "rate": 0.9,
+        "volume": 1,
+        "voiceURI": "Microsoft David - English (United States)",
+        "voices": [
+          {
+            "voiceURI": "Microsoft David - English (United States)",
+            "name": "Microsoft David - English (United States)",
+            "lang": "en-US",
+            "default": true,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Mark - English (United States)",
+            "name": "Microsoft Mark - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Zira - English (United States)",
+            "name": "Microsoft Zira - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          }
+        ],
+        "available": true,
+        "canPlay": true,
+        "canPause": false,
+        "canResume": false,
+        "canStop": false
+      },
+      "recorderAtStart": {
+        "unixMs": 1795590882103,
+        "pid": 14264,
+        "alive": true
+      },
+      "recorderAtEnd": {
+        "unixMs": 1795590883910,
+        "pid": 14264,
+        "alive": true
+      }
+    },
+    {
+      "name": "playing",
+      "startUnixMs": 1795590884287,
+      "endUnixMs": 1795590890291,
+      "state": {
+        "status": "speaking",
+        "contentId": "hyg:32263",
+        "text": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+        "message": "Reading this object.",
+        "errorCode": null,
+        "boundaryIndex": 81,
+        "boundaryLength": 6,
+        "started": true,
+        "rate": 0.9,
+        "volume": 1,
+        "voiceURI": "Microsoft David - English (United States)",
+        "voices": [
+          {
+            "voiceURI": "Microsoft David - English (United States)",
+            "name": "Microsoft David - English (United States)",
+            "lang": "en-US",
+            "default": true,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Mark - English (United States)",
+            "name": "Microsoft Mark - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Zira - English (United States)",
+            "name": "Microsoft Zira - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          }
+        ],
+        "available": true,
+        "canPlay": false,
+        "canPause": true,
+        "canResume": false,
+        "canStop": true
+      },
+      "recorderAtStart": {
+        "unixMs": 1795590884287,
+        "pid": 14264,
+        "alive": true
+      },
+      "recorderAtEnd": {
+        "unixMs": 1795590890291,
+        "pid": 14264,
+        "alive": true
+      }
+    },
+    {
+      "name": "paused-silence",
+      "startUnixMs": 1795590890947,
+      "endUnixMs": 1795590892756,
+      "state": {
+        "status": "paused",
+        "contentId": "hyg:32263",
+        "text": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+        "message": "Narration paused.",
+        "errorCode": null,
+        "boundaryIndex": 81,
+        "boundaryLength": 6,
+        "started": true,
+        "rate": 0.9,
+        "volume": 1,
+        "voiceURI": "Microsoft David - English (United States)",
+        "voices": [
+          {
+            "voiceURI": "Microsoft David - English (United States)",
+            "name": "Microsoft David - English (United States)",
+            "lang": "en-US",
+            "default": true,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Mark - English (United States)",
+            "name": "Microsoft Mark - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Zira - English (United States)",
+            "name": "Microsoft Zira - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          }
+        ],
+        "available": true,
+        "canPlay": false,
+        "canPause": false,
+        "canResume": true,
+        "canStop": true
+      },
+      "recorderAtStart": {
+        "unixMs": 1795590890947,
+        "pid": 14264,
+        "alive": true
+      },
+      "recorderAtEnd": {
+        "unixMs": 1795590892756,
+        "pid": 14264,
+        "alive": true
+      }
+    },
+    {
+      "name": "resumed-playing",
+      "startUnixMs": 1795590892760,
+      "endUnixMs": 1795590897768,
+      "state": {
+        "status": "speaking",
+        "contentId": "hyg:32263",
+        "text": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+        "message": "Reading this object.",
+        "errorCode": null,
+        "boundaryIndex": 118,
+        "boundaryLength": 11,
+        "started": true,
+        "rate": 0.9,
+        "volume": 1,
+        "voiceURI": "Microsoft David - English (United States)",
+        "voices": [
+          {
+            "voiceURI": "Microsoft David - English (United States)",
+            "name": "Microsoft David - English (United States)",
+            "lang": "en-US",
+            "default": true,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Mark - English (United States)",
+            "name": "Microsoft Mark - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Zira - English (United States)",
+            "name": "Microsoft Zira - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          }
+        ],
+        "available": true,
+        "canPlay": false,
+        "canPause": true,
+        "canResume": false,
+        "canStop": true
+      },
+      "recorderAtStart": {
+        "unixMs": 1795590892760,
+        "pid": 14264,
+        "alive": true
+      },
+      "recorderAtEnd": {
+        "unixMs": 1795590897768,
+        "pid": 14264,
+        "alive": true
+      }
+    },
+    {
+      "name": "stopped-silence",
+      "startUnixMs": 1795590898433,
+      "endUnixMs": 1795590900239,
+      "state": {
+        "status": "stopped",
+        "contentId": "hyg:32263",
+        "text": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+        "message": "Narration stopped. Press Play to restart.",
+        "errorCode": null,
+        "boundaryIndex": null,
+        "boundaryLength": 0,
+        "started": false,
+        "rate": 0.9,
+        "volume": 1,
+        "voiceURI": "Microsoft David - English (United States)",
+        "voices": [
+          {
+            "voiceURI": "Microsoft David - English (United States)",
+            "name": "Microsoft David - English (United States)",
+            "lang": "en-US",
+            "default": true,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Mark - English (United States)",
+            "name": "Microsoft Mark - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          },
+          {
+            "voiceURI": "Microsoft Zira - English (United States)",
+            "name": "Microsoft Zira - English (United States)",
+            "lang": "en-US",
+            "default": false,
+            "localService": true
+          }
+        ],
+        "available": true,
+        "canPlay": true,
+        "canPause": false,
+        "canResume": false,
+        "canStop": false
+      },
+      "recorderAtStart": {
+        "unixMs": 1795590898433,
+        "pid": 14264,
+        "alive": true
+      },
+      "recorderAtEnd": {
+        "unixMs": 1795590900239,
+        "pid": 14264,
+        "alive": true
+      }
+    }
+  ],
+  "scope": "Actual executable, actual WebSpeech local voice, native buttons, process-tree-only WASAPI. No microphone or other-process recording. Exact-executable OS egress proof is separate.",
+  "limits": [
+    "Digital speaker-output samples do not confirm physical speaker volume or user listening quality.",
+    "No synthetic speech adapter or replacement narration text is used.",
+    "Exact-executable firewall isolation does not globally isolate Windows services or helpers with other executable paths. Local voices and loaded SAPI/MSTTS modules support the tested speech path, not every hypothetical external dependency."
+  ],
+  "captureExePath": "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\galaxy-map-baseline\\.runtime\\phase6-audio-tools\\phase6-audio-capture.exe",
+  "captureExeSha256Before": "0742815595f1ebb1489836afdabf87ca88cba2402387c53947947ed2d0a80087",
+  "pid": 28184,
+  "debugPort": 63529,
+  "stderr": "\r\nDevTools listening on ws://127.0.0.1:63529/devtools/browser/0bf0008d-ed80-4bea-a0f3-424386ed928a\r\n",
+  "debuggerUrl": "ws://127.0.0.1:63529/devtools/page/2D1D6603ABB4F8B11AD0617112CFB915",
+  "loadedUrl": "file:///C:/Users/logan/AppData/Local/Programs/3D%20Star%20Map%20Explorer/resources/app.asar/index.html",
+  "debugListeners": [
+    {
+      "address": "127.0.0.1:63529",
+      "pid": 28184
+    }
+  ],
+  "preflightVisibility": {
+    "hidden": false,
+    "visibilityState": "visible",
+    "focused": true
+  },
+  "windowInspectionError": "{\"code\":-32601,\"message\":\"'Browser.getWindowForTarget' wasn't found\"}",
+  "selection": {
+    "id": "hyg:32263",
+    "transcript": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+    "voices": [
+      {
+        "voiceURI": "Microsoft David - English (United States)",
+        "name": "Microsoft David - English (United States)",
+        "lang": "en-US",
+        "default": true,
+        "localService": true
+      },
+      {
+        "voiceURI": "Microsoft Mark - English (United States)",
+        "name": "Microsoft Mark - English (United States)",
+        "lang": "en-US",
+        "default": false,
+        "localService": true
+      },
+      {
+        "voiceURI": "Microsoft Zira - English (United States)",
+        "name": "Microsoft Zira - English (United States)",
+        "lang": "en-US",
+        "default": false,
+        "localService": true
+      }
+    ],
+    "hidden": false
+  },
+  "captureProcess": {
+    "pid": 14264,
+    "started": {
+      "status": "recording",
+      "targetPid": 28184,
+      "originUnixMs": 1795590882038.1829
+    },
+    "startedObservedAtUnixMs": 1795590882037,
+    "stopRequestedUnixMs": 1795590900533,
+    "completion": {
+      "status": "complete",
+      "frames": 797769,
+      "packets": 1809,
+      "discontinuities": 0
+    },
+    "completionObservedAtUnixMs": 1795590900535,
+    "exitCode": 0,
+    "signal": null,
+    "exitedAtUnixMs": 1795590900538,
+    "closedAtUnixMs": 1795590900538,
+    "metadataSummary": {
+      "originUnixMs": 1795590882038.1829,
+      "endedUnixMs": 1795590900536.39,
+      "frames": 797769,
+      "stopReason": "requested-stop"
+    }
+  },
+  "captureLog": "{\"status\":\"recording\",\"targetPid\":28184,\"originUnixMs\":1795590882038.1829}\r\n{\"status\":\"complete\",\"frames\":797769,\"packets\":1809,\"discontinuities\":0}\r\n",
+  "loadedSpeechModules": [
+    {
+      "ModuleName": "sapi.dll",
+      "FileName": "C:\\WINDOWS\\System32\\Speech\\Common\\sapi.dll"
+    },
+    {
+      "ModuleName": "MSTTSEngine_OneCore.dll",
+      "FileName": "C:\\Windows\\System32\\speech_onecore\\engines\\tts\\MSTTSEngine_OneCore.dll"
+    },
+    {
+      "ModuleName": "sapi_onecore.dll",
+      "FileName": "C:\\WINDOWS\\System32\\Speech_OneCore\\Common\\sapi_onecore.dll"
+    },
+    {
+      "ModuleName": "MSTTSLoc_OneCore.DLL",
+      "FileName": "C:\\Windows\\System32\\speech_onecore\\engines\\tts\\MSTTSLoc_OneCore.DLL"
+    }
+  ],
+  "speechEvents": [
+    {
+      "unixMs": 1795590882006,
+      "status": "ready",
+      "started": false,
+      "contentId": "hyg:32263",
+      "boundaryIndex": null,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590883915,
+      "status": "speaking",
+      "started": false,
+      "contentId": "hyg:32263",
+      "boundaryIndex": null,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590884239,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": null,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590884365,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 0,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590884915,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 7,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590885115,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 10,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590885515,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 17,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590885665,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 20,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590885965,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 25,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590886115,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 28,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590886165,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 32,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590886515,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 39,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590888065,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 48,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590888315,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 52,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590888715,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 61,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590889265,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 69,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590889715,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 78,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590889915,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 81,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590890115,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 81,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590890295,
+      "status": "paused",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 81,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590892759,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 81,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590893361,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 81,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590893610,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 88,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590894660,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 97,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590895460,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 111,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590895660,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 111,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590895960,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 111,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590896260,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 111,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590896610,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 111,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590896861,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 111,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590897110,
+      "status": "speaking",
+      "started": true,
+      "contentId": "hyg:32263",
+      "boundaryIndex": 118,
+      "errorCode": null
+    },
+    {
+      "unixMs": 1795590897772,
+      "status": "stopped",
+      "started": false,
+      "contentId": "hyg:32263",
+      "boundaryIndex": null,
+      "errorCode": null
+    }
+  ],
+  "finalState": {
+    "status": "stopped",
+    "contentId": "hyg:32263",
+    "text": "Sirius is listed as star in the loaded catalog. Its retained catalog distance is 2.6371 parsecs, approximately 8.6011 light-years. The catalog spectral classification is A0m.... Measurement uncertainty and current surface activity are not available in the loaded catalog.",
+    "message": "Narration stopped. Press Play to restart.",
+    "errorCode": null,
+    "boundaryIndex": null,
+    "boundaryLength": 0,
+    "started": false,
+    "rate": 0.9,
+    "volume": 1,
+    "voiceURI": "Microsoft David - English (United States)",
+    "voices": [
+      {
+        "voiceURI": "Microsoft David - English (United States)",
+        "name": "Microsoft David - English (United States)",
+        "lang": "en-US",
+        "default": true,
+        "localService": true
+      },
+      {
+        "voiceURI": "Microsoft Mark - English (United States)",
+        "name": "Microsoft Mark - English (United States)",
+        "lang": "en-US",
+        "default": false,
+        "localService": true
+      },
+      {
+        "voiceURI": "Microsoft Zira - English (United States)",
+        "name": "Microsoft Zira - English (United States)",
+        "lang": "en-US",
+        "default": false,
+        "localService": true
+      }
+    ],
+    "available": true,
+    "canPlay": true,
+    "canPause": false,
+    "canResume": false,
+    "canStop": false
+  },
+  "appAsarSha256": "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+  "appAsarHashedAfterCaptureAt": "2026-11-25T07:15:00.712Z",
+  "appAsarUnchanged": true,
+  "captureExeSha256": "0742815595f1ebb1489836afdabf87ca88cba2402387c53947947ed2d0a80087",
+  "captureExeUnchanged": true,
+  "appExit": {
+    "code": 0,
+    "signal": null,
+    "unixMs": 1795590900811
+  },
+  "appClosedAtUnixMs": 1795590900812,
+  "finishedAt": "2026-11-25T07:15:12.728Z"
+}

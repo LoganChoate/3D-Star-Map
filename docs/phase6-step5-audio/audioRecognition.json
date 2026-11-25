@@ -1,0 +1,23 @@
+﻿{
+    "method":  "Installed in-process Windows English recognizer, free dictation on captured audio file; no expected-text grammar",
+    "input":  "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\installed-audio-1\\capture\\sirius-recognition-input.wav",
+    "engine":  "Microsoft Speech Recognizer 8.0 for Windows (English - US)",
+    "results":  [
+                    {
+                        "durationSeconds":  2.9299999999999997,
+                        "confidence":  0.7768577,
+                        "text":  "Serious is listed as star in the loaded catalog",
+                        "audioPositionSeconds":  0
+                    },
+                    {
+                        "durationSeconds":  1.97,
+                        "confidence":  0.5939822,
+                        "text":  "cert AIN catalog distances to",
+                        "audioPositionSeconds":  0
+                    }
+                ],
+    "limits":  "Machine transcription corroborates recognizable speech; it is not a substitute for human pronunciation and listening-quality critique.",
+    "error":  "Exception calling \"Recognize\" with \"1\" argument(s): \"No audio input is supplied to this recognizer. Use the method SetInputToDefaultAudioDevice if a microphone is connected to the system, otherwise use SetInputToWaveFile, SetInputToWaveStream or SetInputToAudioStream to perform speech recognition from pre-recorded audio.\"",
+    "status":  "recognized",
+    "endOfInput":  true
+}

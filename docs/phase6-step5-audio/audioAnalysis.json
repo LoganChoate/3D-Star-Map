@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "method": "Process-tree-only WASAPI samples aligned to observed real application controls using QPC timestamps. No microphone or other-app output.",
+  "wavSha256": "574df671b2f1b00a7be20111412e5c20264bdd32af91be8f653aadd94d59addf",
+  "totalFrames": 797769,
+  "recorderLifetimeVerified": true,
+  "checks": [
+    {
+      "name": "before-play-silence",
+      "startUnixMs": 1795590882203,
+      "endUnixMs": 1795590883810,
+      "frames": 70869,
+      "coverage": 1.0000042331805155,
+      "rms": 1.4622299975155469e-05,
+      "peak": 3.0517578125e-05,
+      "activeFraction": 0.0,
+      "passed": true
+    },
+    {
+      "name": "playing",
+      "startUnixMs": 1795590884387,
+      "endUnixMs": 1795590890191,
+      "frames": 255957,
+      "coverage": 1.0000023441492378,
+      "rms": 0.09464536927570863,
+      "peak": 0.946990966796875,
+      "activeFraction": 0.7872533277073883,
+      "passed": true
+    },
+    {
+      "name": "paused-silence",
+      "startUnixMs": 1795590891047,
+      "endUnixMs": 1795590892656,
+      "frames": 70957,
+      "coverage": 1.0000014093062126,
+      "rms": 1.4625798941873013e-05,
+      "peak": 3.0517578125e-05,
+      "activeFraction": 0.0,
+      "passed": true
+    },
+    {
+      "name": "resumed-playing",
+      "startUnixMs": 1795590892860,
+      "endUnixMs": 1795590897668,
+      "frames": 208149,
+      "coverage": 0.9816830226266878,
+      "rms": 0.11022360200985193,
+      "peak": 0.9630126953125,
+      "activeFraction": 0.8784860844875546,
+      "passed": true
+    },
+    {
+      "name": "stopped-silence",
+      "startUnixMs": 1795590898533,
+      "endUnixMs": 1795590900139,
+      "frames": 70824,
+      "coverage": 0.9999915283672621,
+      "rms": 1.4614802862753469e-05,
+      "peak": 3.0517578125e-05,
+      "activeFraction": 0.0,
+      "passed": true
+    }
+  ],
+  "discontinuities": 0,
+  "limits": [
+    "Digital speech output is distinct from physical speaker volume and human listening quality.",
+    "Silence without packets is accepted only with verified recorder lifetime through every window and successful requested completion; positive playing segments require at least 80% observed sample coverage.",
+    "Network isolation must independently pass the exact-executable positive/block/recovery controls."
+  ]
+}

@@ -1,6 +1,6 @@
 # Galaxy Map / 3D Star Map Explorer
 
-Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.5.0 brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Current installed results and the remaining Windows-level narration check are recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
+Windows-first Electron / Three.js atlas with a shared web visualization core. Version 1.5.0 brings the reviewed Sun, Moon and Earth into one immersive inspector with catalog information and manual local-voice narration. Step 5 technical acceptance is complete, including recorded narration under a temporary Windows-enforced exact-app network block with verified cleanup. Installed results and the remaining human critique gate are recorded in [docs/phase6-step5-acceptance.md](docs/phase6-step5-acceptance.md). It retains the measured nearby collection: 56 HYG stars within 5 parsecs plus the Sun, alongside the Solar System, original nearby highlights, scientific provenance and 117,735-record atlas.
 
 ## Execution tracker
 
@@ -94,7 +94,7 @@ The working dependency versions are Node 22.17.1, npm 10.9.2, Electron 31.7.7, u
 
 Phase 1 baseline was `cf47a6782a31449bd55cb656cc59802c33f9e914`; original Desktop and live GitHub main matched `9027f9e193832ec7af76b921f4c652da06d39635`. The Desktop source remains untouched. Recovery bundles and the source manifest are in the parent workspace's `evidence/` folder. Phase 2 evidence is in `evidence/phase2/`, including the old installed-program backup.
 
-Version 1.0.2 adds source-backed catalog IDs, ambiguity-safe lookup, current filtered selection and picking, proper-name filtering, and ID-based worker/fallback routing. Description lookup handles case and spacing; ambiguous display names require a choice. Catalog values and order are preserved; `sol` identifies the Sun and `hyg:<source ID>` identifies HYG rows. The catalog migration utility verifies its source match before adding IDs. Broader navigation and scientific validation remain future phases. Narration may depend on the user's installed speech voices and is outside offline acceptance. Current completion evidence is in `evidence/phase2-completion/` in the parent workspace.
+Version 1.0.2 added source-backed catalog IDs, ambiguity-safe lookup, current filtered selection and picking, proper-name filtering, and ID-based worker/fallback routing. Description lookup handles case and spacing; ambiguous display names require a choice. Catalog values and order are preserved; `sol` identifies the Sun and `hyg:<source ID>` identifies HYG rows. The catalog migration utility verifies its source match before adding IDs. Historical Phase 2 completion evidence is in `evidence/phase2-completion/` in the parent workspace. Current navigation, scientific validation and installed narration results are recorded in Phase 6 Step 5. Narration still depends on the user's installed local voices; its exact-app Windows isolation check does not claim whole-machine disconnection or human listening approval.
 
 ## Source layout
 
