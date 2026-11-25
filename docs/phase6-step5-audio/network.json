@@ -1,0 +1,95 @@
+﻿{
+    "status":  "passed",
+    "executable":  "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\3D Star Map Explorer.exe",
+    "executableSha256":  "3a05c2712624d13ec3293888a77d439fc6a712bc180fec27b7453c91da55df96",
+    "ruleName":  "GalaxyMapStep5Audio-cc0a617f660341f79c509ccede9d42d1",
+    "startedAt":  "2026-11-25T07:14:37.3757928Z",
+    "externalCapture":  true,
+    "captureDirectory":  "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\installed-audio-1\\capture",
+    "captureSignal":  "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\installed-audio-1\\capture-complete.json",
+    "method":  "Temporary exact-executable outbound deny, with same executable TCP positive/negative control. Only synthetic probe sends connection metadata; zero payload.",
+    "cleanupConfirmed":  true,
+    "profiles":  [
+                     {
+                         "Name":  "Domain",
+                         "Enabled":  1,
+                         "DefaultOutboundAction":  2
+                     },
+                     {
+                         "Name":  "Private",
+                         "Enabled":  1,
+                         "DefaultOutboundAction":  2
+                     },
+                     {
+                         "Name":  "Public",
+                         "Enabled":  1,
+                         "DefaultOutboundAction":  2
+                     }
+                 ],
+    "before":  {
+                   "exitCode":  0,
+                   "result":  {
+                                  "status":  "connected",
+                                  "elapsedMs":  19,
+                                  "executable":  "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\3D Star Map Explorer.exe",
+                                  "pid":  26596,
+                                  "destination":  "1.1.1.1:443",
+                                  "payloadBytes":  0
+                              },
+                   "stderr":  ""
+               },
+    "rule":  {
+                 "Name":  "GalaxyMapStep5Audio-cc0a617f660341f79c509ccede9d42d1",
+                 "Enabled":  1,
+                 "Direction":  2,
+                 "Action":  4,
+                 "Profile":  0
+             },
+    "applicationFilter":  {
+                              "Program":  "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\3D Star Map Explorer.exe"
+                          },
+    "blocked":  {
+                    "exitCode":  2,
+                    "result":  {
+                                   "status":  "blocked-or-unreachable",
+                                   "error":  "EACCES",
+                                   "elapsedMs":  2,
+                                   "executable":  "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\3D Star Map Explorer.exe",
+                                   "pid":  25712,
+                                   "destination":  "1.1.1.1:443",
+                                   "payloadBytes":  0
+                               },
+                    "stderr":  ""
+                },
+    "externalCaptureReadyAt":  "2026-11-25T07:14:39.8486040Z",
+    "externalCaptureDeadlineAt":  "2026-11-25T07:16:39.8486040Z",
+    "externalCaptureWaitSeconds":  37.121780799999996,
+    "externalCaptureSignal":  {
+                                  "ruleName":  "GalaxyMapStep5Audio-cc0a617f660341f79c509ccede9d42d1",
+                                  "status":  "success",
+                                  "finishedAt":  "2026-11-25T07:15:16.743Z"
+                              },
+    "externalCaptureSignalObservedAt":  "2026-11-25T07:15:16.9965057Z",
+    "captureArtifact":  {
+                            "sha256":  "e133a2c100d996203636e244bbab7cc99a50aca5b425d1283bd0ccc741dae18e",
+                            "appAsarSha256":  "b1b09fb69cdec94cd319f6d9771fe75f28c1899769a0cfc21a540258ddc212a6",
+                            "captureExeSha256":  "0742815595f1ebb1489836afdabf87ca88cba2402387c53947947ed2d0a80087",
+                            "pid":  28184,
+                            "path":  "C:\\Users\\logan\\OneDrive\\Documents\\ChatGPT\\Galaxy Map Project\\evidence\\phase6\\step5\\installed-audio-1\\capture\\audio-host.json",
+                            "status":  "captured"
+                        },
+    "ruleStillActiveAfterCapture":  true,
+    "finishedAt":  "2026-11-25T07:15:18.1546592Z",
+    "after":  {
+                  "exitCode":  0,
+                  "result":  {
+                                 "status":  "connected",
+                                 "elapsedMs":  22,
+                                 "executable":  "C:\\Users\\logan\\AppData\\Local\\Programs\\3D Star Map Explorer\\3D Star Map Explorer.exe",
+                                 "pid":  16760,
+                                 "destination":  "1.1.1.1:443",
+                                 "payloadBytes":  0
+                             },
+                  "stderr":  ""
+              }
+}

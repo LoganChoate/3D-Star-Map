@@ -1,11 +1,12 @@
 # Phase 6 Step 5 acceptance
 
-**INSTALLED CHECKPOINT — 1.5.0 is installed; Step 5 remains incomplete.**
-Updated November 23, 2026 (America/Denver). Startup, all ten regression suites,
+**TECHNICAL ACCEPTANCE COMPLETE — installed 1.5.0 is ready for user critique.**
+Updated November 25, 2026 (America/Denver). Startup, all ten regression suites,
 package/installation identity, controlled sustained acceptance and actual installed
-offline application checks pass. Strict installed-app audio capture also passes within
-its app-session-only scope. Windows-level offline narration approval and human critique
-remain open. Earlier failures and measurement limits remain below.
+offline application checks pass. Strict installed-app audio capture now also passes
+under Windows-enforced exact-executable outbound isolation, with recovery and cleanup
+confirmed. Human critique remains the gate before Phase 7. Earlier failures and
+measurement limits remain below.
 
 ## Fixed criteria
 
@@ -103,12 +104,13 @@ intentional renderer/session network probes were blocked. This proves the instal
 application's offline behavior within its Electron session; OS speech networking is
 outside that interception.
 
-The Windows administrator prompt for the separate OS-level audio isolation check
-was canceled before the helper launched (no helper PID or `installed-audio-1/`
-output directory). No network rules were created. That approval-dependent gate
-remains pending; it must not be recorded as a tested firewall block.
+The first Windows administrator prompt for the separate OS-level audio isolation
+check was canceled before the helper launched. At that historical checkpoint there
+was no helper PID or `installed-audio-1/` output directory, and no network rule was
+created. `windows-approval.json` preserves that cancellation. The later approved run
+below used the previously absent directory; it does not change the historical record.
 
-The strict installed-app recording in `installed-audio-app-only-2/` passed its
+The earlier strict installed-app recording in `installed-audio-app-only-2/` passed its
 `audio-analysis.json` checks for pre-play silence, playing, paused silence, resumed
 playing and stopped silence. It used the actual installed executable, native controls
 and a real local WebSpeech voice; process-tree-only WASAPI captured no microphone or
@@ -127,7 +129,51 @@ does not confirm physical speaker volume or the user's listening quality. Loaded
 SAPI/MSTTS modules and local-service voice metadata support the observed speech path,
 but app-session blocking does not prove Windows-level egress isolation. The first
 restricted launch attempt in `installed-audio-app-only-1/` produced no capture and
-remains retained. The separate administrator-dependent check is still required.
+remains retained. These earlier recordings are historical app-session evidence;
+the fresh isolated run below closes the separate technical gate.
+
+## Final Windows-isolated narration acceptance
+
+`installed-audio-1/network-isolation.json` reports **passed** for the actual installed
+executable. All three Windows Firewall profiles were enabled. The exact executable
+connected to `1.1.1.1:443` before the rule (19 ms), was denied with `EACCES` while
+the rule was active (2 ms), and connected after removal (22 ms). These direct TCP
+controls sent zero payload. The uniquely named outbound deny covered only that
+executable path; adapters, DNS, other rules and profile settings were unchanged.
+
+The normal-permission app capture began after the elevated helper's ready signal and
+finished before its completion signal. The rule remained active after capture.
+The wrapper confirmed removal, and `watchdog-cleanup.json` independently records
+`removed:true`, a requested stop and no lookup errors. The app and recorder both
+exited with code zero; close events are recorded.
+
+`installed-audio-1/capture/audio-host.json` and `audio-analysis.json` bind the capture
+to the unchanged installed archive hash above and unchanged recorder SHA-256
+`0742815595f1ebb1489836afdabf87ca88cba2402387c53947947ed2d0a80087`.
+The wrapper's host-artifact hash matches the saved file:
+`e133a2c100d996203636e244bbab7cc99a50aca5b425d1283bd0ccc741dae18e`.
+
+All five ordered windows passed: silence before Play, speech during Play, silence
+after Pause, speech after Resume and silence after Stop. The recorder remained live
+at both boundaries of every window and completed after the requested stop, with
+797,769 frames, 1,809 packets and zero discontinuities. Playing and resumed RMS were
+0.09465 and 0.11022; silent windows were approximately 0.00001462. The existing
+650 ms control-drain allowance and 100 ms window-edge trim remain unchanged;
+zero-latency cancellation is not claimed.
+
+Raw recording SHA-256:
+`574df671b2f1b00a7be20111412e5c20264bdd32af91be8f653aadd94d59addf`.
+The current review clip is `installed-audio-1/capture/sirius-narration-sample.wav`.
+Local free dictation recognized the opening at approximately 0.777 confidence,
+including the imperfect "Serious" transcription for Sirius. Its recorded end-of-input
+exception followed recognized results and does not supply listening approval.
+
+Three voices reported `localService:true`; in-process SAPI and OneCore speech modules
+were observed. This establishes working speech under Windows-enforced outbound
+isolation of the Galaxy Map executable, including child processes using that same
+path. It does **not** globally isolate other Windows services or executables. Digital
+output does not establish physical speaker volume, pronunciation quality or the
+user's listening preference. Those remain part of the next human critique.
 
 ## Retained final-build failures
 
@@ -204,21 +250,17 @@ checks, including all 14 Earth checks, zero startup remote requests and no remot
 resources. Its two intentional network probes were both blocked. This is pre-final
 packaged evidence, not final installed acceptance.
 
-## Remaining gates
+## Next review gate
 
-The installed checkpoint can be saved through a PR without marking Step 5 or Phase 6
-complete. The remaining acceptance gates are:
-
-- Complete the approval-dependent Windows-level narration isolation verification,
-  recording exact executable scope, actual capture/listening results and cleanup.
-  An application-session-only recording does not close this gate.
-- Obtain the user's critique of the installed experience and narration before further
-  expansion. Save the checkpoint and its actual status in GitHub and the dashboard.
+Step 5 technical acceptance is complete. Obtain the user's critique of the installed
+experience and narration before further expansion, and save the evidence-backed
+checkpoint in GitHub and the dashboard. Technical completion does not imply that
+the user has approved pronunciation, physical speaker volume or listening quality.
 
 The initial startup records predate per-run archive fingerprints and remain unchanged;
 the final summary uses only matching, individually fingerprinted startup/full records.
-The current installation and app-session offline pass do not establish Windows-level
-offline narration acceptance.
+The final isolated narration record supplies the exact-executable Windows proof;
+the earlier app-session recording is not substituted for it.
 Phase 7 remains outside this acceptance work.
 
 ## Measurement conditions and limits
@@ -248,6 +290,7 @@ released application references and disposal calls, not immediate driver reclama
 
 Navigation measurements call production inspection/close actions; the separate
 functional harness checks native input. Offline mode blocks application-session
-HTTP/HTTPS/WS/WSS without altering the workstation network. It does not establish
-operating-system speech offline behavior. Speech events or a waveform alone do not
-prove pronunciation or listening quality; actual recording review is a separate gate.
+HTTP/HTTPS/WS/WSS without altering the workstation network. The separate Windows
+rule test establishes exact-executable egress isolation during recorded speech,
+not whole-machine disconnection. Speech events or a waveform alone do not prove
+pronunciation or listening quality; actual recording review is a separate gate.
