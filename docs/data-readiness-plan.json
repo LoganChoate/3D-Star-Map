@@ -30,6 +30,10 @@
           {
             "label": "Workstation request and count evidence",
             "url": "evidence/data-readiness-step1-probes.json"
+          },
+          {
+            "label": "NASA archive and Pluto product follow-up",
+            "url": "evidence/pluto-archive-review.html"
           }
         ]
       },
@@ -107,12 +111,12 @@
       }
     ],
     "blockers": [
-      "Central NASA PDS search returned server errors. The first asset inventory uses verified direct mission and archive paths where available.",
+      "NASA Search and Registry APIs still fail. Static PDS inventories and four USGS Pluto/Charon files provide a verified fallback.",
       "Catalog counts measure source records. Per-object ephemeris, physical-field and imagery coverage remains open.",
-      "Space-Track requires an account. Product reuse terms and unresolved asset access remain recorded in the source register."
+      "Native Pluto/Charon color downloads and release rights for the USGS conversions remain open. Space-Track requires an account."
     ],
     "nextActions": [
-      "Review the Step 1 source inventory, workstation probes and coverage contract.",
+      "Review the Step 1 source inventory and Pluto archive access follow-up.",
       "After review, start Step 2 with stable identities and field-level provenance.",
       "Use the selected sources and coverage limits when planning full imports."
     ]
@@ -132,7 +136,12 @@
         "date": "2026-11-27",
         "report": "data-readiness-step1.md",
         "probeLog": "data-readiness-step1-probes.json",
-        "userReview": "pending"
+        "userReview": "pending",
+        "plutoFollowup": {
+          "report": "pluto-archive-review.md",
+          "register": "pluto-archive-register.json",
+          "review": "pending"
+        }
       }
     },
     {

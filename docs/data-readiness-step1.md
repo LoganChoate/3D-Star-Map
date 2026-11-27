@@ -48,6 +48,10 @@ Index the selected collections below as metadata. Prefer calibrated maps, elevat
 
 The central PDS Search API returned HTTP 500 for four queries and the registry smoke check returned HTTP 503. Direct PDS discipline-node, mission and USGS paths above support a bounded metadata strategy. Bulk registry indexing and unresolved direct product paths remain open. The standalone Mars Astropedia product probe established that the USGS route works from this workstation.
 
+## Pluto archive follow-up
+
+The [Pluto archive review](pluto-archive-review.md) verifies the static NASA inventory fallback, four USGS files and reuse evidence. The central API remains unavailable.
+
 ## Workstation baseline and handoff
 
 AMD Ryzen 7 7800X3D (16 logical processors), NVIDIA GeForce RTX 5070 Ti, 67,737,919,488 bytes of reported system memory and 1,320,607,047,680 bytes free on the workspace C: drive at inspection. The existing installed 1.5.0 acceptance record gives a 1,457.43 ms median startup over three runs. These are capacity and existing-app baselines. Catalog size, query speed, transfer time and rollout budgets require measurements in their respective steps.

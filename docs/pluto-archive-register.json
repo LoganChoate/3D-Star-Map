@@ -1,0 +1,1580 @@
+{
+  "reviewDate": "2026-11-27",
+  "status": "metadata-and-cartography-fallback-verified",
+  "centralApis": "search 500; registry 503 on recheck",
+  "nativeColor": "inventoried, binaries unresolved",
+  "checkCount": 68,
+  "distinctChecks": 64,
+  "collections": {
+    "composition": {
+      "lidvid": "urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+      "doi": "10.26007/mc7j-ef52",
+      "members": 65,
+      "memberIds": [
+        "urn:nasa:pds:nh_derived:plutosystem_composition:leisa_809-889-014_band-ch4_i89::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:leisa_809-889-014_si-h2o_norm_i89::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:leisa_889-014_band-co_i88::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:leisa_889-014_band-n2_i88::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299025872_0x536_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299079022_0x536_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299127622_0x536_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299147977_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299162512_0x536_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299176432_0x536_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298853042_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298853212_0x536_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298891582_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298939122_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298939292_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298995294_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299064592_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299104952_0x545_sci_ch::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298719172_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298766872_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298824437_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298853212_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298939122_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299104952_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299162512_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298995294_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299025872_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299064592_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299079022_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299147977_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298853042_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298891582_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0298939292_0x545_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299127622_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:mvic_0299178092_0x536_sci_pl::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:cube_h_color_best::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:cube_n_color_2::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:cube_n_color_best::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:nh_charon_color_mosaic::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:nh_pluto_color_mosaic::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299026199_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299064869_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299079314_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299105209_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299127869_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299146219_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299171308_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299175509_charon_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299026199_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299064869_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299079314_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299105209_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299127869_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299144829_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299169338_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299170159_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299172014_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299172889_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299176809_pluto_cube::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299153775_kerberos::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299154901_hydra::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299164549_hydra::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299166335_nix::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:0299173908_nix::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_composition:overview::1.0"
+      ],
+      "label": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition.xml",
+      "inventory": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition_inventory.csv",
+      "nativeArchive": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived:plutosystem_composition-v1.0/SUPPORT/dataset.shtml",
+      "nativeAccess": "workstation-timeout"
+    },
+    "geophysics": {
+      "lidvid": "urn:nasa:pds:nh_derived:plutosystem_geophysics::1.0",
+      "doi": "10.26007/qc8b-6p65",
+      "members": 13,
+      "memberIds": [
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_bond::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_bond::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_bond_browse::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_dtm_browse::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_mosaic_browse::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_bond_browse::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_dtm_browse::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_mosaic_browse::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_dtm::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_dtm::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_mosaic::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_mosaic::1.0",
+        "urn:nasa:pds:nh_derived:plutosystem_geophysics:overview::1.0"
+      ],
+      "label": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_geophysics.xml",
+      "inventory": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_geophysics_inventory.csv",
+      "nativeArchive": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived:plutosystem_geophysics-v1.0/SUPPORT/dataset.shtml",
+      "nativeAccess": "workstation-timeout"
+    }
+  },
+  "products": [
+    {
+      "target": "pluto",
+      "kind": "PDS color mosaic",
+      "lidvid": "urn:nasa:pds:nh_derived:plutosystem_composition:nh_pluto_color_mosaic::1.0",
+      "access": "inventory-confirmed; native product file unavailable",
+      "fileUrl": null,
+      "bytes": null,
+      "observedFootprint": null,
+      "localUse": "supported by collection CC0 when accessible",
+      "originalRedistribution": "CC0 at collection level; verify product notices before packaging",
+      "derivedDistribution": "CC0 at collection level; verify product notices before packaging"
+    },
+    {
+      "target": "pluto",
+      "kind": "USGS grayscale base mosaic",
+      "relatedPdsLidvid": "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_mosaic::1.0",
+      "productPage": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_mosaic_300m",
+      "label": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_mosaic_300m.xml",
+      "fileUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Pluto_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+      "status": "verified byte-range file access",
+      "bytes": 309806463,
+      "dimensions": [
+        24888,
+        12444
+      ],
+      "format": "GeoTIFF",
+      "bitDepth": 8,
+      "nominalMetersPerPixel": 300,
+      "projection": "Simple Cylindrical",
+      "latitude": "planetographic",
+      "longitude": "positive east, 0 to 360",
+      "heightUnit": null,
+      "referenceRadiusMeters": 1188300,
+      "noData": null,
+      "observedFootprint": "varies with coverage; PDS describes terrain models over about 30% of each body",
+      "fullFileChecksum": null,
+      "etag": "\"1f12a9391630e54e857d8be60e55968d-37\"",
+      "useConstraints": "Please cite authors",
+      "accessConstraints": "None",
+      "localUse": "use when scheduled; cite authors and USGS",
+      "originalRedistribution": "hold pending confirmation for converted file",
+      "derivedDistribution": "hold packaging pending confirmation for converted file"
+    },
+    {
+      "target": "pluto",
+      "kind": "USGS elevation",
+      "relatedPdsLidvid": "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_pluto_dtm::1.0",
+      "productPage": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_dem_300m",
+      "label": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_dem_300m.xml",
+      "fileUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "status": "verified byte-range file access",
+      "bytes": 619512743,
+      "dimensions": [
+        24888,
+        12444
+      ],
+      "format": "GeoTIFF",
+      "bitDepth": 16,
+      "nominalMetersPerPixel": 300,
+      "projection": "Simple Cylindrical",
+      "latitude": "planetographic",
+      "longitude": "positive east, 0 to 360",
+      "heightUnit": "meters",
+      "referenceRadiusMeters": 1188300,
+      "noData": -32768,
+      "observedFootprint": "varies with coverage; PDS describes terrain models over about 30% of each body",
+      "fullFileChecksum": null,
+      "etag": "\"52520d14914704642d56595607089666-74\"",
+      "useConstraints": "Please cite authors",
+      "accessConstraints": "None",
+      "localUse": "use when scheduled; cite authors and USGS",
+      "originalRedistribution": "hold pending confirmation for converted file",
+      "derivedDistribution": "hold packaging pending confirmation for converted file"
+    },
+    {
+      "target": "charon",
+      "kind": "PDS color mosaic",
+      "lidvid": "urn:nasa:pds:nh_derived:plutosystem_composition:nh_charon_color_mosaic::1.0",
+      "access": "inventory-confirmed; native product file unavailable",
+      "fileUrl": null,
+      "bytes": null,
+      "observedFootprint": null,
+      "localUse": "supported by collection CC0 when accessible",
+      "originalRedistribution": "CC0 at collection level; verify product notices before packaging",
+      "derivedDistribution": "CC0 at collection level; verify product notices before packaging"
+    },
+    {
+      "target": "charon",
+      "kind": "USGS grayscale base mosaic",
+      "relatedPdsLidvid": "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_mosaic::1.0",
+      "productPage": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m",
+      "label": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m.xml",
+      "fileUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+      "status": "verified byte-range file access",
+      "bytes": 80613890,
+      "dimensions": [
+        12693,
+        6347
+      ],
+      "format": "GeoTIFF",
+      "bitDepth": 8,
+      "nominalMetersPerPixel": 300,
+      "projection": "Simple Cylindrical",
+      "latitude": "planetographic",
+      "longitude": "positive east, 0 to 360",
+      "heightUnit": null,
+      "referenceRadiusMeters": 606000,
+      "noData": null,
+      "observedFootprint": "varies with coverage; PDS describes terrain models over about 30% of each body",
+      "fullFileChecksum": null,
+      "etag": "\"4c7a67af0d2d27e8e2bb21261caa7b9d-10\"",
+      "useConstraints": "Please cite authors",
+      "accessConstraints": "None",
+      "localUse": "use when scheduled; cite authors and USGS",
+      "originalRedistribution": "hold pending confirmation for converted file",
+      "derivedDistribution": "hold packaging pending confirmation for converted file"
+    },
+    {
+      "target": "charon",
+      "kind": "USGS elevation",
+      "relatedPdsLidvid": "urn:nasa:pds:nh_derived:plutosystem_geophysics:nh_charon_dtm::1.0",
+      "productPage": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_dem_300m",
+      "label": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_dem_300m.xml",
+      "fileUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "status": "verified byte-range file access",
+      "bytes": 161176369,
+      "dimensions": [
+        12693,
+        6347
+      ],
+      "format": "GeoTIFF",
+      "bitDepth": 16,
+      "nominalMetersPerPixel": 300,
+      "projection": "Simple Cylindrical",
+      "latitude": "planetographic",
+      "longitude": "positive east, 0 to 360",
+      "heightUnit": "meters",
+      "referenceRadiusMeters": 606000,
+      "noData": -32768,
+      "observedFootprint": "varies with coverage; PDS describes terrain models over about 30% of each body",
+      "fullFileChecksum": null,
+      "etag": "\"5d5e902c64a54c3bc45895c729e77136-20\"",
+      "useConstraints": "Please cite authors",
+      "accessConstraints": "None",
+      "localUse": "use when scheduled; cite authors and USGS",
+      "originalRedistribution": "hold pending confirmation for converted file",
+      "derivedDistribution": "hold packaging pending confirmation for converted file"
+    }
+  ],
+  "namedMinorMoonProducts": {
+    "nix": [
+      "urn:nasa:pds:nh_derived:plutosystem_composition:0299166335_nix::1.0",
+      "urn:nasa:pds:nh_derived:plutosystem_composition:0299173908_nix::1.0"
+    ],
+    "hydra": [
+      "urn:nasa:pds:nh_derived:plutosystem_composition:0299154901_hydra::1.0",
+      "urn:nasa:pds:nh_derived:plutosystem_composition:0299164549_hydra::1.0"
+    ],
+    "kerberos": [
+      "urn:nasa:pds:nh_derived:plutosystem_composition:0299153775_kerberos::1.0"
+    ],
+    "styx": []
+  },
+  "doiEvidence": {
+    "composition": {
+      "doi": "10.26007/mc7j-ef52",
+      "publisher": "NASA Planetary Data System",
+      "titles": [
+        {
+          "title": "New Horizons Encounter with the Pluto System: Global Color Maps, Image Cubes, and Absorption Band Maps"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifier": "urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+          "identifierType": "PDS4 Collection ID"
+        }
+      ],
+      "rightsList": [
+        {
+          "rights": "Creative Commons Zero v1.0 Universal",
+          "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "schemeUri": "https://spdx.org/licenses/",
+          "rightsIdentifier": "cc0-1.0",
+          "rightsIdentifierScheme": "SPDX"
+        }
+      ],
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived:plutosystem_composition-v1.0/SUPPORT/dataset.shtml"
+    },
+    "geophysics": {
+      "doi": "10.26007/qc8b-6p65",
+      "publisher": "NASA Planetary Data System",
+      "titles": [
+        {
+          "title": "New Horizons Encounter with the Pluto System: Mosaics, Topographic Maps, and Bond Albedo Maps for Pluto and Charon"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifier": "urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+          "identifierType": "PDS4 Collection ID"
+        }
+      ],
+      "rightsList": [
+        {
+          "rights": "Creative Commons Zero v1.0 Universal",
+          "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "schemeUri": "https://spdx.org/licenses/",
+          "rightsIdentifier": "cc0-1.0",
+          "rightsIdentifierScheme": "SPDX"
+        }
+      ],
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived:plutosystem_geophysics-v1.0/SUPPORT/dataset.shtml"
+    },
+    "pds3-geophysics": {
+      "doi": "10.26007/k216-0131",
+      "publisher": "NASA Planetary Data System",
+      "titles": [
+        {
+          "title": "New Horizons (NH) Geology and Geophysical Maps, Derived from the LOng-Range Reconnaissance Imager (LORRI) and the Multispectral Visible Imaging Camera (MVIC) Data, Version 1.0"
+        }
+      ],
+      "identifiers": [],
+      "rightsList": [
+        {
+          "rights": "US Government Work",
+          "rightsUri": "https://www.usa.gov/government-works"
+        }
+      ],
+      "url": "https://pdssbn.astro.umd.edu/holdings/nh-p_psa-lorri_mvic-5-geophys-v1.0/dataset.shtml"
+    },
+    "calibrated-lorri": {
+      "doi": "10.26007/gs9b-yd88",
+      "publisher": "NASA Planetary Data System",
+      "titles": [
+        {
+          "title": "New Horizons Long Range Reconnaissance Imager (LORRI) Pluto Encounter Partially Processed Data, Version 1.0"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifier": "urn:nasa:pds:nh_lorri:pluto_cal::1.0",
+          "identifierType": "PDS4 Collection ID"
+        }
+      ],
+      "rightsList": [
+        {
+          "rights": "Creative Commons Zero v1.0 Universal",
+          "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "schemeUri": "https://spdx.org/licenses/",
+          "rightsIdentifier": "cc0-1.0",
+          "rightsIdentifierScheme": "SPDX"
+        }
+      ],
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_lorri:pluto_cal-v1.0/SUPPORT/dataset.shtml"
+    },
+    "calibrated-mvic": {
+      "doi": "10.26007/sdez-bd85",
+      "publisher": "NASA Planetary Data System",
+      "titles": [
+        {
+          "title": "New Horizons Multispectral Visible Imaging Camera (MVIC) Pluto Encounter Partially Processed Data, Version 1.0"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifier": "urn:nasa:pds:nh_mvic:pluto_cal::1.0",
+          "identifierType": "PDS4 Collection ID"
+        }
+      ],
+      "rightsList": [
+        {
+          "rights": "Creative Commons Zero v1.0 Universal",
+          "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "schemeUri": "https://spdx.org/licenses/",
+          "rightsIdentifier": "cc0-1.0",
+          "rightsIdentifierScheme": "SPDX"
+        }
+      ],
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_mvic:pluto_cal-v1.0/SUPPORT/dataset.shtml"
+    },
+    "calibrated-leisa": {
+      "doi": "10.26007/w77z-6643",
+      "publisher": "NASA Planetary Data System",
+      "titles": [
+        {
+          "title": "New Horizons Linear Etalon Imaging Spectral Array Pluto Encounter Calibrated Data, Version 1.0"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifier": "urn:nasa:pds:nh_leisa:pluto_cal::1.0",
+          "identifierType": "PDS4 Collection ID"
+        }
+      ],
+      "rightsList": [
+        {
+          "rights": "Creative Commons Zero v1.0 Universal",
+          "rightsUri": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+          "schemeUri": "https://spdx.org/licenses/",
+          "rightsIdentifier": "cc0-1.0",
+          "rightsIdentifierScheme": "SPDX"
+        }
+      ],
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_leisa:pluto_cal-v1.0/SUPPORT/dataset.shtml"
+    }
+  },
+  "rightsCaveat": "Geophysics DOI alternate ID points to composition. Its title, resource URL, and PDS collection label identify geophysics.",
+  "sampleStorage": "Local evidence/pluto-archive. The public metadata omits raw response bodies and binary assets.",
+  "attempts": [
+    {
+      "id": "search-control",
+      "url": "https://pds.nasa.gov/api/search/1/products?limit=1",
+      "atUtc": "2026-11-27T19:10:48.815626+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products?limit=1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 104,
+      "sha256": "6c54705c533ae1db9f3eaf0994d8bd8f4d594ba45112d3edd3f5e3f882a8ea5d",
+      "sample": "2026-11-27T191048.815626+0000_search-control.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.357
+    },
+    {
+      "id": "search-minimal-reference",
+      "url": "https://pds.nasa.gov/api/search/1/products/urn:nasa:pds:insight_rad::2.1",
+      "atUtc": "2026-11-27T19:10:49.173106+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products/urn:nasa:pds:insight_rad::2.1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 134,
+      "sha256": "dd8ebf1aa10c0e51863a3d40658693524e0131935ef95721f01130860cbb16e2",
+      "sample": "2026-11-27T191049.173106+0000_search-minimal-reference.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.231
+    },
+    {
+      "id": "registry-control",
+      "url": "https://pds.nasa.gov/api/registry/1/products?limit=1",
+      "atUtc": "2026-11-27T19:10:49.404530+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 503,
+      "finalUrl": "https://pds.nasa.gov/api/registry/1/products?limit=1",
+      "headers": {
+        "Content-Type": "text/html; charset=iso-8859-1",
+        "Content-Length": "299"
+      },
+      "retainedBytes": 299,
+      "sha256": "5764fed31b533e202f88d735a531f70a4ee3f66bb856afa4277872a758e6b578",
+      "sample": "2026-11-27T191049.404530+0000_registry-control.sample",
+      "seconds": 0.101
+    },
+    {
+      "id": "original-mercury",
+      "url": "https://pds.nasa.gov/api/search/1/products/urn:nasa:pds:messenger_mdis_4001",
+      "atUtc": "2026-11-27T19:10:49.505750+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products/urn:nasa:pds:messenger_mdis_4001",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 137,
+      "sha256": "2262cd0144ce78d72d211688322698a6735b2e566416a672aface9562f2890da",
+      "sample": "2026-11-27T191049.505750+0000_original-mercury.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.187
+    },
+    {
+      "id": "original-dawn",
+      "url": "https://pds.nasa.gov/api/search/1/products?q=ref_lid_investigation+eq+%22urn%3Anasa%3Apds%3Acontext%3Ainvestigation%3Amission.dawn%22&limit=2",
+      "atUtc": "2026-11-27T19:10:49.693134+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products?limit=2&q=ref_lid_investigation+eq+%22urn%3Anasa%3Apds%3Acontext%3Ainvestigation%3Amission.dawn%22",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 104,
+      "sha256": "6aad89406752bb2f03923997ff4bcb7bba6d2b4b539e07099f846c209343945b",
+      "sample": "2026-11-27T191049.693134+0000_original-dawn.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.195
+    },
+    {
+      "id": "original-pluto",
+      "url": "https://pds.nasa.gov/api/search/1/products?q=ref_lid_target+eq+%22urn%3Anasa%3Apds%3Acontext%3Atarget%3Adwarf_planet.pluto%22&limit=2",
+      "atUtc": "2026-11-27T19:10:49.888425+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products?limit=2&q=ref_lid_target+eq+%22urn%3Anasa%3Apds%3Acontext%3Atarget%3Adwarf_planet.pluto%22",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 104,
+      "sha256": "be060ce247b1c3ae74afd8658a7b8e7a9a6556c079f3fe242ce59b60be3214c0",
+      "sample": "2026-11-27T191049.888425+0000_original-pluto.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.187
+    },
+    {
+      "id": "original-spectra",
+      "url": "https://pds.nasa.gov/api/search/1/products/urn:nasa:pds:orex.ovirs:data_calibrated::11.0/members?limit=2",
+      "atUtc": "2026-11-27T19:10:50.075947+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products/urn:nasa:pds:orex.ovirs:data_calibrated::11.0/members?limit=2",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 158,
+      "sha256": "dfc16be2eef6493cb926b217724d112807d38554399d80ea45f78cd26a30ab52",
+      "sample": "2026-11-27T191050.075947+0000_original-spectra.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.198
+    },
+    {
+      "id": "corrected-pluto",
+      "url": "https://pds.nasa.gov/api/search/1/products?q=ref_lid_target+eq+%22urn%3Anasa%3Apds%3Acontext%3Atarget%3Adwarf_planet.134340_pluto%22&limit=2",
+      "atUtc": "2026-11-27T19:10:50.274498+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products?limit=2&q=ref_lid_target+eq+%22urn%3Anasa%3Apds%3Acontext%3Atarget%3Adwarf_planet.134340_pluto%22",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 104,
+      "sha256": "7d0c33dacfe64112cda15a16dd9272a1471e5ad3c348f7fc7ab8ef696815cfac",
+      "sample": "2026-11-27T191050.274498+0000_corrected-pluto.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.187
+    },
+    {
+      "id": "by-version",
+      "url": "https://pds.nasa.gov/api/search/1/products/urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+      "atUtc": "2026-11-27T19:10:50.461524+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products/urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 157,
+      "sha256": "8bc671fd3aeb28825c6fe9a177605ff8e40806d6b47528dec960c62ff7a10f41",
+      "sample": "2026-11-27T191050.461524+0000_by-version.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.2
+    },
+    {
+      "id": "sbn-api",
+      "url": "https://pds.nasa.gov/api/search-sbnumd/1/products/urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+      "atUtc": "2026-11-27T19:10:50.662419+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 404,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search-sbnumd/1/products/urn:nasa:pds:nh_derived:plutosystem_composition::1.0",
+      "headers": {
+        "Content-Type": "application/problem+json"
+      },
+      "retainedBytes": 267,
+      "sha256": "84727684bb4726402a2375171a59f1e200e9f43eed3e64acb6ce8a980038ba35",
+      "sample": "2026-11-27T191050.662419+0000_sbn-api.sample",
+      "jsonShape": [
+        "title",
+        "status",
+        "detail",
+        "instance"
+      ],
+      "seconds": 0.19
+    },
+    {
+      "id": "release-control",
+      "url": "https://pds.nasa.gov/datasearch/subscription-service/SS-20250531.shtml",
+      "atUtc": "2026-11-27T19:10:50.853076+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/datasearch/subscription-service/SS-20250531.shtml",
+      "headers": {
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "retainedBytes": 12142,
+      "sha256": "5edf8b7e12f85dae2692e5437afd82c894d83bdd75511f3e934371bede2b9a61",
+      "sample": "2026-11-27T191050.853076+0000_release-control.sample",
+      "seconds": 0.124
+    },
+    {
+      "id": "legacy-index",
+      "url": "https://pds.nasa.gov/services/search/search?q=urn%3Anasa%3Apds%3Anh_derived%3Aplutosystem_composition",
+      "atUtc": "2026-11-27T19:10:50.977969+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/services/search/search?q=urn%3Anasa%3Apds%3Anh_derived%3Aplutosystem_composition",
+      "headers": {
+        "Content-Type": "text/html;charset=UTF-8",
+        "Content-Length": "4068"
+      },
+      "retainedBytes": 4068,
+      "sha256": "bd7bc1b1aead7e0f3886b78de044497f7a425b626e52173732761afec72bd8f7",
+      "sample": "2026-11-27T191050.977969+0000_legacy-index.sample",
+      "seconds": 0.167
+    },
+    {
+      "id": "sbn-mission",
+      "url": "https://pdssbn.astro.umd.edu/data_sb/missions/newhorizons/",
+      "atUtc": "2026-11-27T19:10:51.145249+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.014
+    },
+    {
+      "id": "sbn-composition",
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_composition-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:11:00.159865+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.014
+    },
+    {
+      "id": "mirror-composition",
+      "url": "https://pds-smallbodies.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_composition-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:11:09.174113+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error _ssl.c:1011: The handshake operation timed out>",
+      "seconds": 12.695
+    },
+    {
+      "id": "sbn-geophysics",
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_geophysics-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:11:21.870432+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.011
+    },
+    {
+      "id": "mirror-geophysics",
+      "url": "https://pds-smallbodies.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_geophysics-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:11:30.882054+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error _ssl.c:1011: The handshake operation timed out>",
+      "seconds": 10.086
+    },
+    {
+      "id": "doi-composition",
+      "url": "https://doi.org/10.26007/mc7j-ef52",
+      "atUtc": "2026-11-27T19:11:40.969179+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error _ssl.c:1011: The handshake operation timed out>",
+      "seconds": 12.287
+    },
+    {
+      "id": "doi-geophysics",
+      "url": "https://doi.org/10.26007/qc8b-6p65",
+      "atUtc": "2026-11-27T19:11:53.256850+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.279
+    },
+    {
+      "id": "collection-composition",
+      "url": "https://pds.nasa.gov/ds-view/pds/viewCollection.jsp?identifier=urn%3Anasa%3Apds%3Anh_derived%3Aplutosystem_composition&version=1.0",
+      "atUtc": "2026-11-27T19:12:02.536590+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/ds-view/pds/viewCollection.jsp?identifier=urn%3Anasa%3Apds%3Anh_derived%3Aplutosystem_composition&version=1.0",
+      "headers": {
+        "Content-Type": "text/html;charset=ISO-8859-1"
+      },
+      "retainedBytes": 14659,
+      "sha256": "6b2bd0d7f74e2e767f4f3d50e909fa044aaf635f0a727129cfc30ebc3db78c7d",
+      "sample": "2026-11-27T191202.536590+0000_collection-composition.sample",
+      "seconds": 0.397
+    },
+    {
+      "id": "label-composition",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition.xml",
+      "atUtc": "2026-11-27T19:12:02.933896+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "9523",
+        "Last-Modified": "Wed, 02 Jul 2025 04:09:03 GMT"
+      },
+      "retainedBytes": 9523,
+      "sha256": "4f4ecfed9d3884711ed885a86e45e024c4055bb69d9bb91b2c9bd9579a4a6c52",
+      "sample": "2026-11-27T191202.933896+0000_label-composition.sample",
+      "seconds": 0.172
+    },
+    {
+      "id": "inventory-composition",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition_inventory.csv",
+      "atUtc": "2026-11-27T19:12:03.106230+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition_inventory.csv",
+      "headers": {
+        "Content-Type": "text/csv",
+        "Content-Length": "5206",
+        "Last-Modified": "Tue, 01 Jul 2025 22:08:57 GMT"
+      },
+      "retainedBytes": 5206,
+      "sha256": "64e30ff3ff4e602f070eda13298345b2cca0ba4c253e825bcbbcb8e7291c3847",
+      "sample": "2026-11-27T191203.106230+0000_inventory-composition.sample",
+      "seconds": 0.2
+    },
+    {
+      "id": "collection-geophysics",
+      "url": "https://pds.nasa.gov/ds-view/pds/viewCollection.jsp?identifier=urn%3Anasa%3Apds%3Anh_derived%3Aplutosystem_geophysics&version=1.0",
+      "atUtc": "2026-11-27T19:12:03.307288+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/ds-view/pds/viewCollection.jsp?identifier=urn%3Anasa%3Apds%3Anh_derived%3Aplutosystem_geophysics&version=1.0",
+      "headers": {
+        "Content-Type": "text/html;charset=ISO-8859-1"
+      },
+      "retainedBytes": 13364,
+      "sha256": "217a3e53176263c13f6ed541810bc491f1ca00c96d15c1449b95032d7cd34311",
+      "sample": "2026-11-27T191203.307288+0000_collection-geophysics.sample",
+      "seconds": 0.192
+    },
+    {
+      "id": "label-geophysics",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_geophysics.xml",
+      "atUtc": "2026-11-27T19:12:03.499963+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_geophysics.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "8004",
+        "Last-Modified": "Wed, 02 Jul 2025 04:11:18 GMT"
+      },
+      "retainedBytes": 8004,
+      "sha256": "f0941b802357b1826b5fcb7133196affbf2d972b75c079be0552847a3d2484f4",
+      "sample": "2026-11-27T191203.499963+0000_label-geophysics.sample",
+      "seconds": 0.161
+    },
+    {
+      "id": "inventory-geophysics",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_geophysics_inventory.csv",
+      "atUtc": "2026-11-27T19:12:03.661779+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_geophysics_inventory.csv",
+      "headers": {
+        "Content-Type": "text/csv",
+        "Content-Length": "931",
+        "Last-Modified": "Tue, 01 Jul 2025 22:09:50 GMT"
+      },
+      "retainedBytes": 931,
+      "sha256": "082535f9fa4f8a21fbc1488b822b0744315f2cb23d98a90d75f5020766db7046",
+      "sample": "2026-11-27T191203.661779+0000_inventory-geophysics.sample",
+      "seconds": 0.171
+    },
+    {
+      "id": "usgs-coverage",
+      "url": "https://fdp.astrogeology.usgs.gov/fdp/pluto/",
+      "atUtc": "2026-11-27T19:12:15.645470+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://fdp.astrogeology.usgs.gov/fdp/pluto/",
+      "headers": {
+        "Content-Type": "text/html",
+        "Content-Length": "101334",
+        "Last-Modified": "Fri, 31 Mar 2023 20:15:27 GMT",
+        "ETag": "\"0fcc8b826dc9ab564590cecb2f03684c\""
+      },
+      "retainedBytes": 101334,
+      "sha256": "876dde4754a245f5a7fbf023b58c638ac16c6c020c8c59945519285b2971ffe5",
+      "sample": "2026-11-27T191215.645470+0000_usgs-coverage.sample",
+      "seconds": 0.359
+    },
+    {
+      "id": "usgs-pluto-mosaic",
+      "url": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_mosaic_300m",
+      "atUtc": "2026-11-27T19:12:16.004714+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_mosaic_300m",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Fri, 27 Nov 2026 19:12:16 GMT"
+      },
+      "retainedBytes": 25311,
+      "sha256": "b6c0765e5384f722091c6dcc1fb84ad8e2d0436bfb8e45b76139c60a96ec1e5a",
+      "sample": "2026-11-27T191216.004714+0000_usgs-pluto-mosaic.sample",
+      "seconds": 0.419
+    },
+    {
+      "id": "usgs-charon-mosaic",
+      "url": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m",
+      "atUtc": "2026-11-27T19:12:16.424126+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Fri, 27 Nov 2026 19:12:16 GMT"
+      },
+      "retainedBytes": 24817,
+      "sha256": "dcfc92a87ce915e3c1fa8f07fdd4d5412c89017ba5989fda62a43be176770b94",
+      "sample": "2026-11-27T191216.424126+0000_usgs-charon-mosaic.sample",
+      "seconds": 0.392
+    },
+    {
+      "id": "usgs-pluto-dem",
+      "url": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_dem_300m",
+      "atUtc": "2026-11-27T19:12:16.816878+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_dem_300m",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Fri, 27 Nov 2026 19:12:17 GMT"
+      },
+      "retainedBytes": 25383,
+      "sha256": "c399c4120dbac6c0fca89fd012f79947f2f014561a79827e3956d404e58cac81",
+      "sample": "2026-11-27T191216.816878+0000_usgs-pluto-dem.sample",
+      "seconds": 0.464
+    },
+    {
+      "id": "usgs-charon-dem",
+      "url": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_dem_300m",
+      "atUtc": "2026-11-27T19:12:17.281391+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_dem_300m",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Fri, 27 Nov 2026 19:12:17 GMT"
+      },
+      "retainedBytes": 25595,
+      "sha256": "4911f3d3bc883b3ddea95152a2361759dc82153198811891f6c6b7845beb171d",
+      "sample": "2026-11-27T191217.281391+0000_usgs-charon-dem.sample",
+      "seconds": 0.36
+    },
+    {
+      "id": "usgs-rights",
+      "url": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+      "atUtc": "2026-11-27T19:12:17.642024+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Last-Modified": "Fri, 27 Nov 2026 19:12:17 GMT",
+        "ETag": "W/\"1795806737-gzip\""
+      },
+      "retainedBytes": 88994,
+      "sha256": "32d119e257018487843c8808b0c3dcb876eb401a4650260f1b296483e7ebd5fd",
+      "sample": "2026-11-27T191217.642024+0000_usgs-rights.sample",
+      "seconds": 1.459
+    },
+    {
+      "id": "nasa-rights",
+      "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "atUtc": "2026-11-27T19:12:19.102082+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "headers": {
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "retainedBytes": 318349,
+      "sha256": "3e5347517573326ae4650c3002cbcea16d9459fd02b33bd0fc44e8a35de614e4",
+      "sample": "2026-11-27T191219.102082+0000_nasa-rights.sample",
+      "seconds": 0.334
+    },
+    {
+      "id": "nasa-science-policy",
+      "url": "https://science.nasa.gov/researchers/science-information-policy_faq/",
+      "atUtc": "2026-11-27T19:12:19.437059+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://science.nasa.gov/researchers/science-information-policy_faq/",
+      "headers": {
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "retainedBytes": 321634,
+      "sha256": "7ee1db3229ca749cff678dfda6783ac6a33c49a385bccacd93b140c6094f98aa",
+      "sample": "2026-11-27T191219.437059+0000_nasa-science-policy.sample",
+      "seconds": 1.017
+    },
+    {
+      "id": "sbn-alternate-mission",
+      "url": "https://newpds-smallbodies.astro.umd.edu/data_sb/missions/newhorizons/index.shtml",
+      "atUtc": "2026-11-27T19:12:20.455081+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.071
+    },
+    {
+      "id": "sbn-alternate-composition",
+      "url": "https://newpds-smallbodies.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_composition-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:12:29.526931+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.005
+    },
+    {
+      "id": "sbn-alternate-geophysics",
+      "url": "https://newpds-smallbodies.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_geophysics-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:12:38.532285+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error _ssl.c:1011: The handshake operation timed out>",
+      "seconds": 12.103
+    },
+    {
+      "id": "geophysics-release",
+      "url": "https://pds.nasa.gov/datasearch/subscription-service/SS-20250731.shtml",
+      "atUtc": "2026-11-27T19:12:50.636402+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/datasearch/subscription-service/SS-20250731.shtml",
+      "headers": {
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "retainedBytes": 11846,
+      "sha256": "efd357f63423770b0f93d11b50d0b20a0bc2d0d414a90a166acda8408acf7f0f",
+      "sample": "2026-11-27T191250.636402+0000_geophysics-release.sample",
+      "seconds": 0.619
+    },
+    {
+      "id": "usgs-file-pluto-mosaic",
+      "url": "https://planetarymaps.usgs.gov/mosaic/Pluto_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+      "atUtc": "2026-11-27T19:12:59.488782+00:00",
+      "range": true,
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Pluto_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "128",
+        "Content-Range": "bytes 0-127/309806463",
+        "Last-Modified": "Thu, 10 Nov 2022 06:08:01 GMT",
+        "ETag": "\"1f12a9391630e54e857d8be60e55968d-37\""
+      },
+      "retainedBytes": 128,
+      "sha256": "c51a56fe7c8279549ad633e06cb463854b0227fa64a260ab2d60b53403484a1e",
+      "sample": "2026-11-27T191259.488782+0000_usgs-file-pluto-mosaic.sample",
+      "seconds": 0.866
+    },
+    {
+      "id": "usgs-file-charon-mosaic",
+      "url": "https://planetarymaps.usgs.gov/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+      "atUtc": "2026-11-27T19:13:00.354953+00:00",
+      "range": true,
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "128",
+        "Content-Range": "bytes 0-127/80613890",
+        "Last-Modified": "Tue, 08 Nov 2022 18:48:03 GMT",
+        "ETag": "\"4c7a67af0d2d27e8e2bb21261caa7b9d-10\""
+      },
+      "retainedBytes": 128,
+      "sha256": "14007388b62f098b5e5d34535ed49626583ba992e437e30908d21584c9000e41",
+      "sample": "2026-11-27T191300.354953+0000_usgs-file-charon-mosaic.sample",
+      "seconds": 1.503
+    },
+    {
+      "id": "usgs-file-pluto-dem",
+      "url": "https://planetarymaps.usgs.gov/mosaic//Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "atUtc": "2026-11-27T19:13:01.858564+00:00",
+      "range": true,
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "128",
+        "Content-Range": "bytes 0-127/619512743",
+        "Last-Modified": "Thu, 10 Nov 2022 06:07:51 GMT",
+        "ETag": "\"52520d14914704642d56595607089666-74\""
+      },
+      "retainedBytes": 128,
+      "sha256": "30c352e06ed1ea280556322caa5cbf9c5c63dee8ff8e603630ca1951ebf90189",
+      "sample": "2026-11-27T191301.858564+0000_usgs-file-pluto-dem.sample",
+      "seconds": 1.236
+    },
+    {
+      "id": "usgs-file-charon-dem",
+      "url": "https://planetarymaps.usgs.gov/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "atUtc": "2026-11-27T19:13:03.095390+00:00",
+      "range": true,
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "128",
+        "Content-Range": "bytes 0-127/161176369",
+        "Last-Modified": "Tue, 08 Nov 2022 18:47:23 GMT",
+        "ETag": "\"5d5e902c64a54c3bc45895c729e77136-20\""
+      },
+      "retainedBytes": 128,
+      "sha256": "115fe087d11a5799ddf8ae53e7308b6c548f5aa6ba57c73a5edd692417a6a9c9",
+      "sample": "2026-11-27T191303.095390+0000_usgs-file-charon-dem.sample",
+      "seconds": 1.534
+    },
+    {
+      "id": "usgs-xml-pluto-mosaic",
+      "url": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_mosaic_300m.xml",
+      "atUtc": "2026-11-27T19:13:04.630502+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_mosaic_300m.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "11092",
+        "Last-Modified": "Fri, 27 Nov 2026 19:13:05 GMT"
+      },
+      "retainedBytes": 11092,
+      "sha256": "d62b09e5078183a8d24aa8f8ff3e02b8c49b2c8b8661041534a0f3d40c380270",
+      "sample": "2026-11-27T191304.630502+0000_usgs-xml-pluto-mosaic.sample",
+      "seconds": 0.952
+    },
+    {
+      "id": "usgs-xml-charon-mosaic",
+      "url": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m.xml",
+      "atUtc": "2026-11-27T19:13:05.583681+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_mosaic_300m.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "10694",
+        "Last-Modified": "Fri, 27 Nov 2026 19:13:05 GMT"
+      },
+      "retainedBytes": 10694,
+      "sha256": "26a71711f3a20399fa1c0c43480091d8663da7b679c0fe60a0faf5871710a10e",
+      "sample": "2026-11-27T191305.583681+0000_usgs-xml-charon-mosaic.sample",
+      "seconds": 0.356
+    },
+    {
+      "id": "usgs-xml-pluto-dem",
+      "url": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_dem_300m.xml",
+      "atUtc": "2026-11-27T19:13:05.940551+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/pluto_new_horizons_lorri_mvic_global_dem_300m.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "11148",
+        "Last-Modified": "Fri, 27 Nov 2026 19:13:06 GMT"
+      },
+      "retainedBytes": 11148,
+      "sha256": "4533632dd69ec32b96956e3d9a821b935f21e7e0e1d854bf5b7f89a9a4d34887",
+      "sample": "2026-11-27T191305.940551+0000_usgs-xml-pluto-dem.sample",
+      "seconds": 0.312
+    },
+    {
+      "id": "usgs-xml-charon-dem",
+      "url": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_dem_300m.xml",
+      "atUtc": "2026-11-27T19:13:06.252941+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://astrogeology.usgs.gov/search/map/charon_new_horizons_lorri_mvic_global_dem_300m.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "10906",
+        "Last-Modified": "Fri, 27 Nov 2026 19:13:06 GMT"
+      },
+      "retainedBytes": 10906,
+      "sha256": "b42e4492ce27409d8fbb5f1276cff2f005d1552ec340419303541316c3362b14",
+      "sample": "2026-11-27T191306.252941+0000_usgs-xml-charon-dem.sample",
+      "seconds": 0.327
+    },
+    {
+      "id": "pds-release-index",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/",
+      "atUtc": "2026-11-27T19:13:06.581213+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/",
+      "headers": {
+        "Content-Type": "text/html;charset=ISO-8859-1"
+      },
+      "retainedBytes": 18317,
+      "sha256": "1eef1af7c23c15cff1a34e8076ff7f9ac287cd1cc8b950e199a85b0ea35bb714",
+      "sample": "2026-11-27T191306.581213+0000_pds-release-index.sample",
+      "seconds": 0.199
+    },
+    {
+      "id": "pds3-composition-profile",
+      "url": "https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=NH-P%2FPSA-LEISA%2FMVIC-5-COMP-V1.0",
+      "atUtc": "2026-11-27T19:13:06.781175+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=NH-P%2FPSA-LEISA%2FMVIC-5-COMP-V1.0",
+      "headers": {
+        "Content-Type": "text/html;charset=ISO-8859-1"
+      },
+      "retainedBytes": 39525,
+      "sha256": "ea24769ac310a345024ad899b3bb01135ee308992a1b60bdd9907ca5c856b030",
+      "sample": "2026-11-27T191306.781175+0000_pds3-composition-profile.sample",
+      "seconds": 1.189
+    },
+    {
+      "id": "pds3-geophysics-profile",
+      "url": "https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=NH-P%2FPSA-LORRI%2FMVIC-5-GEOPHYS-V1.0",
+      "atUtc": "2026-11-27T19:13:07.971091+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=NH-P%2FPSA-LORRI%2FMVIC-5-GEOPHYS-V1.0",
+      "headers": {
+        "Content-Type": "text/html;charset=ISO-8859-1"
+      },
+      "retainedBytes": 25348,
+      "sha256": "a8f421d0c90485d2170c294ac25f4ceb40bc7502c5f63e4d7c1816b3193d9b69",
+      "sample": "2026-11-27T191307.971091+0000_pds3-geophysics-profile.sample",
+      "seconds": 0.201
+    },
+    {
+      "id": "pds3-composition-sbn",
+      "url": "https://pds-smallbodies.astro.umd.edu/holdings/nh-p_psa-leisa_mvic-5-comp-v1.0/dataset.html",
+      "atUtc": "2026-11-27T19:13:08.172997+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.012
+    },
+    {
+      "id": "pds3-geophysics-sbn",
+      "url": "https://pds-smallbodies.astro.umd.edu/holdings/nh-p_psa-lorri_mvic-5-geophys-v1.0/dataset.html",
+      "atUtc": "2026-11-27T19:13:17.185679+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.003
+    },
+    {
+      "id": "datacite-composition",
+      "url": "https://api.datacite.org/dois/10.26007/mc7j-ef52",
+      "atUtc": "2026-11-27T19:13:26.189812+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://api.datacite.org/dois/10.26007/mc7j-ef52",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"252d4d1a5f4a1b9b4ce39f57ffda9344\""
+      },
+      "retainedBytes": 21644,
+      "sha256": "252d4d1a5f4a1b9b4ce39f57ffda93443440523c9d7a999f8d617ecbf101672b",
+      "sample": "2026-11-27T191326.189812+0000_datacite-composition.sample",
+      "jsonShape": [
+        "data"
+      ],
+      "seconds": 0.774
+    },
+    {
+      "id": "datacite-geophysics",
+      "url": "https://api.datacite.org/dois/10.26007/qc8b-6p65",
+      "atUtc": "2026-11-27T19:13:26.964887+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://api.datacite.org/dois/10.26007/qc8b-6p65",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"dfbb3cd746ed21f4762a16f1aae394e9\""
+      },
+      "retainedBytes": 16520,
+      "sha256": "dfbb3cd746ed21f4762a16f1aae394e93aa0071afe86747f8dcecfd2bf5113e9",
+      "sample": "2026-11-27T191326.964887+0000_datacite-geophysics.sample",
+      "jsonShape": [
+        "data"
+      ],
+      "seconds": 0.723
+    },
+    {
+      "id": "search-control",
+      "url": "https://pds.nasa.gov/api/search/1/products?limit=1",
+      "atUtc": "2026-11-27T19:14:10.585028+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products?limit=1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 104,
+      "sha256": "90263bcca4b27f26ea76b90468a955f79160b32b132e84e2151729d5c1fb597e",
+      "sample": "2026-11-27T191410.585028+0000_search-control.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.563
+    },
+    {
+      "id": "registry-control",
+      "url": "https://pds.nasa.gov/api/registry/1/products?limit=1",
+      "atUtc": "2026-11-27T19:14:11.148645+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 503,
+      "finalUrl": "https://pds.nasa.gov/api/registry/1/products?limit=1",
+      "headers": {
+        "Content-Type": "text/html; charset=iso-8859-1",
+        "Content-Length": "299"
+      },
+      "retainedBytes": 299,
+      "sha256": "5764fed31b533e202f88d735a531f70a4ee3f66bb856afa4277872a758e6b578",
+      "sample": "2026-11-27T191411.148645+0000_registry-control.sample",
+      "seconds": 0.167
+    },
+    {
+      "id": "corrected-pluto",
+      "url": "https://pds.nasa.gov/api/search/1/products?q=ref_lid_target+eq+%22urn%3Anasa%3Apds%3Acontext%3Atarget%3Adwarf_planet.134340_pluto%22&limit=2",
+      "atUtc": "2026-11-27T19:14:11.316286+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 500,
+      "finalUrl": "https://pds.mcp.nasa.gov/api/search/1/products?limit=2&q=ref_lid_target+eq+%22urn%3Anasa%3Apds%3Acontext%3Atarget%3Adwarf_planet.134340_pluto%22",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "retainedBytes": 104,
+      "sha256": "03bb5e2a5bc9ce730fe1ff4f3b8fff5dff548d5b3b3cf5a53d62d477c8198241",
+      "sample": "2026-11-27T191411.316286+0000_corrected-pluto.sample",
+      "jsonShape": [
+        "timestamp",
+        "status",
+        "error",
+        "path"
+      ],
+      "seconds": 0.212
+    },
+    {
+      "id": "sbn-composition",
+      "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived%3Aplutosystem_composition-v1.0/SUPPORT/dataset.shtml",
+      "atUtc": "2026-11-27T19:14:11.529356+00:00",
+      "range": false,
+      "dns": "resolved",
+      "transportError": "<urlopen error timed out>",
+      "seconds": 9.006
+    },
+    {
+      "id": "resource-composition",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/resource_nh_derived_colxn_plutosystem_composition.xml",
+      "atUtc": "2026-11-27T19:14:20.536520+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/resource_nh_derived_colxn_plutosystem_composition.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "1747",
+        "Last-Modified": "Wed, 02 Jul 2025 04:42:10 GMT"
+      },
+      "retainedBytes": 1747,
+      "sha256": "3aecb4975a4fbc7512a9b863d390c9cfa29741984b5eb9db198724f33c093d6c",
+      "sample": "2026-11-27T191420.536520+0000_resource-composition.sample",
+      "seconds": 0.342
+    },
+    {
+      "id": "resource-geophysics",
+      "url": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/resource_nh_derived_colxn_plutosystem_geophysics.xml",
+      "atUtc": "2026-11-27T19:14:20.879488+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/resource_nh_derived_colxn_plutosystem_geophysics.xml",
+      "headers": {
+        "Content-Type": "text/xml",
+        "Content-Length": "1730",
+        "Last-Modified": "Wed, 02 Jul 2025 04:42:42 GMT"
+      },
+      "retainedBytes": 1730,
+      "sha256": "b569f57c289c2386798a66fdd043253c79240a5f446acf8df1add0a8959fa5ae",
+      "sample": "2026-11-27T191420.879488+0000_resource-geophysics.sample",
+      "seconds": 0.567
+    },
+    {
+      "id": "usgs-tiff-header-pluto-dem",
+      "url": "https://planetarymaps.usgs.gov/mosaic//Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "atUtc": "2026-11-27T19:14:21.447322+00:00",
+      "range": 8191,
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "8192",
+        "Content-Range": "bytes 0-8191/619512743",
+        "Last-Modified": "Thu, 10 Nov 2022 06:07:51 GMT",
+        "ETag": "\"52520d14914704642d56595607089666-74\""
+      },
+      "retainedBytes": 8192,
+      "sha256": "593eaa928146f49a7c37848d752b11a54790485cb242d079c440fbc2b2ad2039",
+      "sample": "2026-11-27T191421.447322+0000_usgs-tiff-header-pluto-dem.sample",
+      "seconds": 1.563
+    },
+    {
+      "id": "usgs-tiff-header-charon-dem",
+      "url": "https://planetarymaps.usgs.gov/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "atUtc": "2026-11-27T19:14:23.011344+00:00",
+      "range": 8191,
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "8192",
+        "Content-Range": "bytes 0-8191/161176369",
+        "Last-Modified": "Tue, 08 Nov 2022 18:47:23 GMT",
+        "ETag": "\"5d5e902c64a54c3bc45895c729e77136-20\""
+      },
+      "retainedBytes": 8192,
+      "sha256": "e88098a6a8502aa5ba25a3f500a3b3469fd2e67c5e6c51bd7b5673868acde18b",
+      "sample": "2026-11-27T191423.011344+0000_usgs-tiff-header-charon-dem.sample",
+      "seconds": 1.289
+    },
+    {
+      "id": "cc0-terms",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "atUtc": "2026-11-27T19:14:24.301240+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "headers": {
+        "Content-Type": "text/html",
+        "Last-Modified": "Wed, 25 Nov 2026 17:44:08 GMT"
+      },
+      "retainedBytes": 31065,
+      "sha256": "b7b54600914107f3eb5601b61168a827e21fda05a369eee41b85fb95346df318",
+      "sample": "2026-11-27T191424.301240+0000_cc0-terms.sample",
+      "seconds": 0.185
+    },
+    {
+      "id": "archive-credit",
+      "url": "https://pds.nasa.gov/datastandards/citing/",
+      "atUtc": "2026-11-27T19:14:24.487248+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://pds.nasa.gov/datastandards/citing/",
+      "headers": {
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "retainedBytes": 33490,
+      "sha256": "f580416bfe2a2b3f8f4aad0acafd8f9f33c514ef96c5ed3139058dfb6cccaf0a",
+      "sample": "2026-11-27T191424.487248+0000_archive-credit.sample",
+      "seconds": 0.125
+    },
+    {
+      "id": "usgs-nodata-pluto-dem",
+      "url": "https://planetarymaps.usgs.gov/mosaic//Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "atUtc": "2026-11-27T19:14:52.650093+00:00",
+      "range": [
+        100192,
+        100198
+      ],
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "7",
+        "Content-Range": "bytes 100192-100198/619512743",
+        "Last-Modified": "Thu, 10 Nov 2022 06:07:51 GMT",
+        "ETag": "\"52520d14914704642d56595607089666-74\""
+      },
+      "retainedBytes": 7,
+      "sha256": "2bcce4830bc3a79f3d179888351eb29d047bd3fc78df00c146386db2749dc96a",
+      "sample": "2026-11-27T191452.650093+0000_usgs-nodata-pluto-dem.sample",
+      "seconds": 2.105
+    },
+    {
+      "id": "usgs-nodata-charon-dem",
+      "url": "https://planetarymaps.usgs.gov/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "atUtc": "2026-11-27T19:14:54.756033+00:00",
+      "range": [
+        51420,
+        51426
+      ],
+      "dns": "resolved",
+      "http": 206,
+      "finalUrl": "https://asc-pds-services.s3.us-west-2.amazonaws.com/mosaic/Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif",
+      "headers": {
+        "Content-Type": "image/tiff",
+        "Content-Length": "7",
+        "Content-Range": "bytes 51420-51426/161176369",
+        "Last-Modified": "Tue, 08 Nov 2022 18:47:23 GMT",
+        "ETag": "\"5d5e902c64a54c3bc45895c729e77136-20\""
+      },
+      "retainedBytes": 7,
+      "sha256": "2bcce4830bc3a79f3d179888351eb29d047bd3fc78df00c146386db2749dc96a",
+      "sample": "2026-11-27T191454.756033+0000_usgs-nodata-charon-dem.sample",
+      "seconds": 1.542
+    },
+    {
+      "id": "datacite-pds3-geophysics",
+      "url": "https://api.datacite.org/dois/10.26007/k216-0131",
+      "atUtc": "2026-11-27T19:15:11.801716+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://api.datacite.org/dois/10.26007/k216-0131",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"65ab474f7e4df17fe2383086af4e4a43\""
+      },
+      "retainedBytes": 11908,
+      "sha256": "65ab474f7e4df17fe2383086af4e4a434375835a8c0dbb8eece5f2a91b38ec0c",
+      "sample": "2026-11-27T191511.801716+0000_datacite-pds3-geophysics.sample",
+      "jsonShape": [
+        "data"
+      ],
+      "seconds": 0.649
+    },
+    {
+      "id": "datacite-calibrated-lorri",
+      "url": "https://api.datacite.org/dois/10.26007/gs9b-yd88",
+      "atUtc": "2026-11-27T19:15:12.451323+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://api.datacite.org/dois/10.26007/gs9b-yd88",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"e5639bc3842f5b37b1cb2a4abf560481\""
+      },
+      "retainedBytes": 17700,
+      "sha256": "e5639bc3842f5b37b1cb2a4abf560481c5a458222b6956d2867419efa1365f5d",
+      "sample": "2026-11-27T191512.451323+0000_datacite-calibrated-lorri.sample",
+      "jsonShape": [
+        "data"
+      ],
+      "seconds": 0.736
+    },
+    {
+      "id": "datacite-calibrated-mvic",
+      "url": "https://api.datacite.org/dois/10.26007/sdez-bd85",
+      "atUtc": "2026-11-27T19:15:13.188057+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://api.datacite.org/dois/10.26007/sdez-bd85",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"70df47df5d8a243f7a9a5f0ffe5d5a5a\""
+      },
+      "retainedBytes": 14562,
+      "sha256": "70df47df5d8a243f7a9a5f0ffe5d5a5a740d6cff6003fafe199d1112774b704d",
+      "sample": "2026-11-27T191513.188057+0000_datacite-calibrated-mvic.sample",
+      "jsonShape": [
+        "data"
+      ],
+      "seconds": 0.731
+    },
+    {
+      "id": "datacite-calibrated-leisa",
+      "url": "https://api.datacite.org/dois/10.26007/w77z-6643",
+      "atUtc": "2026-11-27T19:15:13.919458+00:00",
+      "range": false,
+      "dns": "resolved",
+      "http": 200,
+      "finalUrl": "https://api.datacite.org/dois/10.26007/w77z-6643",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"64998ab2188bf9072b2405783f57a831\""
+      },
+      "retainedBytes": 18214,
+      "sha256": "64998ab2188bf9072b2405783f57a83192d9213a39828f0ced93accb27748f21",
+      "sample": "2026-11-27T191513.919458+0000_datacite-calibrated-leisa.sample",
+      "jsonShape": [
+        "data"
+      ],
+      "seconds": 0.775
+    }
+  ]
+}
