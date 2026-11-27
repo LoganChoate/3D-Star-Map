@@ -1,6 +1,6 @@
 # Data readiness and searchable catalogs
 
-Updated November 25, 2026 (America/Denver). **Planned prerequisite before Phase 7. All seven implementation checks are pending.**
+Updated November 25, 2026 (America/Denver). **Prerequisite before Phase 7. Step 1 is verified and ready for review. Six checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
 
 The user selected a verified source inventory plus a working searchable catalog foundation; large asset metadata will be indexed during this milestone, with masters downloaded when their body is scheduled; free public sources come first and account-required sources are flagged for review.
 
@@ -16,7 +16,7 @@ Comprehensive means all eligible records in named, dated source snapshots. Asset
 
 ### 1. Source register and coverage contract
 
-**Status: pending.** Identify the authoritative public sources for every Phase 7–13 population and each required data type before new modeling. Record exact inclusion queries, available fields, coverage dates/counts, access and reuse conditions, refresh limits, alternative sources, and unresolved gaps. Use free public sources first; flag account-required sources for review. Define the bounded archive collections to index, rather than claiming to index every available dataset on the internet.
+**Status: verified November 27, 2026.** The [source register and probe results](data-readiness-step1.md) document the outcome. Identify the authoritative public sources for every Phase 7–13 population and each required data type before new modeling. Record exact inclusion queries, available fields, coverage dates/counts, access and reuse conditions, refresh limits, alternative sources, and unresolved gaps. Use free public sources first; flag account-required sources for review. Define the bounded archive collections to index, rather than claiming to index every available dataset on the internet.
 
 Required evidence:
 
