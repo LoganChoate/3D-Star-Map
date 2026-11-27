@@ -25,6 +25,7 @@ PLUTO_REGISTER = SEED.parents[1] / "docs" / "pluto-archive-register.json"
 MOON_SYSTEMS = {"Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"}
 PLANETS = MOON_SYSTEMS | {"Mercury", "Venus", "Earth"}
 MRO = "spacecraft:mars-reconnaissance-orbiter"
+NAIF_IDS = "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/FORTRAN/req/naif_ids.html"
 CURATED_MOONS = {
     ("Pluto", "I"): "solar:charon",
     ("Pluto", "II"): "solar:nix",
@@ -320,6 +321,11 @@ class Import:
             # These are the same provider's system-qualified roster labels and reference tables.
             # Cross-check its body code wherever both reference tables supply it.
             key = self.moons.get((system, moon_designation(designation)))
+            if (system, designation, code) == ("Saturn", "Skadi", "627"):
+                key = self.moons[(system, "S/2000 S 8")]
+                self.alias("jpl-ephemeris-name", "Saturn:Skadi", key)
+                self.row("moon-id-crosswalk", code, key, {"source": NAIF_IDS, "name": "Skathi",
+                                                          "iauNumber": "Saturn XXVII"})
             source_key = f"{system}:{code or designation}"
             if dataset == "moon-ephemerides":
                 source_key += f":{cells[3]}"
@@ -414,7 +420,8 @@ class Import:
                     self.duplicates[dataset] += 1
                     continue
                 observed += 1
-                if len(record) != len(FIELDS) or type(record[0]) is not int or record[0] <= 0:
+                if (not isinstance(record, list) or len(record) != len(FIELDS)
+                        or type(record[0]) is not int or record[0] <= 0):
                     self.quarantine(dataset, observed, "unknown row format or invalid SPK-ID", record)
                     continue
                 if last_pair is not None and record[0] <= last_pair[0]:
@@ -423,8 +430,9 @@ class Import:
                 first_pair = record if first_pair is None else first_pair
                 last_pair = record
                 spk, designation, full_name, name, kind = record[:5]
-                if not designation or kind not in {"an", "au", "cn", "cu"}:
-                    self.quarantine(dataset, spk, "invalid designation or object kind", record)
+                if (not isinstance(designation, str) or not designation or not isinstance(full_name, str)
+                        or (name is not None and not isinstance(name, str)) or kind not in {"an", "au", "cn", "cu"}):
+                    self.quarantine(dataset, spk, "invalid designation, name or object kind", record)
                     continue
                 namespace = "iau-comet" if kind.startswith("c") else "iau-minor-planet"
                 key = self.seed_aliases.get((namespace, designation))

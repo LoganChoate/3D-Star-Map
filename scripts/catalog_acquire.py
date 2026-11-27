@@ -125,6 +125,8 @@ def fetch(root, name, url, *, attempts=3, timeout=75, max_bytes=64 * 1024 * 1024
                 elif response.status == 200:
                     offset = 0
                     total = length
+                    if total is None and not response.chunked:
+                        raise ValueError(f"Response has no verifiable HTTP framing: {name}")
                 else:
                     raise ValueError(f"Unexpected HTTP {response.status}: {name}")
                 if total is not None and not 0 < total <= max_bytes:
@@ -155,6 +157,7 @@ def fetch(root, name, url, *, attempts=3, timeout=75, max_bytes=64 * 1024 * 1024
                 "name": name, "url": url, "resolvedUrl": response.url, "startedAt": started,
                 "retrievedAt": utc_now(), "sha256": sha, "bytes": size, "etag": etag,
                 "lastModified": modified, "contentEncoding": encoding,
+                "declaredBytes": total,
                 "attempt": attempt, "resumedFromByte": offset,
                 "acquisitionVersion": ACQUISITION_VERSION,
             }

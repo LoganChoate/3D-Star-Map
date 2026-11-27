@@ -1,6 +1,6 @@
 {
   "clientDate": "2026-11-25",
-  "status": "acquisition-in-progress",
+  "status": "verified-review-pending",
   "phase6Approval": "User approved work to date after installed 1.5.0 technical acceptance. This is general approval, not invented separate listening evidence.",
   "decisions": {
     "remainingPlanets": "All seven beyond Earth, rings, every cataloged major/minor moon and known surrounding natural objects.",
@@ -720,7 +720,7 @@
     "navLabel": "DATA",
     "displayLabel": "BEFORE PHASE 7",
     "title": "Data readiness and searchable catalogs",
-    "subtitle": "Step 3 acquisition underway · 2 of 7 checks verified",
+    "subtitle": "Steps 1–3 verified · ready for review",
     "status": "active",
     "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
     "checks": [
@@ -767,8 +767,8 @@
       {
         "id": "data-3",
         "label": "Reproducible acquisition and complete selected imports",
-        "detail": "92,555 distinct identities in the saved catalog. 799,985 of 1,489,644 main-belt rows had been retained. The bundle awaits the full selection. Two offline builds from the same pinned inputs produced matching catalog and manifest hashes.",
-        "status": "pending",
+        "detail": "1,581,929 distinct identities in the saved catalog. All 1,489,644 main-belt rows reconciled across 30 pages. Two offline builds from the same pinned inputs produced matching catalog and manifest hashes.",
+        "status": "passed",
         "evidence": [
           {
             "label": "Step 3 coverage and recovery",
@@ -830,13 +830,13 @@
       }
     ],
     "blockers": [
-      "The main-belt selection is still downloading and must reconcile before Step 4.",
+      "Review Step 3 before opening Step 4. The selected imports reconciled.",
       "Some companion identities and trajectories remain unknown. See the coverage evidence.",
       "Space-Track requires an account. Large map masters and product-level rights review are scheduled by body."
     ],
     "nextActions": [
-      "Finish the full belt acquisition and reconcile the selection.",
-      "Compare full offline replays before presenting Step 3 for review."
+      "Review the selected imports, unresolved rows and replay proof.",
+      "After review, benchmark indexed search in Step 4."
     ]
   }
 }

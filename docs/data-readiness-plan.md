@@ -1,6 +1,6 @@
 # Data readiness and searchable catalogs
 
-Updated November 27, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1 and 2 are verified. Step 3 acquisition is underway.** See the [Step 1 source register and results](data-readiness-step1.md).
+Updated November 27, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1–3 are verified. Four checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
 
 The user selected a verified source inventory plus a working searchable catalog foundation; large asset metadata will be indexed during this milestone, with masters downloaded when their body is scheduled; free public sources come first and account-required sources are flagged for review.
 
@@ -36,7 +36,7 @@ Required evidence:
 
 ### 3. Reproducible acquisition and complete selected imports
 
-**Step 3 acquisition in progress.** See the [Step 3 results](data-readiness-step3.md). Build a controlled acquisition process and deterministic importers. Retain immutable raw inputs, source/query manifests, retrieval times, source/parser versions and hashes. Prefer documented bulk snapshots; use bounded, resumable transfers, caching and source-specific throttling. Import the full eligible structured record population in each selected source, not a demonstration handful.
+**Step 3 verified and ready for review.** See the [Step 3 results](data-readiness-step3.md). Build a controlled acquisition process and deterministic importers. Retain immutable raw inputs, source/query manifests, retrieval times, source/parser versions and hashes. Prefer documented bulk snapshots; use bounded, resumable transfers, caching and source-specific throttling. Import the full eligible structured record population in each selected source, not a demonstration handful.
 
 Required evidence:
 

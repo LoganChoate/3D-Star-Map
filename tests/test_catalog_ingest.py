@@ -1,7 +1,9 @@
 """Acquisition recovery and fail-closed catalog checks using synthetic inputs."""
 
 import hashlib
+import csv
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from io import StringIO
 import json
 from pathlib import Path
 import sqlite3
@@ -13,8 +15,8 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from catalog_acquire import FIELDS, SBDB_FILTERS, fetch, sbdb_url, verified_input, write_json
-from catalog_ingest import Import, SCHEMA, SEED, moon_designation
+from catalog_acquire import CELESTRAK, FIELDS, SBDB_FILTERS, fetch, sbdb_url, verified_input, write_json
+from catalog_ingest import GP_FIELDS, SATCAT_FIELDS, Import, SCHEMA, SEED, moon_designation
 
 
 class AcquisitionTests(unittest.TestCase):
@@ -151,9 +153,12 @@ class ImportTests(unittest.TestCase):
     def page(self, name, offset, limit, rows):
         body = json.dumps({"signature": {"version": "1.0"}, "fields": FIELDS,
                            "count": 3, "data": rows}).encode()
+        return self.retain(name, sbdb_url("main-belt", offset, limit), body)
+
+    def retain(self, name, url, body):
         sha = hashlib.sha256(body).hexdigest()
         (self.root / "blobs" / sha).write_bytes(body)
-        receipt = {"name": name, "url": sbdb_url("main-belt", offset, limit),
+        receipt = {"name": name, "url": url,
                    "acquisitionVersion": 1, "sha256": sha, "bytes": len(body)}
         write_json(self.root / "receipts" / f"{name}.json", receipt)
         return receipt
@@ -191,6 +196,29 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(moon_designation("S2004_S_07"), "S/2004 S 7")
         self.assertEqual(moon_designation("S/2004 S7"), "S/2004 S 7")
         self.assertEqual(moon_designation("S/2012 (134340) 1"), "S/2012 (134340) 1")
+
+    def test_docked_gp_link_preserves_parent_and_is_excluded_from_independent_orbits(self):
+        def retain_csv(name, fields, records):
+            output = StringIO()
+            writer = csv.DictWriter(output, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(records)
+            self.retain(name, CELESTRAK[name], output.getvalue().encode("utf-8"))
+
+        retain_csv("satcat", SATCAT_FIELDS, [
+            {"NORAD_CAT_ID": "100002", "OBJECT_NAME": "Child", "OBJECT_TYPE": "PAY",
+             "ORBIT_CENTER": "100001", "ORBIT_TYPE": "DOC"},
+            {"NORAD_CAT_ID": "100001", "OBJECT_NAME": "Parent", "OBJECT_TYPE": "PAY",
+             "ORBIT_CENTER": "EA", "ORBIT_TYPE": "ORB"},
+        ])
+        gp = [{"NORAD_CAT_ID": sid, "EPOCH": "2026-11-27T12:00:00"} for sid in ("100001", "100002")]
+        retain_csv("gp-active", GP_FIELDS, gp[:1])
+        retain_csv("gp-stations", GP_FIELDS, gp)
+        self.ingest.celestrak()
+        self.assertEqual(self.ingest.report()["coverage"]["earthWithSelectedGp"], 1)
+        self.assertEqual(self.db.execute("SELECT * FROM relations").fetchone(),
+                         ("norad:100002", "docked-to", "norad:100001", "cataloged"))
+        self.assertEqual(self.ingest.counts["gp-stations"]["imported-docked"], 1)
 
 
 if __name__ == "__main__":
