@@ -1,6 +1,6 @@
 {
   "clientDate": "2026-11-25",
-  "status": "step-1-verified-review-pending",
+  "status": "data-readiness-step-2-verified-review-pending",
   "position": "Prerequisite after completed Phase 6 and before Phase 7; existing phase numbers 7–14 are preserved.",
   "userDecisions": {
     "deliverable": "Verified source inventory plus a working searchable catalog foundation.",
@@ -13,7 +13,7 @@
     "navLabel": "DATA",
     "displayLabel": "BEFORE PHASE 7",
     "title": "Data readiness and searchable catalogs",
-    "subtitle": "Step 1 verified · ready for review",
+    "subtitle": "Steps 1 and 2 verified · ready for review",
     "status": "active",
     "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
     "checks": [
@@ -34,6 +34,10 @@
           {
             "label": "NASA archive and Pluto product follow-up",
             "url": "evidence/pluto-archive-review.html"
+          },
+          {
+            "label": "Native mosaic labels and conditional resume results",
+            "url": "evidence/native-mosaic-access.html"
           }
         ]
       },
@@ -41,11 +45,15 @@
         "id": "data-2",
         "label": "Canonical identities and scientific records",
         "detail": "Define one stable identity and source-qualified alias system, preserving existing sol, solar:* and HYG IDs through an explicit compatibility map. Separate identities, parent/companion relationships, orbit solutions, physical assertions and asset products. Store units, uncertainties, observation method, source references and conflicts. Preserve measured, estimated, modeled and unknown facts distinctly.",
-        "status": "pending",
+        "status": "passed",
         "evidence": [
           {
-            "label": "Planned deliverables and acceptance",
-            "url": "evidence/data-readiness.html"
+            "label": "Step 2 results and scientific record contract",
+            "url": "evidence/data-readiness-step2.html"
+          },
+          {
+            "label": "Acceptance counts and seed hash",
+            "url": "evidence/data-readiness-step2-results.json"
           }
         ]
       },
@@ -111,14 +119,14 @@
       }
     ],
     "blockers": [
-      "NASA Search and Registry APIs still fail. Static PDS inventories and four USGS Pluto/Charon files provide a verified fallback.",
-      "Catalog counts measure source records. Per-object ephemeris, physical-field and imagery coverage remains open.",
-      "Native Pluto/Charon color downloads and release rights for the USGS conversions remain open. Space-Track requires an account."
+      "Static NASA metadata and native Pluto/Charon ranges are verified. The earlier central API failures remain documented.",
+      "Full imports, dataset-wide joins and searchable catalog performance have their own pending checks.",
+      "Full native mosaic checksums and product-level packaging terms remain pending. Space-Track requires an account."
     ],
     "nextActions": [
-      "Review the Step 1 source inventory and Pluto archive access follow-up.",
-      "After review, start Step 2 with stable identities and field-level provenance.",
-      "Use the selected sources and coverage limits when planning full imports."
+      "Review the stable identity and scientific-record contract.",
+      "After review, implement reproducible acquisition and complete selected imports in Step 3.",
+      "Use conditional resume and published hashes, and measure retry recovery with a deliberate failure case."
     ]
   },
   "steps": [
@@ -153,7 +161,12 @@
         "Merges, splits, redirects and retired records are traceable; never join records solely by name or array position. A provisional designation is not itself evidence that a moon is unconfirmed.",
         "Conflicting source assertions remain inspectable. Select sources per field with documented precedence; do not combine elements from different orbit solutions or infer material composition from a class label."
       ],
-      "status": "pending"
+      "status": "passed",
+      "result": {
+        "report": "data-readiness-step2.md",
+        "evidence": "data-readiness-step2-results.json",
+        "userReview": "pending"
+      }
     },
     {
       "id": "data-3",

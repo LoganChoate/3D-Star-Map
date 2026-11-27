@@ -1,0 +1,193 @@
+[
+  {
+    "target": "control",
+    "url": "https://planetarymaps.usgs.gov/mosaic/Charon_NewHorizons_Global_Mosaic_300m_Jul2017_8bit.tif",
+    "atUtc": "2026-11-27T20:03:50.884373+00:00",
+    "requestedRange": "0-127",
+    "expectedTotalBytes": 80613890,
+    "attempt": 1,
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.06224,
+      "connect": 0.165128,
+      "appconnect": 0.6038,
+      "starttransfer": 1.187693,
+      "total": 1.188868
+    },
+    "headers": {
+      "content-range": "bytes 0-127/80613890",
+      "content-type": "image/tiff",
+      "etag": "\"4c7a67af0d2d27e8e2bb21261caa7b9d-10\"",
+      "last-modified": "Tue, 08 Nov 2022 18:48:03 GMT"
+    },
+    "sampleSha256": "14007388b62f098b5e5d34535ed49626583ba992e437e30908d21584c9000e41",
+    "error": null
+  },
+  {
+    "target": "Pluto",
+    "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.img",
+    "atUtc": "2026-11-27T20:03:51.445477+00:00",
+    "requestedRange": "0-127",
+    "expectedTotalBytes": 1055701248,
+    "attempt": 1,
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.016759,
+      "connect": 0.095205,
+      "appconnect": 0.42083,
+      "starttransfer": 0.531193,
+      "total": 0.531674
+    },
+    "headers": {
+      "content-range": "bytes 0-127/1055701248",
+      "content-type": "application/octet-stream",
+      "etag": "\"3eecb900-56f888d651280\"",
+      "last-modified": "Tue, 26 Jun 2018 09:59:22 GMT"
+    },
+    "sampleSha256": "1c292465978e39457086dda62c673a7b3de3778aa162c50eda202623db84dc9c",
+    "error": null
+  },
+  {
+    "target": "Pluto",
+    "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.img",
+    "atUtc": "2026-11-27T20:03:51.702334+00:00",
+    "requestedRange": "4096-4223",
+    "expectedTotalBytes": 1055701248,
+    "attempt": 1,
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.016007,
+      "connect": 0.082099,
+      "appconnect": 0.161212,
+      "starttransfer": 0.228457,
+      "total": 0.228865
+    },
+    "headers": {
+      "content-range": "bytes 4096-4223/1055701248",
+      "content-type": "application/octet-stream",
+      "etag": "\"3eecb900-56f888d651280\"",
+      "last-modified": "Tue, 26 Jun 2018 09:59:22 GMT"
+    },
+    "sampleSha256": "f37b191e290e4bd0dbf7a84767d4b05f8663ab266696731b451b04eec2e55610",
+    "error": null
+  },
+  {
+    "target": "Charon",
+    "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.img",
+    "atUtc": "2026-11-27T20:03:51.980985+00:00",
+    "requestedRange": "0-127",
+    "expectedTotalBytes": 116006912,
+    "attempt": 1,
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.009657,
+      "connect": 0.07626,
+      "appconnect": 0.154765,
+      "starttransfer": 0.250756,
+      "total": 0.251147
+    },
+    "headers": {
+      "content-range": "bytes 0-127/116006912",
+      "content-type": "application/octet-stream",
+      "etag": "\"6ea2000-56f888d55d040\"",
+      "last-modified": "Tue, 26 Jun 2018 09:59:21 GMT"
+    },
+    "sampleSha256": "8e99b2ee638cc1460c8a536b3f03fc7bf9ab6486d854945f3ef5a946dfda7d6e",
+    "error": null
+  },
+  {
+    "target": "Charon",
+    "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.img",
+    "atUtc": "2026-11-27T20:03:52.239269+00:00",
+    "requestedRange": "4096-4223",
+    "expectedTotalBytes": 116006912,
+    "attempt": 1,
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.013073,
+      "connect": 0.082319,
+      "appconnect": 0.161838,
+      "starttransfer": 0.230374,
+      "total": 0.230745
+    },
+    "headers": {
+      "content-range": "bytes 4096-4223/116006912",
+      "content-type": "application/octet-stream",
+      "etag": "\"6ea2000-56f888d55d040\"",
+      "last-modified": "Tue, 26 Jun 2018 09:59:21 GMT"
+    },
+    "sampleSha256": "2eb5af38fb47d959503d96850bf3636832a76359e9c49cb298495725a51ec8ca",
+    "error": null
+  },
+  {
+    "target": "Pluto",
+    "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.img",
+    "atUtc": "2026-11-27T20:04:25.401022+00:00",
+    "requestedRange": "8192-8319",
+    "expectedTotalBytes": 1055701248,
+    "attempt": 1,
+    "ifRange": "\"3eecb900-56f888d651280\"",
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.00603,
+      "connect": 0.072902,
+      "appconnect": 0.149958,
+      "starttransfer": 0.219008,
+      "total": 0.219412
+    },
+    "headers": {
+      "content-range": "bytes 8192-8319/1055701248",
+      "content-type": "application/octet-stream",
+      "etag": "\"3eecb900-56f888d651280\"",
+      "last-modified": "Tue, 26 Jun 2018 09:59:22 GMT"
+    },
+    "sampleSha256": "66d59c5f65202d425f07962b7be7a4a3cc3e6336c02fb1e63980cc4c28ca90fd",
+    "error": null
+  },
+  {
+    "target": "Charon",
+    "url": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.img",
+    "atUtc": "2026-11-27T20:04:25.654759+00:00",
+    "requestedRange": "8192-8319",
+    "expectedTotalBytes": 116006912,
+    "attempt": 1,
+    "ifRange": "\"6ea2000-56f888d55d040\"",
+    "valid": true,
+    "http": 206,
+    "curlExit": 0,
+    "bytes": 128,
+    "timings": {
+      "namelookup": 0.007182,
+      "connect": 0.076409,
+      "appconnect": 0.154218,
+      "starttransfer": 0.226187,
+      "total": 0.226651
+    },
+    "headers": {
+      "content-range": "bytes 8192-8319/116006912",
+      "content-type": "application/octet-stream",
+      "etag": "\"6ea2000-56f888d55d040\"",
+      "last-modified": "Tue, 26 Jun 2018 09:59:21 GMT"
+    },
+    "sampleSha256": "6cb06f07d367a7e12b931985c9005cce9e20aa40b46315edf48a67f0ecbe2c5f",
+    "error": null
+  }
+]

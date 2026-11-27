@@ -1,6 +1,6 @@
 # Data readiness and searchable catalogs
 
-Updated November 25, 2026 (America/Denver). **Prerequisite before Phase 7. Step 1 is verified and ready for review. Six checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
+Updated November 25, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1 and 2 are verified. Five checks are pending. Step 2 is ready for review.** See the [Step 1 source register and results](data-readiness-step1.md).
 
 The user selected a verified source inventory plus a working searchable catalog foundation; large asset metadata will be indexed during this milestone, with masters downloaded when their body is scheduled; free public sources come first and account-required sources are flagged for review.
 
@@ -26,7 +26,7 @@ Required evidence:
 
 ### 2. Canonical identities and scientific records
 
-**Status: pending.** Define one stable identity and source-qualified alias system, preserving existing sol, solar:* and HYG IDs through an explicit compatibility map. Separate identities, parent/companion relationships, orbit solutions, physical assertions and asset products. Store units, uncertainties, observation method, source references and conflicts. Preserve measured, estimated, modeled and unknown facts distinctly.
+**Status: verified.** See the [Step 2 results](data-readiness-step2.md). Define one stable identity and source-qualified alias system, preserving existing sol, solar:* and HYG IDs through an explicit compatibility map. Separate identities, parent/companion relationships, orbit solutions, physical assertions and asset products. Store units, uncertainties, observation method, source references and conflicts. Preserve measured, estimated, modeled and unknown facts distinctly.
 
 Required evidence:
 

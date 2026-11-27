@@ -1,5 +1,7 @@
 # Step 1 follow-up · NASA archive access and Pluto products
 
+**Later result:** both native color labels and conditional binary ranges passed. See the [native mosaic checkpoint](native-mosaic-access.md). The findings below preserve the earlier archive investigation.
+
 Verified from the Galaxy Map workstation on November 27, 2026 (America/Denver). **The project has a working fallback for catalog metadata and four cartographic files. NASA's central Search and Registry APIs still returned server errors.**
 
 ## Archive diagnosis
@@ -52,6 +54,6 @@ To the [PDS Help Desk](https://pds.nasa.gov/datasearch/data-search/) and the cur
 
 Separate question for the USGS Astrogeology contact listed in each product record. Does the “Please cite authors” use note cover redistribution of the July 2017 grayscale and DEM GeoTIFF conversions, and may a desktop/mobile app ship texture and mesh derivatives with credit to the original authors and USGS? Please identify any third-party exceptions or required attribution wording.
 
-**Review checkpoint.** Static metadata and four fallback files are verified for the selected release. Central API recovery, native color downloads and external redistribution decisions remain open where described above. Step 2 is pending user review.
+**Review checkpoint.** Static metadata and four fallback files are verified for the selected release. Central API recovery, native color downloads and external redistribution decisions remain open where described above. See the [Step 2 results](data-readiness-step2.md) for the current review checkpoint.
 
 [Product and probe register](pluto-archive-register.json) · [Original Step 1 evidence](data-readiness-step1.md)

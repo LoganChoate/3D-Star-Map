@@ -1,0 +1,27 @@
+{
+  "status": "verified-review-pending",
+  "legacyDistinctIds": 117744,
+  "contractCasesPassed": 17,
+  "runtimeRegressionCases": {
+    "nearby": 13,
+    "inspectionData": 10
+  },
+  "seedCounts": {
+    "objects": 31,
+    "aliases": 51,
+    "relationships": 16,
+    "assertions": 4,
+    "orbits": 1,
+    "assets": 2
+  },
+  "seedSha256": "86837f42913bb9c49fe3b3c26159f35ecd415f4039c46007f4c90d53b7918a5f",
+  "nativeMosaics": {
+    "rangeChecksPassed": 6,
+    "resumeChecksPassed": 2,
+    "payloadBytesSampled": 768,
+    "fullFileValidation": "pending scheduled acquisition",
+    "retryRecovery": "not exercised"
+  },
+  "previousSteps": "Step 1 verified and approved to proceed",
+  "nextStep": "3 pending user review"
+}
