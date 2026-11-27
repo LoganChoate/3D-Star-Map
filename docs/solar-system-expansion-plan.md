@@ -6,7 +6,7 @@ The authoritative dashboard is [Galaxy Map Execution Control](https://galaxy-map
 
 ## Prerequisite before Phase 7 — Data readiness and searchable catalogs
 
-Complete the [seven-step data-readiness plan](data-readiness-plan.md) before new modeling or scene placement. It delivers a verified public-source inventory, full selected structured imports, stable identities, a working searchable review workbench, numerical validation, recoverable offline releases and a reviewed modeling-readiness ledger. Index large asset metadata now; download masters per scheduled body. Free public sources come first; flag account-dependent sources for review. Step 1 is verified and ready for review. See the [source register and coverage results](data-readiness-step1.md). Six data-readiness checks remain pending. This prerequisite preserves the existing Phase 7–14 numbering.
+Complete the [seven-step data-readiness plan](data-readiness-plan.md) before new modeling or scene placement. It delivers a verified public-source inventory, full selected structured imports, stable identities, a working searchable review workbench, numerical validation, recoverable offline releases and a reviewed modeling-readiness ledger. Index large asset metadata now; download masters per scheduled body. Free public sources come first; flag account-dependent sources for review. Step 1 is verified and ready for review. See the [source register and coverage results](data-readiness-step1.md). The [Step 2 identity contract](data-readiness-step2.md) is also verified and ready for review. Five data-readiness checks remain pending. This prerequisite preserves the existing Phase 7–14 numbering.
 
 ## Sequence
 

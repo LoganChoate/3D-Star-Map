@@ -1,0 +1,1200 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "legacy-solar",
+      "uri": "data/exploration-catalog.json",
+      "version": "1"
+    },
+    {
+      "id": "hyg-4.2",
+      "uri": "https://github.com/astronexus/HYG-Database/tree/main/hyg",
+      "version": "4.2"
+    },
+    {
+      "id": "jpl-moons",
+      "uri": "https://ssd.jpl.nasa.gov/sats/discovery.html",
+      "snapshot": "2026-11-27"
+    },
+    {
+      "id": "jpl-small-moons",
+      "uri": "https://ssd-api.jpl.nasa.gov/doc/sb_sat.html",
+      "snapshot": "2026-11-27"
+    },
+    {
+      "id": "pluto-facts",
+      "uri": "https://science.nasa.gov/dwarf-planets/pluto/facts/"
+    },
+    {
+      "id": "horizons-pluto",
+      "uri": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27999%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545.0%27&REF_PLANE=%27FRAME%27&OUT_UNITS=%27KM-S%27",
+      "snapshot": "2026-11-27"
+    },
+    {
+      "id": "nasa-chiron",
+      "uri": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/chironfact.html"
+    },
+    {
+      "id": "pds-color",
+      "uri": "https://pds.nasa.gov/data/pds4/releases/sbn/nh_derived-20250701/collection_plutosystem_composition.xml",
+      "version": "1.0",
+      "doi": "10.26007/mc7j-ef52"
+    },
+    {
+      "id": "pds-color-checksums",
+      "uri": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/SUPPORT/CHECKSUM/current.md5",
+      "provenance": "User downloaded the archive manifest over cellular; both labels later matched these digests."
+    }
+  ],
+  "objects": [
+    {
+      "id": "sol",
+      "name": "Sol",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:mercury",
+      "name": "Mercury",
+      "kind": "terrestrial planet",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:venus",
+      "name": "Venus",
+      "kind": "terrestrial planet",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:earth",
+      "name": "Earth",
+      "kind": "terrestrial planet",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:moon",
+      "name": "Moon",
+      "kind": "natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:mars",
+      "name": "Mars",
+      "kind": "terrestrial planet",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:jupiter",
+      "name": "Jupiter",
+      "kind": "gas giant",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:saturn",
+      "name": "Saturn",
+      "kind": "gas giant",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:uranus",
+      "name": "Uranus",
+      "kind": "ice giant",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:neptune",
+      "name": "Neptune",
+      "kind": "ice giant",
+      "status": "active",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "hyg:70666",
+      "name": "Proxima Centauri",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:71453",
+      "name": "Toliman",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:71456",
+      "name": "Rigil Kentaurus",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:87665",
+      "name": "Barnard's Star",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:118720",
+      "name": "Wolf 359",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:53879",
+      "name": "Lalande 21185",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:32263",
+      "name": "Sirius",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:92115",
+      "name": "Ross 154",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:16496",
+      "name": "Ran",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:57375",
+      "name": "Ross 128",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:37173",
+      "name": "Procyon",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "hyg:8087",
+      "name": "Tau Cet",
+      "kind": "star",
+      "status": "active",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "id": "solar:pluto",
+      "name": "Pluto",
+      "kind": "dwarf planet",
+      "status": "active",
+      "sourceIds": [
+        "pluto-facts",
+        "horizons-pluto"
+      ]
+    },
+    {
+      "id": "solar:charon",
+      "name": "Charon",
+      "kind": "natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:nix",
+      "name": "Nix",
+      "kind": "natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:hydra",
+      "name": "Hydra",
+      "kind": "natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:kerberos",
+      "name": "Kerberos",
+      "kind": "natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:styx",
+      "name": "Styx",
+      "kind": "natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "minor:2060",
+      "name": "Chiron",
+      "kind": "centaur",
+      "status": "active",
+      "sourceIds": [
+        "nasa-chiron"
+      ]
+    },
+    {
+      "id": "minor:1016",
+      "name": "(1016)",
+      "kind": "minor planet",
+      "status": "active",
+      "sourceIds": [
+        "jpl-small-moons"
+      ]
+    },
+    {
+      "id": "minor:1016-candidate-2016",
+      "name": "Reported companion of (1016)",
+      "kind": "candidate natural satellite",
+      "status": "active",
+      "sourceIds": [
+        "jpl-small-moons"
+      ]
+    }
+  ],
+  "aliases": [
+    {
+      "objectId": "sol",
+      "namespace": "legacy",
+      "value": "sol",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "sol",
+      "namespace": "jpl-horizons",
+      "value": "10",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:mercury",
+      "namespace": "legacy",
+      "value": "solar:mercury",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:mercury",
+      "namespace": "jpl-horizons",
+      "value": "199",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:venus",
+      "namespace": "legacy",
+      "value": "solar:venus",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:venus",
+      "namespace": "jpl-horizons",
+      "value": "299",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:earth",
+      "namespace": "legacy",
+      "value": "solar:earth",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:earth",
+      "namespace": "jpl-horizons",
+      "value": "399",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:moon",
+      "namespace": "legacy",
+      "value": "solar:moon",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:moon",
+      "namespace": "jpl-horizons",
+      "value": "301",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:mars",
+      "namespace": "legacy",
+      "value": "solar:mars",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:mars",
+      "namespace": "jpl-horizons",
+      "value": "499",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:jupiter",
+      "namespace": "legacy",
+      "value": "solar:jupiter",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:jupiter",
+      "namespace": "jpl-horizons",
+      "value": "599",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:saturn",
+      "namespace": "legacy",
+      "value": "solar:saturn",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:saturn",
+      "namespace": "jpl-horizons",
+      "value": "699",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:uranus",
+      "namespace": "legacy",
+      "value": "solar:uranus",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:uranus",
+      "namespace": "jpl-horizons",
+      "value": "799",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:neptune",
+      "namespace": "legacy",
+      "value": "solar:neptune",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "solar:neptune",
+      "namespace": "jpl-horizons",
+      "value": "899",
+      "kind": "source-id",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "objectId": "hyg:70666",
+      "namespace": "legacy",
+      "value": "hyg:70666",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:70666",
+      "namespace": "hyg-4-2",
+      "value": "70666",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:71453",
+      "namespace": "legacy",
+      "value": "hyg:71453",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:71453",
+      "namespace": "hyg-4-2",
+      "value": "71453",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:71456",
+      "namespace": "legacy",
+      "value": "hyg:71456",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:71456",
+      "namespace": "hyg-4-2",
+      "value": "71456",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:87665",
+      "namespace": "legacy",
+      "value": "hyg:87665",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:87665",
+      "namespace": "hyg-4-2",
+      "value": "87665",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:118720",
+      "namespace": "legacy",
+      "value": "hyg:118720",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:118720",
+      "namespace": "hyg-4-2",
+      "value": "118720",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:53879",
+      "namespace": "legacy",
+      "value": "hyg:53879",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:53879",
+      "namespace": "hyg-4-2",
+      "value": "53879",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:32263",
+      "namespace": "legacy",
+      "value": "hyg:32263",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:32263",
+      "namespace": "hyg-4-2",
+      "value": "32263",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:92115",
+      "namespace": "legacy",
+      "value": "hyg:92115",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:92115",
+      "namespace": "hyg-4-2",
+      "value": "92115",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:16496",
+      "namespace": "legacy",
+      "value": "hyg:16496",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:16496",
+      "namespace": "hyg-4-2",
+      "value": "16496",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:57375",
+      "namespace": "legacy",
+      "value": "hyg:57375",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:57375",
+      "namespace": "hyg-4-2",
+      "value": "57375",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:37173",
+      "namespace": "legacy",
+      "value": "hyg:37173",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:37173",
+      "namespace": "hyg-4-2",
+      "value": "37173",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:8087",
+      "namespace": "legacy",
+      "value": "hyg:8087",
+      "kind": "legacy-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "hyg:8087",
+      "namespace": "hyg-4-2",
+      "value": "8087",
+      "kind": "source-id",
+      "sourceIds": [
+        "hyg-4.2"
+      ]
+    },
+    {
+      "objectId": "solar:pluto",
+      "namespace": "jpl-horizons",
+      "value": "999",
+      "kind": "source-id",
+      "sourceIds": [
+        "horizons-pluto"
+      ]
+    },
+    {
+      "objectId": "solar:pluto",
+      "namespace": "iau-minor-planet",
+      "value": "134340",
+      "kind": "designation",
+      "sourceIds": [
+        "pluto-facts"
+      ]
+    },
+    {
+      "objectId": "solar:nix",
+      "namespace": "iau-satellite",
+      "value": "S/2005 P 2",
+      "kind": "designation",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "objectId": "solar:hydra",
+      "namespace": "iau-satellite",
+      "value": "S/2005 P 1",
+      "kind": "designation",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "objectId": "minor:2060",
+      "namespace": "iau-minor-planet",
+      "value": "2060",
+      "kind": "designation",
+      "sourceIds": [
+        "nasa-chiron"
+      ]
+    },
+    {
+      "objectId": "minor:2060",
+      "namespace": "iau-comet",
+      "value": "95P",
+      "kind": "designation",
+      "sourceIds": [
+        "nasa-chiron"
+      ]
+    },
+    {
+      "objectId": "minor:1016",
+      "namespace": "iau-minor-planet",
+      "value": "1016",
+      "kind": "designation",
+      "sourceIds": [
+        "jpl-small-moons"
+      ]
+    }
+  ],
+  "events": [],
+  "relationships": [
+    {
+      "id": "solar:mercury-orbits-sol",
+      "objectId": "solar:mercury",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:venus-orbits-sol",
+      "objectId": "solar:venus",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:earth-orbits-sol",
+      "objectId": "solar:earth",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:moon-orbits-solar:earth",
+      "objectId": "solar:moon",
+      "relatedId": "solar:earth",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:mars-orbits-sol",
+      "objectId": "solar:mars",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:jupiter-orbits-sol",
+      "objectId": "solar:jupiter",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:saturn-orbits-sol",
+      "objectId": "solar:saturn",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:uranus-orbits-sol",
+      "objectId": "solar:uranus",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:neptune-orbits-sol",
+      "objectId": "solar:neptune",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "legacy-solar"
+      ]
+    },
+    {
+      "id": "solar:pluto-orbits-sol",
+      "objectId": "solar:pluto",
+      "relatedId": "sol",
+      "type": "orbits",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "pluto-facts"
+      ]
+    },
+    {
+      "id": "solar:charon-companion-of-solar:pluto",
+      "objectId": "solar:charon",
+      "relatedId": "solar:pluto",
+      "type": "companion-of",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:nix-companion-of-solar:pluto",
+      "objectId": "solar:nix",
+      "relatedId": "solar:pluto",
+      "type": "companion-of",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:hydra-companion-of-solar:pluto",
+      "objectId": "solar:hydra",
+      "relatedId": "solar:pluto",
+      "type": "companion-of",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:kerberos-companion-of-solar:pluto",
+      "objectId": "solar:kerberos",
+      "relatedId": "solar:pluto",
+      "type": "companion-of",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "solar:styx-companion-of-solar:pluto",
+      "objectId": "solar:styx",
+      "relatedId": "solar:pluto",
+      "type": "companion-of",
+      "certainty": "confirmed",
+      "sourceIds": [
+        "jpl-moons"
+      ]
+    },
+    {
+      "id": "minor:1016-candidate-2016-companion-of-minor:1016",
+      "objectId": "minor:1016-candidate-2016",
+      "relatedId": "minor:1016",
+      "type": "companion-of",
+      "certainty": "suspected",
+      "sourceIds": [
+        "jpl-small-moons"
+      ]
+    }
+  ],
+  "orbits": [
+    {
+      "id": "pluto-horizons-j2000-icrf",
+      "objectId": "solar:pluto",
+      "centerId": "sol",
+      "sourceIds": [
+        "horizons-pluto"
+      ],
+      "sourceSolutionId": "plu060_merged",
+      "representation": "cartesian-state",
+      "parameters": {
+        "x": {
+          "value": -1477330922.306794,
+          "unit": "km"
+        },
+        "y": {
+          "value": -4185578139.004337,
+          "unit": "km"
+        },
+        "z": {
+          "value": -860738231.2063003,
+          "unit": "km"
+        },
+        "vx": {
+          "value": 5.259850276851352,
+          "unit": "km/s"
+        },
+        "vy": {
+          "value": -1.939761452556408,
+          "unit": "km/s"
+        },
+        "vz": {
+          "value": -2.204049388416424,
+          "unit": "km/s"
+        }
+      },
+      "frame": "ICRF",
+      "timeScale": "TDB",
+      "epoch": 2451545.0,
+      "epochUnit": "JD",
+      "validityJD": [
+        2451545.0,
+        2451545.0
+      ],
+      "method": "JPL geometric Cartesian vector at the requested historical instant"
+    }
+  ],
+  "assertions": [
+    {
+      "id": "minor:2060-taxonomy",
+      "objectId": "minor:2060",
+      "field": "taxonomy",
+      "status": "reported",
+      "value": "B-type",
+      "unit": "text",
+      "method": "taxonomy-label",
+      "uncertainty": null,
+      "sourceIds": [
+        "nasa-chiron"
+      ]
+    },
+    {
+      "id": "minor:2060-composition",
+      "objectId": "minor:2060",
+      "field": "composition",
+      "status": "unknown",
+      "value": null,
+      "unit": "text",
+      "method": "no composition established by this source fixture",
+      "uncertainty": null,
+      "sourceIds": [
+        "nasa-chiron"
+      ]
+    },
+    {
+      "id": "solar:pluto-mapReferenceRadius",
+      "objectId": "solar:pluto",
+      "field": "mapReferenceRadius",
+      "status": "modeled",
+      "value": 1188300.0,
+      "unit": "m",
+      "method": "equirectangular cartographic reference sphere",
+      "uncertainty": null,
+      "sourceIds": [
+        "pds-color"
+      ]
+    },
+    {
+      "id": "solar:charon-mapReferenceRadius",
+      "objectId": "solar:charon",
+      "field": "mapReferenceRadius",
+      "status": "modeled",
+      "value": 606000.0,
+      "unit": "m",
+      "method": "equirectangular cartographic reference sphere",
+      "uncertainty": null,
+      "sourceIds": [
+        "pds-color"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "urn:nasa:pds:nh_derived:plutosystem_composition:nh_pluto_color_mosaic::1.0",
+      "objectId": "solar:pluto",
+      "sourceIds": [
+        "pds-color",
+        "pds-color-checksums"
+      ],
+      "labelUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.lblx",
+      "fileUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.img",
+      "labelMd5": "4b8815a736392f2784a2313ee0b18c84",
+      "fileMd5": "1230a9dba1d0771d432ea1af2ab53dc9",
+      "expectedBytes": 1055701248,
+      "access": "source range and conditional resume verified",
+      "download": "full file pending",
+      "cartography": {
+        "projection": "Equirectangular",
+        "centralMeridianDeg": 180.0,
+        "latitudeType": "Planetocentric",
+        "longitudeDirection": "Positive East",
+        "upperLeftMeters": [
+          -3733600,
+          1866800
+        ],
+        "metersPerPixel": [
+          650,
+          650
+        ],
+        "referenceRadiusMeters": 1188300.0,
+        "observedFootprint": null
+      },
+      "raster": {
+        "width": 11487,
+        "height": 5744,
+        "bands": [
+          {
+            "name": "CH4",
+            "wavelengthNm": 895
+          },
+          {
+            "name": "NIR",
+            "wavelengthNm": 870
+          },
+          {
+            "name": "Red",
+            "wavelengthNm": 625
+          },
+          {
+            "name": "Blue",
+            "wavelengthNm": 475
+          }
+        ],
+        "order": [
+          "Band",
+          "Line",
+          "Sample"
+        ],
+        "offsetBytes": 0,
+        "dataType": "IEEE754LSBSingle",
+        "missingBits": "0xFF7FFFFB"
+      },
+      "rights": "collection CC0 evidence; confirm any product-specific conditions before packaging"
+    },
+    {
+      "id": "urn:nasa:pds:nh_derived:plutosystem_composition:nh_charon_color_mosaic::1.0",
+      "objectId": "solar:charon",
+      "sourceIds": [
+        "pds-color",
+        "pds-color-checksums"
+      ],
+      "labelUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.lblx",
+      "fileUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.img",
+      "labelMd5": "967baeaa6766217d6fdc0324e103aee8",
+      "fileMd5": "5ed1770566ee6697871cae1cc117b9cf",
+      "expectedBytes": 116006912,
+      "access": "source range and conditional resume verified",
+      "download": "full file pending",
+      "cartography": {
+        "projection": "Equirectangular",
+        "centralMeridianDeg": 0.0,
+        "latitudeType": "Planetocentric",
+        "longitudeDirection": "Positive East",
+        "upperLeftMeters": [
+          -1904000,
+          952000
+        ],
+        "metersPerPixel": [
+          1000,
+          1000
+        ],
+        "referenceRadiusMeters": 606000.0,
+        "observedFootprint": null
+      },
+      "raster": {
+        "width": 3808,
+        "height": 1904,
+        "bands": [
+          {
+            "name": "CH4",
+            "wavelengthNm": 895
+          },
+          {
+            "name": "NIR",
+            "wavelengthNm": 870
+          },
+          {
+            "name": "Red",
+            "wavelengthNm": 625
+          },
+          {
+            "name": "Blue",
+            "wavelengthNm": 475
+          }
+        ],
+        "order": [
+          "Band",
+          "Line",
+          "Sample"
+        ],
+        "offsetBytes": 0,
+        "dataType": "IEEE754LSBSingle",
+        "missingBits": "0xFF7FFFFB"
+      },
+      "rights": "collection CC0 evidence; confirm any product-specific conditions before packaging"
+    }
+  ],
+  "fieldRules": {
+    "taxonomy": {
+      "unit": "text",
+      "sourcePriority": [
+        "nasa-chiron"
+      ]
+    },
+    "composition": {
+      "unit": "text",
+      "sourcePriority": []
+    },
+    "mapReferenceRadius": {
+      "unit": "m",
+      "sourcePriority": [
+        "pds-color"
+      ]
+    }
+  }
+}

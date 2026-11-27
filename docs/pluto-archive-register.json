@@ -2,7 +2,7 @@
   "reviewDate": "2026-11-27",
   "status": "metadata-and-cartography-fallback-verified",
   "centralApis": "search 500; registry 503 on recheck",
-  "nativeColor": "inventoried, binaries unresolved",
+  "nativeColor": "Labels and conditional binary ranges verified. Full download, file MD5 and pixel footprint are pending.",
   "checkCount": 68,
   "distinctChecks": 64,
   "collections": {
@@ -112,13 +112,63 @@
       "target": "pluto",
       "kind": "PDS color mosaic",
       "lidvid": "urn:nasa:pds:nh_derived:plutosystem_composition:nh_pluto_color_mosaic::1.0",
-      "access": "inventory-confirmed; native product file unavailable",
-      "fileUrl": null,
-      "bytes": null,
+      "access": "source range and conditional resume verified",
+      "fileUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.img",
+      "bytes": 1055701248,
       "observedFootprint": null,
       "localUse": "supported by collection CC0 when accessible",
       "originalRedistribution": "CC0 at collection level; verify product notices before packaging",
-      "derivedDistribution": "CC0 at collection level; verify product notices before packaging"
+      "derivedDistribution": "CC0 at collection level; verify product notices before packaging",
+      "labelUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_pluto_color_mosaic.lblx",
+      "fileMd5": "1230a9dba1d0771d432ea1af2ab53dc9",
+      "labelMd5": "4b8815a736392f2784a2313ee0b18c84",
+      "cartography": {
+        "projection": "Equirectangular",
+        "centralMeridianDeg": 180.0,
+        "latitudeType": "Planetocentric",
+        "longitudeDirection": "Positive East",
+        "upperLeftMeters": [
+          -3733600,
+          1866800
+        ],
+        "metersPerPixel": [
+          650,
+          650
+        ],
+        "referenceRadiusMeters": 1188300.0,
+        "observedFootprint": null
+      },
+      "raster": {
+        "width": 11487,
+        "height": 5744,
+        "bands": [
+          {
+            "name": "CH4",
+            "wavelengthNm": 895
+          },
+          {
+            "name": "NIR",
+            "wavelengthNm": 870
+          },
+          {
+            "name": "Red",
+            "wavelengthNm": 625
+          },
+          {
+            "name": "Blue",
+            "wavelengthNm": 475
+          }
+        ],
+        "order": [
+          "Band",
+          "Line",
+          "Sample"
+        ],
+        "offsetBytes": 0,
+        "dataType": "IEEE754LSBSingle",
+        "missingBits": "0xFF7FFFFB"
+      },
+      "download": "full file pending"
     },
     {
       "target": "pluto",
@@ -186,13 +236,63 @@
       "target": "charon",
       "kind": "PDS color mosaic",
       "lidvid": "urn:nasa:pds:nh_derived:plutosystem_composition:nh_charon_color_mosaic::1.0",
-      "access": "inventory-confirmed; native product file unavailable",
-      "fileUrl": null,
-      "bytes": null,
+      "access": "source range and conditional resume verified",
+      "fileUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.img",
+      "bytes": 116006912,
       "observedFootprint": null,
       "localUse": "supported by collection CC0 when accessible",
       "originalRedistribution": "CC0 at collection level; verify product notices before packaging",
-      "derivedDistribution": "CC0 at collection level; verify product notices before packaging"
+      "derivedDistribution": "CC0 at collection level; verify product notices before packaging",
+      "labelUrl": "https://pdssbn.astro.umd.edu/holdings/pds4-nh_derived-v4.0/plutosystem_composition/mosaic/nh_charon_color_mosaic.lblx",
+      "fileMd5": "5ed1770566ee6697871cae1cc117b9cf",
+      "labelMd5": "967baeaa6766217d6fdc0324e103aee8",
+      "cartography": {
+        "projection": "Equirectangular",
+        "centralMeridianDeg": 0.0,
+        "latitudeType": "Planetocentric",
+        "longitudeDirection": "Positive East",
+        "upperLeftMeters": [
+          -1904000,
+          952000
+        ],
+        "metersPerPixel": [
+          1000,
+          1000
+        ],
+        "referenceRadiusMeters": 606000.0,
+        "observedFootprint": null
+      },
+      "raster": {
+        "width": 3808,
+        "height": 1904,
+        "bands": [
+          {
+            "name": "CH4",
+            "wavelengthNm": 895
+          },
+          {
+            "name": "NIR",
+            "wavelengthNm": 870
+          },
+          {
+            "name": "Red",
+            "wavelengthNm": 625
+          },
+          {
+            "name": "Blue",
+            "wavelengthNm": 475
+          }
+        ],
+        "order": [
+          "Band",
+          "Line",
+          "Sample"
+        ],
+        "offsetBytes": 0,
+        "dataType": "IEEE754LSBSingle",
+        "missingBits": "0xFF7FFFFB"
+      },
+      "download": "full file pending"
     },
     {
       "target": "charon",
@@ -1576,5 +1676,9 @@
       ],
       "seconds": 0.775
     }
-  ]
+  ],
+  "nativeColorFollowup": {
+    "report": "native-mosaic-access.md",
+    "rangeResults": "native-mosaic-range-results.json"
+  }
 }
