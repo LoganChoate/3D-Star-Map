@@ -1,6 +1,6 @@
 {
   "clientDate": "2026-11-25",
-  "status": "scope-approved-planning-only",
+  "status": "data-readiness-step-1-verified",
   "phase6Approval": "User approved work to date after installed 1.5.0 technical acceptance. This is general approval, not invented separate listening evidence.",
   "decisions": {
     "remainingPlanets": "All seven beyond Earth, rings, every cataloged major/minor moon and known surrounding natural objects.",
@@ -720,19 +720,23 @@
     "navLabel": "DATA",
     "displayLabel": "BEFORE PHASE 7",
     "title": "Data readiness and searchable catalogs",
-    "subtitle": "Planned prerequisite · seven acceptance steps before new modeling",
-    "status": "planned",
+    "subtitle": "Step 1 verified · ready for review",
+    "status": "active",
     "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
     "checks": [
       {
         "id": "data-1",
         "label": "Source register and coverage contract",
         "detail": "Identify the authoritative public sources for every Phase 7–13 population and each required data type before new modeling. Record exact inclusion queries, available fields, coverage dates/counts, access and reuse conditions, refresh limits, alternative sources, and unresolved gaps. Use free public sources first; flag account-required sources for review. Define the bounded archive collections to index, rather than claiming to index every available dataset on the internet.",
-        "status": "pending",
+        "status": "passed",
         "evidence": [
           {
-            "label": "Planned deliverables and acceptance",
-            "url": "evidence/data-readiness.html"
+            "label": "Step 1 results and selected-source coverage",
+            "url": "evidence/data-readiness-step1.html"
+          },
+          {
+            "label": "Workstation request and count evidence",
+            "url": "evidence/data-readiness-step1-probes.json"
           }
         ]
       },
@@ -810,14 +814,14 @@
       }
     ],
     "blockers": [
-      "All seven implementation checks remain pending; this is the saved plan, not an accepted data release.",
-      "Completeness is relative to named, dated public sources and bounded archive collections. Unknown observations and unavailable access remain explicit.",
-      "Accounts, paid data and mass image/terrain downloads are outside the selected initial approach."
+      "Central NASA PDS search returned server errors. The first asset inventory uses verified direct mission and archive paths where available.",
+      "Catalog counts measure source records. Per-object ephemeris, physical-field and imagery coverage remains open.",
+      "Space-Track requires an account. Product reuse terms and unresolved asset access remain recorded in the source register."
     ],
     "nextActions": [
-      "Verify the source register and bounded coverage contract for every planned population.",
-      "Define identities and scientific records, then build complete selected imports and the searchable workbench.",
-      "Pass scientific, scale and recovery checks; review the modeling-readiness ledger before Phase 7."
+      "Review the Step 1 source inventory, workstation probes and coverage contract.",
+      "After review, start Step 2 with stable identities and field-level provenance.",
+      "Use the selected sources and coverage limits when planning full imports."
     ]
   }
 }
