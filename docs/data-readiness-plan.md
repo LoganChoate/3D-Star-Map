@@ -1,6 +1,6 @@
 # Data readiness and searchable catalogs
 
-Updated November 27, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1–3 are verified. Four checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
+Updated November 27, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1–4 are verified. Three checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
 
 The user selected a verified source inventory plus a working searchable catalog foundation; large asset metadata will be indexed during this milestone, with masters downloaded when their body is scheduled; free public sources come first and account-required sources are flagged for review.
 
@@ -47,7 +47,7 @@ Required evidence:
 
 ### 4. Indexed catalog and searchable review workbench
 
-**Status: pending.** Deliver a working local, read-only catalog browser before new 3D content. Search the complete accepted import by name, stable ID, designation and alias; filter by population, parent, orbit validity/freshness, physical information and asset availability. Use paged results and on-demand dossiers that expose sources and unknowns. Select the storage technology through a bounded comparison, keeping future mobile exports portable.
+**Step 4 verified and ready for review.** See the [workbench results](data-readiness-step4.md). Deliver a working local, read-only catalog browser before new 3D content. Search the complete accepted import by name, stable ID, designation and alias; filter by population, parent, orbit validity/freshness, physical information and asset availability. Use paged results and on-demand dossiers that expose sources and unknowns. Select the storage technology through a bounded comparison, keeping future mobile exports portable.
 
 Required evidence:
 

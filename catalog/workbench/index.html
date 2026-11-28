@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Galaxy Map Catalog Workbench</title>
+  <link rel="stylesheet" href="/workbench.css">
+  <script src="/workbench.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="heading-group">
+        <span class="emblem" aria-hidden="true"><span></span></span>
+        <div><p class="brand">Galaxy Map</p><h1>Catalog workbench</h1></div>
+      </div>
+      <div class="snapshot" id="snapshot">Opening local catalog…</div>
+    </div>
+  </header>
+  <main class="workspace">
+    <nav class="views" aria-label="Catalog views">
+      <button class="view" data-view="objects" aria-current="page">Objects <span id="object-count"></span></button>
+      <button class="view" data-view="assets">Source assets <span id="asset-count"></span></button>
+    </nav>
+    <form id="search-form">
+      <div class="searchbar">
+        <label for="query" class="sr-only">Search catalog</label>
+        <input id="query" name="q" type="search" maxlength="200" autocomplete="off" placeholder="Search by name, alias, designation, or ID">
+        <button class="primary" type="submit">Search</button>
+      </div>
+      <div class="body-grid">
+        <aside class="filters" aria-label="Search filters">
+          <div class="filter-head"><h2>Filters</h2><button type="button" class="quiet" id="reset">Reset</button></div>
+          <fieldset id="object-filters">
+            <label>Match<select name="mode"><option value="prefix">Starts with</option><option value="exact">Exact</option></select></label>
+            <label>Population<select name="population" id="population"><option value="">All populations</option></select></label>
+            <label>Object type<select name="kind" id="object-kind"><option value="">All types</option></select></label>
+            <label>Parent name or ID<input name="parentName" maxlength="200" placeholder="e.g. Saturn" autocomplete="off"></label>
+            <label>Orbital evidence<select name="orbit" id="orbit"><option value="">Any evidence state</option></select></label>
+            <label>Orbit validity<select name="validity"><option value="">Any validity state</option><option value="unchecked">Awaiting validation</option><option value="missing">Evidence missing</option><option value="validated">Validated</option></select></label>
+            <label>Source date on or after<input name="since" type="date"></label>
+            <label>Date basis<select name="dateBasis"><option value="">Any documented basis</option><option value="last-observation-date">Last observation</option><option value="gp-element-epoch">GP element epoch</option></select></label>
+            <label>Physical data<select name="physical"><option value="">Any availability</option><option value="known">Source linked</option><option value="unknown">Unknown</option></select></label>
+            <label>Asset metadata<select name="asset"><option value="">Any availability</option><option value="known">Source linked</option><option value="unknown">Unknown</option></select></label>
+          </fieldset>
+          <fieldset id="asset-filters" hidden disabled>
+            <label>Target<select name="target" id="asset-target"><option value="">All targets</option></select></label>
+            <label>Product type<select name="kind" id="asset-kind"><option value="">All product types</option></select></label>
+            <label>Coverage<select name="coverage"><option value="">Any coverage state</option><option value="known">Documented</option><option value="unknown">Unknown</option></select></label>
+            <label>Resolution at most (m/px)<input name="maxResolution" type="number" step="any" min="0.0001" placeholder="e.g. 650"></label>
+            <label>Rights<select name="rights" id="rights"><option value="">Any rights state</option></select></label>
+            <label>Readiness<select name="readiness" id="readiness"><option value="">Any readiness state</option></select></label>
+          </fieldset>
+          <button class="apply" type="submit">Apply filters</button>
+        </aside>
+        <section class="results" aria-labelledby="results-heading">
+          <div class="results-heading">
+            <h2 id="results-heading">Objects</h2>
+            <span id="page-label" class="page-label"></span>
+          </div>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+          <div id="results-table"></div>
+          <div class="pagination">
+            <button type="button" id="previous" disabled>Previous</button>
+            <button type="button" id="next" disabled>Next</button>
+          </div>
+        </section>
+      </div>
+    </form>
+  </main>
+  <dialog id="dossier" aria-labelledby="dossier-title">
+    <div class="dossier-head">
+      <div><p class="brand" id="dossier-kind"></p><h2 id="dossier-title">Catalog record</h2></div>
+      <button id="close-dossier" type="button">Close</button>
+    </div>
+    <div id="dossier-content" aria-live="polite"></div>
+  </dialog>
+</body>
+</html>
