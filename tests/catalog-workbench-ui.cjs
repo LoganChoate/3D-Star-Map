@@ -34,7 +34,7 @@ async function run() {
             try {
                 return fs.readFileSync(path.join(profile, "DevToolsActivePort"), "utf8").split("\n")[0];
             } catch (error) {
-                if (error.code !== "ENOENT") throw error;
+                if (!["ENOENT", "EBUSY"].includes(error.code)) throw error;
             }
         });
         const tabs = await (await fetch("http://127.0.0.1:" + port + "/json/list")).json();
@@ -79,6 +79,8 @@ async function run() {
         await call("Page.navigate", {url});
         await check("The full catalog counter and 30-row first page render",
             'document.querySelectorAll("tbody tr").length===30 && /1[,. ]581[,. ]929/.test(document.getElementById("object-count").textContent)');
+        await check("The workbench shows its exact catalog hash and local refresh status",
+            '/^[a-f0-9]{64}$/.test(document.getElementById("snapshot").title) && /offline|previous accepted/.test(document.getElementById("release-status").textContent)');
         await js('document.getElementById("next").click()');
         await check("Next follows the page cursor", 'document.getElementById("page-label").textContent==="Page 2"');
         await js('document.getElementById("previous").click()');
@@ -99,6 +101,8 @@ async function run() {
         await js('document.querySelector(".result-name").click()');
         await check("Charon terrain filters and the product dossier show the recorded resolution and size",
             'document.getElementById("dossier-content").textContent.includes("161,176,369")');
+        await check("A source entry with no retained Charon raster does not appear downloaded",
+            'document.getElementById("dossier-content").textContent.includes("No verified local copy registered")');
         await call("Emulation.setDeviceMetricsOverride", {width: 395, height: 760, mobile: false, deviceScaleFactor: 1});
         await check("The narrow layout fits the viewport",
             "window.innerWidth===395 && document.documentElement.scrollWidth<=window.innerWidth");
@@ -113,6 +117,17 @@ async function run() {
             await js('document.querySelector(".result-name").click()');
             await check("Uranus dossier separates checked historical samples from the prior source disagreement",
                 'document.getElementById("dossier-content").textContent.includes("different Sun-center solution") && document.getElementById("dossier-content").textContent.includes("Checked historical samples")');
+            await js('document.getElementById("close-dossier").click()');
+            await search("norad:25544");
+            await until(() => js('document.querySelector("tbody .result-name")?.textContent==="ISS (ZARYA)"'));
+            await js('document.querySelector("tbody .result-name").click()');
+            try {
+                await check("The station shows the bounded offline model window without claiming live position",
+                    '/Within the model window|Outside the model window/.test(document.getElementById("dossier-content").textContent)');
+            } catch (error) {
+                const shown = await js('document.getElementById("dossier-title").textContent + " — " + document.getElementById("dossier-content").textContent.slice(0, 700)');
+                throw new Error(error.message + ". The browser showed " + shown, {cause: error});
+            }
         }
         const external = requests.filter(value => /^(https?|wss?):/i.test(value) && new URL(value).origin !== origin);
         assert.deepEqual(external, []);

@@ -15,5 +15,6 @@ data/pipeline/*.json -text
 data/pipeline/references/** -text
 scripts/build_scientific_catalog.py -text
 catalog/science-validation-policy.json -text
+catalog/asset-sources.json text eol=lf
 hyg_v42.csv -text
 stars.json -text

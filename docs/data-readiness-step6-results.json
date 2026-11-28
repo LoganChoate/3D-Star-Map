@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "recordedAtUtc": "2026-11-28T07:25:26.782023+00:00",
+  "userReview": "pending",
+  "release": {
+    "acceptedAt": "2026-11-28T05:32:04.748630+00:00",
+    "changes": {
+      "compared": false,
+      "counts": {
+        "added": 0,
+        "decayed": 0,
+        "removed": 0,
+        "renamed": 0,
+        "revised": 0
+      },
+      "examples": {
+        "added": [],
+        "decayed": [],
+        "removed": [],
+        "renamed": [],
+        "revised": []
+      }
+    },
+    "comparedTo": null,
+    "files": {
+      "catalog/catalog.sqlite3": {
+        "bytes": 1107652608,
+        "sha256": "5a9c0225a07988bd20334e56ef25b35960454bcc7f6b4d31a83d6dd3da748b55"
+      },
+      "catalog/manifest.json": {
+        "bytes": 52292,
+        "sha256": "74ab06edd38d913fe762f4dadcc9a835ec67dba93660fd8f9f5250b6619bb056"
+      },
+      "changes.jsonl.gz": {
+        "bytes": 39,
+        "sha256": "6f1549544af2cfdd84c1e68295b6a201b519228e2361e37079f09fbba21eed20"
+      },
+      "science.json": {
+        "bytes": 205940,
+        "sha256": "126696c3791e83747d6af67ac3b34228af772e25d764992463e4b4800994344f"
+      },
+      "search/manifest.json": {
+        "bytes": 1178,
+        "sha256": "c8c4298245bb8f3d6866912a38a420f2bb00c6dc14b8c630ca1578813e433f9c"
+      },
+      "search/search.sqlite3": {
+        "bytes": 946368512,
+        "sha256": "1d0d6a9b83449bb175c731144c5f5a3af286118ef646ea33fb54a9a7683eceef"
+      }
+    },
+    "id": "catalog-2026-11-27",
+    "schema": 1,
+    "storage": {
+      "freeBeforeBytes": 1307050967040,
+      "packageBytes": 2054280569,
+      "reserveBytes": 10737418240,
+      "sourceBytes": 2054280530
+    },
+    "receiptSha256": "e9f6a5c6f287dab7941da490ed8a1dc1322e142655ebfd965f43fdd3a149fdc5"
+  },
+  "acceptance": {
+    "cases": [
+      "Interrupted staging copy leaves the pointer and accepted records unchanged",
+      "Corrupted staged copy is rejected against its SHA-256 and size",
+      "Catalog and search index from different source releases are rejected",
+      "Unsupported manifest schema drift leaves the accepted release intact",
+      "Insufficient disk preflight prevents copying or switching",
+      "A failed atomic pointer write can be retried with the same release ID",
+      "New readers see the accepted candidate atomically; old readers stay coherent and the diff keeps terminal decay",
+      "Offline startup automatically reads the prior accepted catalog when the active copy fails verification",
+      "Explicit rollback keeps actual refresh history and avoids re-offering the corrupted release",
+      "Interrupted HTTP transfer resumed with the same strong ETag and exact bytes",
+      "Three bounded outage attempts left the accepted catalog searchable",
+      "New candidate snapshots reuse central verified bytes within the provider cadence",
+      "SATCAT and GP cadences are independent; provider rejection pauses all requests until acknowledgement",
+      "Two complete catalog and index packages pass SQLite and source checks before acceptance",
+      "Full-size restart and rollback keep searchable data, last refresh and the withheld Uranus comparison offline",
+      "Offline workbench retains GP validity boundaries and distinguishes verified runtime files from the unregistered DEM",
+      "Registered local asset status reflects file arrival, checksum match and subsequent removal"
+    ],
+    "measurements": {
+      "assets": 551,
+      "objects": 1581929,
+      "offlineReopenSeconds": 1.23,
+      "packageBytes": 2054280569,
+      "reserveBytes": 10737418240,
+      "twoAcceptsSeconds": 21.863
+    },
+    "mockHttpRequests": {
+      "/gone": 3,
+      "/gp-active": 3,
+      "/gp-stations": 3,
+      "/resume": 2,
+      "/satcat": 2
+    },
+    "status": "passed"
+  },
+  "browserAcceptance": {
+    "status": "passed",
+    "cases": [
+      "The full catalog counter and 30-row first page render",
+      "The workbench shows its exact catalog hash and local refresh status",
+      "Next follows the page cursor",
+      "Previous returns to the first page",
+      "An old moon name opens the correct dossier and flags pending validity",
+      "A search with zero matches shows the empty-results state",
+      "Charon terrain filters and the product dossier show the recorded resolution and size",
+      "A source entry with no retained Charon raster does not appear downloaded",
+      "The narrow layout fits the viewport",
+      "Uranus dossier separates checked historical samples from the prior source disagreement",
+      "The station shows the bounded offline model window without claiming live position"
+    ],
+    "externalRequests": 0,
+    "requestedRoutes": [
+      "/",
+      "/api/asset",
+      "/api/assets",
+      "/api/object",
+      "/api/objects",
+      "/api/options",
+      "/workbench.css",
+      "/workbench.js"
+    ]
+  },
+  "regressions": {
+    "catalogPython": 28,
+    "scientificPipelineNearbyInspector": 46,
+    "step5WorkbenchReceipt": 7
+  },
+  "dataSize": {
+    "sourceAcquisitionBytes": 501566052,
+    "scienceReferenceBytes": 61802445,
+    "onePackageBytes": 2054280569,
+    "threePackagesBytes": 6162841707,
+    "reserveBytes": 10737418240,
+    "freeBeforeInitialAcceptanceBytes": 1307050967040
+  },
+  "cleanReplay": {
+    "workspaceIsolated": true,
+    "freshVenvOfflineWheelInstall": true,
+    "step5ScienceSha256": "e22b22d6489cf594bdc8a5ac095648c6061d0b3c3756c0dd19ae18a4a1d0ef49",
+    "rebuiltCatalogSha256": "5a9c0225a07988bd20334e56ef25b35960454bcc7f6b4d31a83d6dd3da748b55",
+    "rebuiltIndexSha256": "1d0d6a9b83449bb175c731144c5f5a3af286118ef646ea33fb54a9a7683eceef",
+    "indexInputLineEndings": {
+      "initialAssetRegisterSha256": "67ba7955c178baa39647faac6fd228a8e2b54b397720d3aa3e20eb774b5fd958",
+      "pinnedLfAssetRegisterSha256": "dd5ecc48d941c35aaf7655adae2d8db061aac895c6b51944d4fc5892736e80c2"
+    }
+  },
+  "backups": {
+    "catalog-replay": {
+      "relativePath": "backups/data-readiness/step6-2026-11-28/catalog-replay.zip",
+      "files": 194,
+      "receiptSha256": "1e30222043d7135a3f18c7e02a1a86b4049d0d2ce4d08d98515c2d406907d50f",
+      "bytes": 2632591817,
+      "sha256": "2695e97ccb0de2528099a640b6cfca21633ef05d5bf286dd56572be29078e0d2"
+    },
+    "approved-masters": {
+      "relativePath": "backups/data-readiness/step6-2026-11-28/approved-masters.zip",
+      "files": 7,
+      "receiptSha256": "88b96d5462c5dab568f8b81afffdbb6ee3f68841d11a164a97fc8353b84c47cb",
+      "bytes": 3998813638,
+      "sha256": "330934c82106d976df2726eec28427cdd281c6d8b995ac667a928bd2ed58f8c9"
+    }
+  },
+  "backupScope": "Verified local copies on the workstation C: drive",
+  "providerTestMode": "Loopback fault injection with zero live provider acquisitions"
+}

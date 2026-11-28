@@ -237,15 +237,25 @@ def main():
     parser.add_argument("snapshot", type=Path)
     parser.add_argument("group", choices=("jpl", "celestrak"))
     parser.add_argument("--page-size", type=int, default=50000)
+    parser.add_argument("--cache", type=Path, help="Shared CelesTrak cache, defaulting beside the snapshot")
+    parser.add_argument("--acknowledge-provider-error", action="store_true",
+                        help="Resume CelesTrak after investigating the stored provider failure")
     args = parser.parse_args()
     if not 2 <= args.page_size <= 100000:
         parser.error("--page-size must be between 2 and 100000")
     if args.group == "celestrak":
-        # One retrieval per product per update. Stop the group on any provider failure.
-        for name, url in CELESTRAK.items():
-            receipt = fetch(args.snapshot, name, url, attempts=1, allow_resume=False, compressed=True)
-            print(f"{name}: {receipt['bytes']:,} bytes", flush=True)
+        from catalog_provider_cache import acquire_celestrak
+
+        for receipt in acquire_celestrak(args.snapshot, args.cache or args.snapshot.parent / ".celestrak-cache",
+                                         acknowledge=args.acknowledge_provider_error):
+            print(f"{receipt['name']}: {receipt['bytes']:,} bytes, retrieved {receipt['retrievedAt']}", flush=True)
     else:
+        if args.cache or args.acknowledge_provider_error:
+            parser.error("The cache and provider acknowledgement options are for CelesTrak.")
+        from catalog_releases import DEFAULT_RESERVE, require_disk
+
+        args.snapshot.mkdir(parents=True, exist_ok=True)
+        require_disk(args.snapshot, 2 * 1024 ** 3, DEFAULT_RESERVE)
         for name, url in JPL.items():
             receipt = fetch(args.snapshot, name, url)
             print(f"{name}: {receipt['bytes']:,} bytes", flush=True)
