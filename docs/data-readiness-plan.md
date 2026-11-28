@@ -69,7 +69,7 @@ Required evidence:
 
 ### 6. Safe updates, storage and offline recovery
 
-**Status: pending.** Stage each new data release, validate it and switch atomically only after acceptance. Retain a last-known-good release, explicit rollback and a change report for renamed, removed, revised and decayed records. Set freshness and offline validity per source/model. Measure storage/transfer costs and a disk reserve before bulk acquisition; separate reproducible catalogs, source masters, caches and code backups.
+**Step 6 verified and ready for review.** See the [recovery results](data-readiness-step6.md). Stage each new data release, validate it and switch atomically only after acceptance. Retain a last-known-good release, explicit rollback and a change report for renamed, removed, revised and decayed records. Set freshness and offline validity per source/model. Measure storage/transfer costs and a disk reserve before bulk acquisition; separate reproducible catalogs, source masters, caches and code backups.
 
 Required evidence:
 

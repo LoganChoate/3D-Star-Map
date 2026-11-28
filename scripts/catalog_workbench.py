@@ -3,7 +3,7 @@
 import argparse
 import base64
 from contextlib import closing
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -19,6 +19,7 @@ from trajectory_models import epoch
 
 
 UI = Path(__file__).resolve().parents[1] / "catalog" / "workbench"
+REPO = UI.parents[1]
 PAGE_SIZE = 30
 ASSET_COLUMNS = ("id,target,kind,title,coverage,resolution,rights,readiness,size,url,file_url").split(",")
 ORBIT_LABELS = {
@@ -32,7 +33,7 @@ REVIEW_LABELS = {
     "validation-withheld": "Precision withheld", "data-only": "Data only",
     "unchecked": "Awaiting validation", "missing": "Evidence missing",
 }
-POLICY = UI.parents[1] / "catalog" / "science-validation-policy.json"
+POLICY = REPO / "catalog" / "science-validation-policy.json"
 ASSET_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/workbench.css": ("workbench.css", "text/css; charset=utf-8"),
@@ -114,7 +115,10 @@ EXACT_MATCH = """(normalized(i.name)=t.term OR normalized(i.id)=t.term OR EXISTS
 
 
 class Workbench:
-    def __init__(self, bundle, index, validation=None):
+    def __init__(self, bundle, index, validation=None, *, asset_files=None):
+        self.release_info = {"id": bundle.name, "acceptedAt": None, "lastSuccessfulRefresh": None}
+        self.asset_files = asset_files
+        self.asset_cache = {}
         self.source, self.source_manifest = source_path(bundle)
         self.index_manifest = read_json(index / "manifest.json")
         self.index = index / "search.sqlite3"
@@ -155,6 +159,7 @@ class Workbench:
                 or report.get("counts", {}).get("fail") != 0):
             raise StaleCatalog("The scientific review receipt does not match this catalog and policy.")
         reviews = report["orbitalReview"]
+        limits = read_json(POLICY)["limits"]
         accepted = {"historical-samples", "estimate-only", "validation-withheld", "data-only"}
         for entry in reviews.values():
             if entry["status"] not in accepted or entry.get("currentTracking") is not False:
@@ -165,6 +170,20 @@ class Workbench:
                     raise StaleCatalog("The historical sample has no supported time or epoch.")
                 for instant in epochs:
                     epoch(instant)
+            elif entry["status"] == "estimate-only":
+                if entry["timeScale"] == "UTC":
+                    instant = datetime.fromisoformat(entry["solutionEpochUtc"])
+                    if instant.utcoffset() != timedelta(0):
+                        raise StaleCatalog("The GP element epoch must be explicitly UTC.")
+                    maximum = limits["sgp4HoursFromElements"]
+                elif entry["timeScale"] == "TDB":
+                    epoch(entry["solutionEpochJdTdb"])
+                    maximum = limits["jplConicHoursFromElements"]
+                else:
+                    raise StaleCatalog("The model window has an unsupported time scale.")
+                hours = entry.get("limitHoursFromEpoch")
+                if type(hours) not in {int, float} or not 0 < hours <= maximum:
+                    raise StaleCatalog("The model window is missing or exceeds the accepted policy.")
         assets = {proof["catalogAssetId"]: proof for proof in report["assetReview"].values()
                   if proof.get("catalogAssetId")}
         return reviews, assets
@@ -201,7 +220,70 @@ class Workbench:
         return {**options, "orbitTypes": ORBIT_LABELS, "counts": self.index_manifest["counts"],
                 "reviewLabels": REVIEW_LABELS, "scienceReviewLoaded": bool(self.science),
                 "schema": VERSION, "snapshot": self.source_manifest["catalogSha256"][:12],
-                "latestAcquisition": max(row["retrievedAt"] for row in self.source_manifest["inputs"])}
+                "latestAcquisition": max(row["retrievedAt"] for row in self.source_manifest["inputs"]),
+                "release": {"catalogSha256": self.source_manifest["catalogSha256"],
+                            **self.release_info}, "mode": "offline"}
+
+    def local_asset(self, row):
+        root = REPO
+        files = []
+        if row["kind"] == "application-preview":
+            info = row["details"]
+            directory = Path(info["manifest"]).parent
+            files = [{**item, "file": str(directory / item["file"])} for item in info["files"]]
+        elif self.asset_files and row["file_url"]:
+            root = self.asset_files.parent
+            if not self.asset_files.exists():
+                return {"status": "unregistered"}
+            registry = read_json(self.asset_files)
+            if registry.get("schema") != 1:
+                return {"status": "invalid"}
+            mapped = registry["products"].get(row["id"], {})
+            if mapped.get("url") == row["file_url"]:
+                files = mapped.get("files", [])
+        if not files:
+            return {"status": "unregistered"}
+        for item in files:
+            path = (root / item["file"]).resolve()
+            if not path.is_relative_to(root.resolve()):
+                return {"status": "invalid"}
+            try:
+                stamp = file_state(path)
+                wanted = item["sha256"]
+                previous = self.asset_cache.get(path)
+                if not previous or previous[0] != stamp:
+                    previous = (stamp, digest(path))
+                    if file_state(path) != stamp:
+                        return {"status": "invalid"}
+                    self.asset_cache[path] = previous
+            except FileNotFoundError:
+                return {"status": "missing"}
+            except OSError:
+                return {"status": "invalid"}
+            if stamp[0] != item["bytes"] or previous[1] != wanted:
+                return {"status": "invalid"}
+        return {"status": "verified-local", "fileCount": len(files)}
+
+    @staticmethod
+    def position_window(review, now):
+        """Separate stored reference validity from data age and live tracking."""
+        if not review:
+            return {"state": "unvalidated", "currentTracking": False}
+        status = review["status"]
+        window = {"state": status, "currentTracking": False}
+        if status == "estimate-only":
+            hours = review["limitHoursFromEpoch"]
+            window["limitHoursFromEpoch"] = hours
+            if raw := review.get("solutionEpochUtc"):
+                center = datetime.fromisoformat(raw)
+                spread = timedelta(hours=hours)
+                window.update({"startUtc": (center - spread).isoformat(), "endUtc": (center + spread).isoformat(),
+                               "state": "inside-model-window" if abs(now - center) <= spread else "outside-model-window"})
+            else:
+                window["referenceEpochJdTdb"] = review["solutionEpochJdTdb"]
+        elif status == "historical-samples":
+            window["exactEpochsJdTdb"] = review["exactEpochsJd"]
+        return window
 
     def search(self, params):
         with self.connection() as db:
@@ -352,6 +434,7 @@ class Workbench:
                 row = dict(row)
                 row["details"] = json.loads(row["details"])
                 row["scientificReview"] = self.science_assets.get(key)
+                row["localAvailability"] = self.local_asset(row)
                 return row
         return None
 
@@ -366,6 +449,7 @@ class Workbench:
             result = dict(row)
             result["validity"] = self.validity(key,result["orbit"])
             result["scientificReview"] = self.science.get(key)
+            result["positionWindow"] = self.position_window(result["scientificReview"], datetime.now(timezone.utc))
             rid = result.pop("rid")
             result["aliases"] = [dict(r) for r in db.execute("""
                 SELECT namespace,value FROM alias_links WHERE rid=? ORDER BY namespace,value
@@ -475,12 +559,22 @@ def handler(workbench):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("bundle", type=Path)
-    parser.add_argument("index", type=Path)
+    parser.add_argument("bundle", type=Path, nargs="?")
+    parser.add_argument("index", type=Path, nargs="?")
+    parser.add_argument("--store", type=Path, help="Open the accepted release, with offline fallback")
+    parser.add_argument("--asset-files", type=Path, help="Optional local product-to-file verification register")
     parser.add_argument("--port", type=int, default=8768)
     parser.add_argument("--validation", type=Path, help="Attach the matching Step 5 scientific review receipt")
     args = parser.parse_args()
-    workbench = Workbench(args.bundle, args.index, args.validation)
+    if args.store:
+        if args.bundle or args.index or args.validation:
+            parser.error("Use either --store or bundle/index with optional --validation.")
+        from catalog_releases import open_accepted
+        workbench = open_accepted(args.store, args.asset_files)
+    else:
+        if not args.bundle or not args.index:
+            parser.error("Provide --store or both bundle and index.")
+        workbench = Workbench(args.bundle, args.index, args.validation, asset_files=args.asset_files)
     with ThreadingHTTPServer(("127.0.0.1", args.port), handler(workbench)) as server:
         print(f"Galaxy Map catalog workbench ready at http://127.0.0.1:{server.server_port}/", flush=True)
         try:

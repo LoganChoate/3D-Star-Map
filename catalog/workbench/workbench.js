@@ -203,6 +203,12 @@ function renderDossier(view, record) {
       ["Resolution", record.resolution === null ? null : format.format(record.resolution) + " m/px"],
       ["File size", record.size === null ? null : format.format(record.size) + " bytes"],
       ["Rights", words(record.rights)], ["Readiness", words(record.readiness)],
+      ["Local file", {
+        "verified-local": "Verified copy on this workstation",
+        "unregistered": "No verified local copy registered",
+        "missing": "Registered copy missing",
+        "invalid": "Local copy failed verification",
+      }[record.localAvailability.status]],
     ]));
     const links = [external(record.url, "Open archive metadata"), external(record.file_url, "Open source file")].filter(Boolean);
     section(mount, "Source links", links.length ? [list(links)] : []);
@@ -229,12 +235,23 @@ function renderDossier(view, record) {
   ]));
   if (record.scientificReview) {
     const review = record.scientificReview;
+    const window = record.positionWindow;
     const reviewed = [facts([
       ["Method", review.method], ["Reference center", review.centerId], ["Reference frame", review.frame],
       ["Time scale", review.timeScale],
       ["Checked epochs (JD)", review.exactEpochsJd?.join(", ")],
       ["GP solution epoch (UTC)", review.solutionEpochUtc],
       ["Element epoch (JD TDB)", review.solutionEpochJdTdb],
+      ["Offline validity", {
+        "inside-model-window": "Within the model window; position is an estimate",
+        "outside-model-window": "Outside the model window; current position withheld",
+        "historical-samples": "Validated at the listed historical epochs",
+        "estimate-only": "Dated estimate limited to the stated epoch window",
+        "validation-withheld": "Precision withheld",
+        "data-only": "No supported position",
+      }[window.state]],
+      ["Model window", window.startUtc ? window.startUtc + " to " + window.endUtc
+        : window.limitHoursFromEpoch ? "±" + window.limitHoursFromEpoch + " h from the element epoch" : null],
     ])];
     const source = external(review.source, "Open reference source");
     if (source) reviewed.push(source);
@@ -308,7 +325,17 @@ byId("next").addEventListener("click", () => {
     fill("orbit", data.orbitTypes);
     byId("object-count").textContent = format.format(data.counts.items);
     byId("asset-count").textContent = format.format(data.counts.asset);
-    byId("snapshot").textContent = "Local snapshot " + data.latestAcquisition.slice(0, 10) + " · " + data.snapshot;
+    const release = data.release;
+    byId("snapshot").textContent = release.id + " · " + data.snapshot;
+    byId("snapshot").title = release.catalogSha256;
+    const date = (value) => new Date(value).toISOString().replace("T", " ").slice(0, 16) + " UTC";
+    byId("release-status").textContent = [
+      release.recoveredOffline ? "Recovered using the previous accepted release" : "Local offline catalog",
+      release.acceptedAt ? "This release accepted " + date(release.acceptedAt) : "Direct snapshot",
+      release.lastSuccessfulRefresh ? "Last successful refresh " + date(release.lastSuccessfulRefresh)
+        + " (" + release.lastSuccessfulRelease + ")" : null,
+      "Latest source retrieval " + date(data.latestAcquisition),
+    ].filter(Boolean).join(" · ");
     apply();
   } catch (error) {
     byId("snapshot").textContent = "Local snapshot unavailable";

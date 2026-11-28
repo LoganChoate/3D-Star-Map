@@ -1,6 +1,6 @@
 {
   "clientDate": "2026-11-25",
-  "status": "data-readiness-step-5-verified-review-pending",
+  "status": "data-readiness-step-6-verified-review-pending",
   "phase6Approval": "User approved work to date after installed 1.5.0 technical acceptance. This is general approval, not invented separate listening evidence.",
   "decisions": {
     "remainingPlanets": "All seven beyond Earth, rings, every cataloged major/minor moon and known surrounding natural objects.",
@@ -720,7 +720,7 @@
     "navLabel": "DATA",
     "displayLabel": "BEFORE PHASE 7",
     "title": "Data readiness and searchable catalogs",
-    "subtitle": "Steps 1–5 verified · ready for review",
+    "subtitle": "Steps 1–6 verified · ready for review",
     "status": "active",
     "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
     "checks": [
@@ -819,12 +819,16 @@
       {
         "id": "data-6",
         "label": "Safe updates, storage and offline recovery",
-        "detail": "Stage each new data release, validate it and switch atomically only after acceptance. Retain a last-known-good release, explicit rollback and a change report for renamed, removed, revised and decayed records. Set freshness and offline validity per source/model. Measure storage/transfer costs and a disk reserve before bulk acquisition; separate reproducible catalogs, source masters, caches and code backups.",
-        "status": "pending",
+        "detail": "17 recovery checks and 11 offline Chrome checks passed. The full catalog reopened and rolled back with 1,581,929 objects and 551 asset records. A clean offline restore reproduced the accepted catalog, search index and scientific receipt.",
+        "status": "passed",
         "evidence": [
           {
-            "label": "Planned deliverables and acceptance",
-            "url": "evidence/data-readiness.html"
+            "label": "Recovery and storage measurements",
+            "url": "evidence/data-readiness-step6.html"
+          },
+          {
+            "label": "Recovery receipt and backup checksums",
+            "url": "evidence/data-readiness-step6-results.json"
           }
         ]
       },
@@ -842,13 +846,13 @@
       }
     ],
     "blockers": [
-      "Review the scientific evidence before Step 6. Checked positions are bounded to the listed epochs.",
-      "The older Uranus cross-source comparison and unknown asset fields remain visible in the evidence.",
-      "Large source masters and product-level rights review are scheduled by body."
+      "Review the overnight recovery results before Step 7 scale acceptance.",
+      "The catalog and approved master archives are verified on the workstation C: drive.",
+      "Large source masters and product-level rights review remain scheduled by body."
     ],
     "nextActions": [
-      "Review the numerical and asset metadata evidence.",
-      "After review, test staged refreshes, rollback and offline recovery in Step 6."
+      "Review the staged update, offline recovery and rollback evidence.",
+      "After review, measure the full catalog against frozen Step 7 budgets and prepare the first modeling batch."
     ]
   }
 }
