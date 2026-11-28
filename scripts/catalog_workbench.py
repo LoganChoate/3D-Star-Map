@@ -15,6 +15,7 @@ from catalog_acquire import SBDB_FILTERS, digest
 from catalog_asset_index import https
 from catalog_ingest import read_json
 from catalog_search_index import VERSION, catalog_db, normalize, prefix_end, readonly_path, source_path
+from trajectory_models import epoch
 
 
 UI = Path(__file__).resolve().parents[1] / "catalog" / "workbench"
@@ -26,6 +27,12 @@ ORBIT_LABELS = {
     "companion-elements": "Companion orbit elements", "historical-reference": "Historical reference",
     "unknown": "No linked orbital evidence",
 }
+REVIEW_LABELS = {
+    "historical-samples": "Checked historical samples", "estimate-only": "Dated model estimate",
+    "validation-withheld": "Precision withheld", "data-only": "Data only",
+    "unchecked": "Awaiting validation", "missing": "Evidence missing",
+}
+POLICY = UI.parents[1] / "catalog" / "science-validation-policy.json"
 ASSET_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/workbench.css": ("workbench.css", "text/css; charset=utf-8"),
@@ -107,11 +114,13 @@ EXACT_MATCH = """(normalized(i.name)=t.term OR normalized(i.id)=t.term OR EXISTS
 
 
 class Workbench:
-    def __init__(self, bundle, index):
+    def __init__(self, bundle, index, validation=None):
         self.source, self.source_manifest = source_path(bundle)
         self.index_manifest = read_json(index / "manifest.json")
         self.index = index / "search.sqlite3"
         self.paths = (self.source, self.index, bundle / "manifest.json", index / "manifest.json")
+        if validation:
+            self.paths += (validation,)
         initial = tuple(map(state_or_missing, self.paths))
         sha = self.source_manifest["catalogSha256"]
         info = self.index_manifest
@@ -121,6 +130,7 @@ class Workbench:
             raise StaleCatalog("Catalog checksum failed. Restore the accepted bundle and rebuild the index.")
         self.fingerprint = initial
         self.check_files()
+        self.science, self.science_assets = self.load_science(validation, sha)
         self.desktop_sources = {}
         for receipt in self.source_manifest["inputs"]:
             name = receipt["name"]
@@ -134,6 +144,35 @@ class Workbench:
                 for row in db.execute("""SELECT source_key,payload FROM source.source_rows
                                          WHERE dataset='identity-seed-sources'""")
             }
+
+    @staticmethod
+    def load_science(path, catalog_sha):
+        if path is None:
+            return {}, {}
+        report = read_json(path)
+        if (report.get("status") != "passed" or report.get("schema") != 1
+                or report.get("sourceSha256") != catalog_sha or report.get("policySha256") != digest(POLICY)
+                or report.get("counts", {}).get("fail") != 0):
+            raise StaleCatalog("The scientific review receipt does not match this catalog and policy.")
+        reviews = report["orbitalReview"]
+        accepted = {"historical-samples", "estimate-only", "validation-withheld", "data-only"}
+        for entry in reviews.values():
+            if entry["status"] not in accepted or entry.get("currentTracking") is not False:
+                raise StaleCatalog("The scientific review receipt declares an unsupported status.")
+            if entry["status"] == "historical-samples":
+                epochs = entry.get("exactEpochsJd")
+                if not epochs or entry["timeScale"] != "TDB":
+                    raise StaleCatalog("The historical sample has no supported time or epoch.")
+                for instant in epochs:
+                    epoch(instant)
+        assets = {proof["catalogAssetId"]: proof for proof in report["assetReview"].values()
+                  if proof.get("catalogAssetId")}
+        return reviews, assets
+
+    def validity(self, object_id, orbit):
+        if review := self.science.get(object_id):
+            return review["status"]
+        return "missing" if orbit == "unknown" else "unchecked"
 
     def check_files(self):
         if tuple(map(state_or_missing, self.paths)) != self.fingerprint:
@@ -160,6 +199,7 @@ class Workbench:
                                                   ("assetTargets", "target", "asset"), ("assetKinds", "kind", "asset"),
                                                   ("assetRights", "rights", "asset"), ("assetReadiness", "readiness", "asset"))}
         return {**options, "orbitTypes": ORBIT_LABELS, "counts": self.index_manifest["counts"],
+                "reviewLabels": REVIEW_LABELS, "scienceReviewLoaded": bool(self.science),
                 "schema": VERSION, "snapshot": self.source_manifest["catalogSha256"][:12],
                 "latestAcquisition": max(row["retrievedAt"] for row in self.source_manifest["inputs"])}
 
@@ -237,13 +277,17 @@ class Workbench:
             else:
                 clause("o.type=?", orbit)
         if validity := params.get("validity"):
-            if validity == "unchecked":
-                clause("o.rid IS NOT NULL")
-            elif validity == "missing":
-                clause("o.rid IS NULL")
-            elif validity == "validated":
-                # Step 5 owns the first validated positions and time windows.
-                clause("0")
+            review_type = "historical-samples" if validity == "validated" else validity
+            if review_type in {"unchecked", "missing"}:
+                clause("o.rid IS NOT NULL" if review_type == "unchecked" else "o.rid IS NULL")
+                if self.science:
+                    clause("i.id NOT IN (" + ",".join("?" for _ in self.science) + ")", *self.science)
+            elif review_type in REVIEW_LABELS:
+                keys = [key for key,value in self.science.items() if value["status"]==review_type]
+                if keys:
+                    clause("i.id IN (" + ",".join("?" for _ in keys) + ")", *keys)
+                else:
+                    clause("0")
             else:
                 raise ValueError("Unknown orbit validity filter.")
         if since := params.get("since"):
@@ -268,7 +312,10 @@ class Workbench:
                   LEFT JOIN asset_targets a ON a.rid=i.rid"""
         if where:
             sql += " WHERE " + " AND ".join(where)
-        return sql_page(db, sql + " ORDER BY " + order, args, params, cursor_key)
+        page = sql_page(db, sql + " ORDER BY " + order, args, params, cursor_key)
+        for match in page["items"]:
+            match["validity"] = self.validity(match["id"], match["orbit"])
+        return page
 
     def assets(self, params):
         where, args = [], []
@@ -304,6 +351,7 @@ class Workbench:
             if row := db.execute("SELECT * FROM asset WHERE id=?", (key,)).fetchone():
                 row = dict(row)
                 row["details"] = json.loads(row["details"])
+                row["scientificReview"] = self.science_assets.get(key)
                 return row
         return None
 
@@ -316,6 +364,8 @@ class Workbench:
             if row is None:
                 return None
             result = dict(row)
+            result["validity"] = self.validity(key,result["orbit"])
+            result["scientificReview"] = self.science.get(key)
             rid = result.pop("rid")
             result["aliases"] = [dict(r) for r in db.execute("""
                 SELECT namespace,value FROM alias_links WHERE rid=? ORDER BY namespace,value
@@ -428,8 +478,9 @@ def main():
     parser.add_argument("bundle", type=Path)
     parser.add_argument("index", type=Path)
     parser.add_argument("--port", type=int, default=8768)
+    parser.add_argument("--validation", type=Path, help="Attach the matching Step 5 scientific review receipt")
     args = parser.parse_args()
-    workbench = Workbench(args.bundle, args.index)
+    workbench = Workbench(args.bundle, args.index, args.validation)
     with ThreadingHTTPServer(("127.0.0.1", args.port), handler(workbench)) as server:
         print(f"Galaxy Map catalog workbench ready at http://127.0.0.1:{server.server_port}/", flush=True)
         try:

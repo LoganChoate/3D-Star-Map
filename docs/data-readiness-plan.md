@@ -1,6 +1,6 @@
 # Data readiness and searchable catalogs
 
-Updated November 27, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1–4 are verified. Three checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
+Updated November 27, 2026 (America/Denver). **Prerequisite before Phase 7. Steps 1–5 are verified. Two checks are pending.** See the [Step 1 source register and results](data-readiness-step1.md).
 
 The user selected a verified source inventory plus a working searchable catalog foundation; large asset metadata will be indexed during this milestone, with masters downloaded when their body is scheduled; free public sources come first and account-required sources are flagged for review.
 
@@ -58,7 +58,7 @@ Required evidence:
 
 ### 5. Position, time and asset metadata validation
 
-**Status: pending.** Validate the scientific data contract independently of the renderer. Keep source observation/update time, solution epoch, selected display time, center, coordinate frame, time scale, units, method and validity interval separate. Compare representative cases and boundaries for every orbit family with authoritative reference outputs. Audit asset metadata so radar, enhanced color, elevation and natural-color imagery cannot be confused.
+**Step 5 verified and ready for review.** See the [scientific results](data-readiness-step5.md). Validate the scientific data contract independently of the renderer. Keep source observation/update time, solution epoch, selected display time, center, coordinate frame, time scale, units, method and validity interval separate. Compare representative cases and boundaries for every orbit family with authoritative reference outputs. Audit asset metadata so radar, enhanced color, elevation and natural-color imagery cannot be confused.
 
 Required evidence:
 
