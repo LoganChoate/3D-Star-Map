@@ -75,6 +75,9 @@ function renderTable(rows, view) {
       const orbit = row.insertCell();
       orbit.append(element("span", state.options.orbitTypes[record.orbit]));
       if (record.evidence_date) orbit.append(element("span", record.evidence_date + " · " + words(record.date_basis), "detail-value"));
+      if (state.options.scienceReviewLoaded && !["unchecked", "missing"].includes(record.validity)) {
+        orbit.append(element("span", state.options.reviewLabels[record.validity], "detail-value"));
+      }
       row.insertCell().append(element("span", record.physical ? "Source linked" : "Unknown", record.physical ? "known" : ""));
       row.insertCell().append(element("span", record.asset ? "Source linked" : "Unknown", record.asset ? "known" : ""));
     } else {
@@ -203,15 +206,41 @@ function renderDossier(view, record) {
     ]));
     const links = [external(record.url, "Open archive metadata"), external(record.file_url, "Open source file")].filter(Boolean);
     section(mount, "Source links", links.length ? [list(links)] : []);
+    if (record.scientificReview) {
+      const review = record.scientificReview;
+      const meta = review.metadata;
+      const reviewed = [element("p", review.verification), facts([
+        ["Interpretation", words(review.classification)], ["Instrument", meta.instrument],
+        ["Projection", meta.projection], ["Registration", meta.registration], ["Units", meta.units],
+        ["Observed footprint", meta.footprint], ["Product ID", meta.productId], ["Version", meta.version],
+      ])];
+      if (review.unresolvedVerticalUnits) reviewed.push(element("p", review.unresolvedVerticalUnits));
+      reviewed.push(rawDetails("Full scientific metadata", review));
+      section(mount, "Scientific metadata review", reviewed);
+    }
     section(mount, "Provenance", [rawDetails("Source metadata", record.details)]);
     return;
   }
   mount.append(facts([
     ["Stable ID", record.id], ["Orbital evidence", state.options.orbitTypes[record.orbit]],
     ["Source date", record.evidence_date ? record.evidence_date + " · " + words(record.date_basis) : null],
-    ["Position validity", record.orbit === "unknown" ? "Unknown" : "Awaiting validation"],
+    ["Position validity", state.options.reviewLabels[record.validity]],
     ["Physical data", record.physical], ["Populations", record.populations.map(words).join(", ") || null],
   ]));
+  if (record.scientificReview) {
+    const review = record.scientificReview;
+    const reviewed = [facts([
+      ["Method", review.method], ["Reference center", review.centerId], ["Reference frame", review.frame],
+      ["Time scale", review.timeScale],
+      ["Checked epochs (JD)", review.exactEpochsJd?.join(", ")],
+      ["GP solution epoch (UTC)", review.solutionEpochUtc],
+      ["Element epoch (JD TDB)", review.solutionEpochJdTdb],
+    ])];
+    const source = external(review.source, "Open reference source");
+    if (source) reviewed.push(source);
+    if (review.priorComparison) reviewed.push(element("p", review.priorComparison));
+    section(mount, "Trajectory review", reviewed);
+  }
   section(mount, "Parents and related bodies", record.parents.length
     ? [list(record.parents.map((r) => r.name + " · " + words(r.relationship) + " · " + r.status))] : []);
   section(mount, "Aliases and designations", record.aliases.length

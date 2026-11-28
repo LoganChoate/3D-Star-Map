@@ -1,6 +1,6 @@
 {
   "clientDate": "2026-11-25",
-  "status": "data-readiness-step-4-verified-review-pending",
+  "status": "data-readiness-step-5-verified-review-pending",
   "phase6Approval": "User approved work to date after installed 1.5.0 technical acceptance. This is general approval, not invented separate listening evidence.",
   "decisions": {
     "remainingPlanets": "All seven beyond Earth, rings, every cataloged major/minor moon and known surrounding natural objects.",
@@ -720,7 +720,7 @@
     "navLabel": "DATA",
     "displayLabel": "BEFORE PHASE 7",
     "title": "Data readiness and searchable catalogs",
-    "subtitle": "Steps 1–4 verified · ready for review",
+    "subtitle": "Steps 1–5 verified · ready for review",
     "status": "active",
     "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
     "checks": [
@@ -799,12 +799,20 @@
       {
         "id": "data-5",
         "label": "Position, time and asset metadata validation",
-        "detail": "Validate the scientific data contract independently of the renderer. Keep source observation/update time, solution epoch, selected display time, center, coordinate frame, time scale, units, method and validity interval separate. Compare representative cases and boundaries for every orbit family with authoritative reference outputs. Audit asset metadata so radar, enhanced color, elevation and natural-color imagery cannot be confused.",
-        "status": "pending",
+        "detail": "98 scientific checks passed. One older Uranus comparison was withheld. The offline workbench exposes 15 objects with checked historical samples and keeps forecasts and estimates separately labeled.",
+        "status": "passed",
         "evidence": [
           {
-            "label": "Planned deliverables and acceptance",
-            "url": "evidence/data-readiness.html"
+            "label": "Scientific comparisons and asset audit",
+            "url": "evidence/data-readiness-step5.html"
+          },
+          {
+            "label": "Scientific receipt and replay hashes",
+            "url": "evidence/data-readiness-step5-results.json"
+          },
+          {
+            "label": "Frozen numerical tolerances",
+            "url": "evidence/science-validation-policy.json"
           }
         ]
       },
@@ -834,13 +842,13 @@
       }
     ],
     "blockers": [
-      "Review the workbench before Step 5. Position accuracy and validity windows are awaiting scientific verification.",
-      "Unknown physical data, asset coverage and unresolved companion rows remain visible in the catalog.",
-      "Space-Track requires an account. Large map masters and product-level rights review are scheduled by body."
+      "Review the scientific evidence before Step 6. Checked positions are bounded to the listed epochs.",
+      "The older Uranus cross-source comparison and unknown asset fields remain visible in the evidence.",
+      "Large source masters and product-level rights review are scheduled by body."
     ],
     "nextActions": [
-      "Review search, filters and dossiers on the workstation.",
-      "After review, validate position, time and asset metadata in Step 5."
+      "Review the numerical and asset metadata evidence.",
+      "After review, test staged refreshes, rollback and offline recovery in Step 6."
     ]
   }
 }

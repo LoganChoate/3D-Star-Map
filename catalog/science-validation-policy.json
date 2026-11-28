@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "frames": {
+    "reference": "ICRF/J2000 aligned axes",
+    "horizonsEclipticObliquityArcsec": 84381.448,
+    "sgp4": "TEME",
+    "spice": "J2000"
+  },
+  "scales": {
+    "geometric": "TDB",
+    "sgp4": "UTC",
+    "distance": "km",
+    "velocity": "km/s"
+  },
+  "tolerances": {
+    "frameRotation": {
+      "positionKm": 0.05,
+      "velocityKmPerS": 1e-7
+    },
+    "parentClosure": {
+      "positionKm": 0.05,
+      "velocityKmPerS": 1e-7
+    },
+    "timeConversion": {
+      "seconds": 0.000005,
+      "positionKm": 0.05,
+      "velocityKmPerS": 1e-7
+    },
+    "conicArithmetic": {
+      "positionKm": 0.1,
+      "velocityKmPerS": 0.000001
+    },
+    "smallBodyEstimate": {
+      "positionKm": 250,
+      "velocityKmPerS": 0.015
+    },
+    "sgp4Arithmetic": {
+      "positionKm": 0.002,
+      "velocityKmPerS": 0.000002
+    },
+    "spacecraftCrossCheck": {
+      "positionKm": 5,
+      "velocityKmPerS": 0.01
+    },
+    "companionKernelCrossCheck": {
+      "positionKm": 0.05,
+      "velocityKmPerS": 0.0001
+    }
+  },
+  "limits": {
+    "jplConicHoursFromElements": 24,
+    "sgp4HoursFromElements": 24,
+    "horizonsInterpolation": false,
+    "spiceExtrapolation": false,
+    "nineDigitNoradAsMetadata": true
+  },
+  "authority": {
+    "horizons": "https://ssd-api.jpl.nasa.gov/doc/horizons.html",
+    "frames": "https://ssd.jpl.nasa.gov/horizons/manual.html",
+    "sbdb": "https://ssd-api.jpl.nasa.gov/doc/sbdb_query.html",
+    "companions": "https://ssd-api.jpl.nasa.gov/doc/sb_sat.html",
+    "sgp4": "https://celestrak.org/software/tutorials/sgp4-verification.php",
+    "spice": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/IDL/req/spk.html"
+  }
+}

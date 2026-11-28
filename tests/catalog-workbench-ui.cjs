@@ -102,6 +102,18 @@ async function run() {
         await call("Emulation.setDeviceMetricsOverride", {width: 395, height: 760, mobile: false, deviceScaleFactor: 1});
         await check("The narrow layout fits the viewport",
             "window.innerWidth===395 && document.documentElement.scrollWidth<=window.innerWidth");
+        const hasScience = await call("Runtime.evaluate", {
+            expression: 'fetch("/api/options").then(r=>r.json()).then(r=>r.scienceReviewLoaded)',
+            awaitPromise:true, returnByValue:true,
+        });
+        if (hasScience.result.value) {
+            await js('document.getElementById("close-dossier").click(); document.querySelector("[data-view=objects]").click();');
+            await search("solar:uranus");
+            await until(() => js('document.querySelector(".result-name")?.textContent==="Uranus"'));
+            await js('document.querySelector(".result-name").click()');
+            await check("Uranus dossier separates checked historical samples from the prior source disagreement",
+                'document.getElementById("dossier-content").textContent.includes("different Sun-center solution") && document.getElementById("dossier-content").textContent.includes("Checked historical samples")');
+        }
         const external = requests.filter(value => /^(https?|wss?):/i.test(value) && new URL(value).origin !== origin);
         assert.deepEqual(external, []);
         const report = {status:"passed", cases, externalRequests:external.length,
