@@ -1,6 +1,6 @@
 {
   "clientDate": "2026-11-25",
-  "status": "verified-review-pending",
+  "status": "data-readiness-step-4-verified-review-pending",
   "phase6Approval": "User approved work to date after installed 1.5.0 technical acceptance. This is general approval, not invented separate listening evidence.",
   "decisions": {
     "remainingPlanets": "All seven beyond Earth, rings, every cataloged major/minor moon and known surrounding natural objects.",
@@ -720,7 +720,7 @@
     "navLabel": "DATA",
     "displayLabel": "BEFORE PHASE 7",
     "title": "Data readiness and searchable catalogs",
-    "subtitle": "Steps 1–3 verified · ready for review",
+    "subtitle": "Steps 1–4 verified · ready for review",
     "status": "active",
     "summary": "Pinpoint, verify and organize the public data needed across Phases 7–13. Deliver full selected catalog imports, a working searchable review workbench, scientific validation and a modeling-readiness ledger. Index large asset sources now; download them when each body is scheduled. Phase numbers stay unchanged and mobile remains Phase 14.",
     "checks": [
@@ -783,12 +783,16 @@
       {
         "id": "data-4",
         "label": "Indexed catalog and searchable review workbench",
-        "detail": "Deliver a working local, read-only catalog browser before new 3D content. Search the complete accepted import by name, stable ID, designation and alias; filter by population, parent, orbit validity/freshness, physical information and asset availability. Use paged results and on-demand dossiers that expose sources and unknowns. Select the storage technology through a bounded comparison, keeping future mobile exports portable.",
-        "status": "pending",
+        "detail": "The offline workbench searches 1,581,929 identities with 3,128,810 source aliases and 551 source and runtime asset entries. SQLite B-tree won the local lookup benchmark. 15 HTTP checks passed. 7 browser checks passed.",
+        "status": "passed",
         "evidence": [
           {
-            "label": "Planned deliverables and acceptance",
-            "url": "evidence/data-readiness.html"
+            "label": "Workstation workbench and benchmark",
+            "url": "evidence/data-readiness-step4.html"
+          },
+          {
+            "label": "Timing and acceptance receipts",
+            "url": "evidence/data-readiness-step4-results.json"
           }
         ]
       },
@@ -830,13 +834,13 @@
       }
     ],
     "blockers": [
-      "Review Step 3 before opening Step 4. The selected imports reconciled.",
-      "Some companion identities and trajectories remain unknown. See the coverage evidence.",
+      "Review the workbench before Step 5. Position accuracy and validity windows are awaiting scientific verification.",
+      "Unknown physical data, asset coverage and unresolved companion rows remain visible in the catalog.",
       "Space-Track requires an account. Large map masters and product-level rights review are scheduled by body."
     ],
     "nextActions": [
-      "Review the selected imports, unresolved rows and replay proof.",
-      "After review, benchmark indexed search in Step 4."
+      "Review search, filters and dossiers on the workstation.",
+      "After review, validate position, time and asset metadata in Step 5."
     ]
   }
 }

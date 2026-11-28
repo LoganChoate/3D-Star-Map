@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "collections": [
+    {
+      "id": "MESS-H-MDIS-5-RDR-BDR-V1.0",
+      "target": "Mercury",
+      "title": "MESSENGER MDIS basemap",
+      "type": "surface-map",
+      "probe": "mercury-basemap",
+      "objectId": "solar:mercury"
+    },
+    {
+      "id": "MESS-H-MDIS-5-DEM-ELEVATION-V1.0",
+      "target": "Mercury",
+      "title": "MESSENGER MDIS elevation",
+      "type": "terrain",
+      "probe": "mercury-elevation",
+      "objectId": "solar:mercury"
+    },
+    {
+      "id": "source:magellan-gxdr",
+      "target": "Venus",
+      "title": "Magellan radar mapping and topography",
+      "type": "radar",
+      "probe": "venus-magellan",
+      "objectId": "solar:venus"
+    },
+    {
+      "id": "source:akatsuki-uvi",
+      "target": "Venus",
+      "title": "Akatsuki UVI Level 3 products",
+      "type": "ultraviolet",
+      "probe": "venus-jaxa",
+      "objectId": "solar:venus"
+    },
+    {
+      "id": "source:mars-mola-megdr",
+      "target": "Mars",
+      "title": "MOLA MEGDR terrain",
+      "type": "terrain",
+      "probe": "mars-mola",
+      "objectId": "solar:mars"
+    },
+    {
+      "id": "usgs:viking-mdim2.1",
+      "target": "Mars",
+      "title": "Viking MDIM 2.1 grayscale mosaic",
+      "type": "surface-map",
+      "probe": "mars-viking",
+      "objectId": "solar:mars",
+      "coverage": "Global mosaic",
+      "resolution": 232
+    },
+    {
+      "id": "source:junocam",
+      "target": "Jupiter",
+      "title": "JunoCam imagery collection",
+      "type": "mission-imagery",
+      "probe": "jupiter-mission",
+      "objectId": "solar:jupiter"
+    },
+    {
+      "id": "source:cassini",
+      "target": "Saturn system",
+      "title": "Cassini ISS, VIMS and ring observations",
+      "type": "mission-imagery",
+      "probe": "saturn-cassini",
+      "objectId": "solar:saturn"
+    },
+    {
+      "id": "source:voyager-iss-uranus",
+      "target": "Uranus system",
+      "title": "Voyager ISS Uranus encounter volumes",
+      "type": "mission-imagery",
+      "probe": "voyager-giants",
+      "objectId": "solar:uranus"
+    },
+    {
+      "id": "source:voyager-iss-neptune",
+      "target": "Neptune system",
+      "title": "Voyager ISS Neptune encounter volumes",
+      "type": "mission-imagery",
+      "probe": "voyager-giants",
+      "objectId": "solar:neptune"
+    },
+    {
+      "id": "urn:nasa:pds:dart_shapemodel:data_derived_dimorphos_model_v003",
+      "target": "Dimorphos",
+      "title": "DART derived shape model v003",
+      "type": "shape",
+      "probe": "dart-shape"
+    },
+    {
+      "id": "source:orex",
+      "target": "Bennu",
+      "title": "OSIRIS-REx imagery, shape and spectral archive",
+      "type": "archive-collection",
+      "probe": "bennu-shape-index",
+      "alias": [
+        "jpl-sbdb-a-designation",
+        "101955"
+      ]
+    },
+    {
+      "id": "source:dawn-fc-ceres",
+      "target": "Ceres",
+      "title": "Dawn FC archive for Ceres",
+      "type": "archive-collection",
+      "probe": "dawn-psi-index",
+      "alias": [
+        "jpl-sbdb-a-designation",
+        "1"
+      ]
+    },
+    {
+      "id": "source:dawn-fc-vesta",
+      "target": "Vesta",
+      "title": "Dawn FC archive for Vesta",
+      "type": "archive-collection",
+      "probe": "dawn-psi-index",
+      "alias": [
+        "jpl-sbdb-a-designation",
+        "4"
+      ]
+    },
+    {
+      "id": "source:iss-facts",
+      "target": "International Space Station",
+      "title": "NASA ISS mission facts",
+      "type": "mission-reference",
+      "probe": "station-facts",
+      "objectId": "norad:25544"
+    }
+  ]
+}
